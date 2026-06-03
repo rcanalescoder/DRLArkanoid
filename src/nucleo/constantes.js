@@ -32,6 +32,13 @@ export const NOMBRES_ESTADO = [
 export const FILAS_LADRILLOS = 4;
 export const COLUMNAS_LADRILLOS = 7;
 
+// Pasos por episodio POR LADRILLO. REGLA (no negociable): el límite de pasos DEBE
+// escalar con el tamaño de la rejilla. Medido: un viaje pala→ladrillo→pala ≈ 63 pasos
+// y se rompe ~1 ladrillo/viaje, así que limpiar N ladrillos necesita ~63·N pasos; con
+// margen para sobrevivir y apuntar usamos ~90/ladrillo. Si cambias FILAS/COLUMNAS, el
+// timeout se recalcula solo (NO dejarlo fijo: 600 hacía el nivel físicamente inganable).
+export const PASOS_POR_LADRILLO = 90;
+
 // --- Configuración física del entorno --------------------------------------
 // El entorno usa coordenadas normalizadas: x ∈ [0,1], y ∈ [0,1] (0 = arriba).
 // La física es de paso fijo (dt implícito = 1 paso). La "velocidad" de la UI
@@ -50,8 +57,9 @@ export const CONFIGURACION_ENTORNO = Object.freeze({
   TOPE_LADRILLOS: 0.09,
   ALTO_LADRILLO: 0.045,
   ESPACIO_LADRILLOS: 0.012,
-  // Límite de pasos por episodio (evita episodios infinitos)
-  MAX_PASOS_EPISODIO: 600,
+  // Límite de pasos por episodio = PASOS_POR_LADRILLO · nº de ladrillos.
+  // 4×7 (28) → ~2520 (≈2500, resolución óptima); escala solo con la rejilla.
+  MAX_PASOS_EPISODIO: PASOS_POR_LADRILLO * FILAS_LADRILLOS * COLUMNAS_LADRILLOS,
 });
 
 // --- Recompensas (tunables) -------------------------------------------------

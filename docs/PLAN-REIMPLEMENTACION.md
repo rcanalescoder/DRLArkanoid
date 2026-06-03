@@ -16,6 +16,17 @@ rebote accidental ni a solo sobrevivir).
   vistos), respaldada por el **mapa de calor de roturas** (prueba que apunta).
 - La **recompensa media NO es criterio** de éxito ni de avance: es diagnóstico.
 
+## PRINCIPIOS DE TRABAJO (gobiernan la ejecución — por encima del plan)
+1. **El plan está al servicio del objetivo, no al revés.** Si los datos lo piden, se corrige el plan.
+2. **Al final de CADA fase, verificar si nos acercamos al objetivo.** Si no, **modificar la fase actual
+   ANTES de construir la siguiente**. No arrastrar fallos.
+3. **PROHIBIDO concluir "el algoritmo no resuelve el problema".** Si no se logra, iterar hasta lograrlo:
+   (a) **subir pasos/presupuesto**, (b) **grid search de parámetros**, (c) **meter variaciones**
+   (entorno, recompensa, red, currículum). La no-solución es fallo nuestro de configuración, no del método.
+4. **Antes de culpar al aprendizaje, comprobar la viabilidad física** (medir el óptimo posible con una
+   heurística perfecta). Ej.: con timeout=600 el nivel era inganable; el 0 % era del reloj, no del agente.
+5. **Si crece la rejilla, crece el presupuesto de pasos** (`PASOS_POR_LADRILLO·filas·columnas`, ≈90/ladrillo).
+
 ## DIAGNÓSTICO (por qué cambiamos lo que cambiamos — no deshacer por error)
 Dos raíces, no una:
 1. **El shaping `Φ = −|bola.x − pala.x|` es el saboteador inmediato del ~2/28.**
@@ -174,10 +185,33 @@ Nota: esto también explica la Puerta 0. Quitar `Φ` no subió los ladrillos por
 **muere pronto** (no es centrado vs no-centrado: es que no sobrevive), y porque **el reloj** lo capa.
 
 ### NUEVO ORDEN DE FASES
-- **Fase 0.5 — El reloj (NUEVA, antes de Fase 1):** subir `MAX_PASOS_EPISODIO` para que el nivel sea
-  **físicamente limpiable con margen** (28 → ~2.500). Re-medir Puerta 0 con el reloj arreglado: ¿sube
-  ahora `bricks_cleared`? (un superviviente debería romper más). Mantener el timeout escalado por nivel.
+- **Fase 0.5 — El reloj [HECHA]:** `MAX_PASOS_EPISODIO` ahora = `PASOS_POR_LADRILLO·filas·columnas`
+  (4×7 → 2520). Validado: nivel ganable (rastreador 37,6 %). Cuello siguiente = supervivencia del agente.
 - **Fase 1 — Observación (vista):** como estaba, pero ya con reloj suficiente, para que la Puerta 1
   ("limpia el nivel de forma fiable") sea físicamente alcanzable.
 
-*(Próximo: implementar Fase 0.5 —timeout— y re-medir, antes de la vista.)*
+### [Fase 0.5 — HECHA: reloj arreglado] · timeout 600 → 2520 (90·28), escala con la rejilla
+**Validación (rastreador perfecto, blind, Node):** con timeout=2520 el nivel pasa de **inganable** a
+**ganable**: el rastreador limpia el **37,6 %** de las veces (antes 0 %), **26,25/28 de media (máx 28)**,
+~2066 pasos por victoria. ⇒ **El reloj era el muro físico nº1, y queda resuelto.** El que falta para el
+100 % es apuntar (los últimos 1-2 ladrillos que el rebote casi-vertical no alcanza).
+
+**Pero el DQN entrenado NO mejora aún** (mismo reloj): sigue en **~2 ladrillos**, muere a **~84 pasos**.
+⇒ Su cuello ahora es **SOBREVIVIR** (no el reloj): un rastreador aguanta ~2000 pasos con la MISMA
+información (bola + pala) que tiene el DQN. Luego el DQN PUEDE aprender a sobrevivir; aún no lo ha hecho
+(80k pasos = solo ~950 episodios, muere pronto).
+
+### PROPUESTAS CONCRETAS (basadas en Fase 0/0.5) — camino al objetivo
+**Objetivo intermedio medible: igualar al rastreador → ~26 ladrillos / ~38 % de éxito en el 4×7 CIEGO.**
+Si una heurística lo logra, un DQN entrenado debe poder; iteramos hasta conseguirlo (nunca "no puede"):
+1. **Entrenar mucho más** (200k–500k pasos) y ver si `steps_alive` sube de 84 hacia 600+ y los ladrillos
+   hacia ~11–26. (Lo más barato: quizá solo falta presupuesto/episodios para aprender a devolver la bola.)
+2. **Grid search optimizando la MÉTRICA REAL** (`bricks_cleared`/`steps_alive`, NO la recompensa): barrer
+   ritmo de aprendizaje, decaimiento de ε, tamaño de red. Quedarse con la config que más sobrevive/limpia.
+3. **Si sigue atascado, variaciones**: currículum de física (empezar con bola más lenta / pala más ancha →
+   más fácil sobrevivir → endurecer), o una ayuda de supervivencia que NO sesgue el apuntado (Φ sí lo sesgaba).
+→ Cuando se iguale al rastreador (~26/38 %), pasar a **Fase 1 (vista)** para cerrar de 26 a 28 y subir el
+éxito hacia ~100 % apuntando a los ladrillos que quedan.
+
+*(Próximo a decidir con el usuario: ejecutar (1)+(2) —entrenar más + grid search por ladrillos— para
+alcanzar el techo del rastreador antes de meter la vista.)*
