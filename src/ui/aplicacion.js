@@ -20,6 +20,7 @@ import { CurvasEntrenamiento } from "./curvasEntrenamiento.js";
 import { PanelTransicion } from "./panelTransicion.js";
 import { ResumenConceptual } from "./resumenConceptual.js";
 import { ReplayConceptual } from "./replayConceptual.js";
+import { GridSearch } from "./gridSearch.js";
 
 export class Aplicacion {
   constructor() {
@@ -29,6 +30,9 @@ export class Aplicacion {
     this.envSeleccionado = 0;
     this.shaping = true;
     this._ultInspeccion = 0;
+    // Hiperparámetros sobreescritos sobre los de por defecto (los aplica el grid
+    // search al "usar la mejor combinación"). Se reinician al cambiar de algoritmo.
+    this.hpOverride = {};
     this._q();
   }
 
@@ -59,6 +63,7 @@ export class Aplicacion {
       sliderVisuales: $("sliderVisuales"),
       valVisuales: $("valVisuales"),
       toggleShaping: $("toggleShaping"),
+      btnGridSearch: $("btnGridSearch"),
     };
     this.ctx = this.dom.canvas.getContext("2d");
   }
@@ -112,6 +117,15 @@ export class Aplicacion {
     this.rejilla.sincronizar(this.gestor.visuales);
     this.trazas.arrancarImpresionPeriodica();
 
+    // Pop-up de búsqueda de hiperparámetros (grid search en vivo).
+    this.gridSearch = new GridSearch({
+      obtenerAlgoritmo: () => this.idAlgoritmo,
+      pausar: () => this._pausar(),
+      reanudar: () => this._reanudar(),
+      estaCorriendo: () => this.corriendo,
+      aplicar: (override, reanudar) => this.aplicarHiperparametros(override, reanudar),
+    });
+
     fijarLineaBase();
     this._arrancarBucle();
   }
@@ -120,7 +134,7 @@ export class Aplicacion {
 
   _construirAgente() {
     const def = obtenerAlgoritmo(this.idAlgoritmo);
-    this.agente = crearAgente(this.idAlgoritmo);
+    this.agente = crearAgente(this.idAlgoritmo, this.hpOverride);
     this.orquestador = new Orquestador({
       gestor: this.gestor,
       agente: this.agente,
@@ -148,9 +162,28 @@ export class Aplicacion {
     this.trazas.limpiar();
     this.gestor.reiniciarTodos();
     this.idAlgoritmo = id;
+    this.hpOverride = {}; // los overrides son específicos del algoritmo
     this._construirAgente();
     this._marcarChipActivo();
     fijarLineaBase();
+  }
+
+  /**
+   * Aplica hiperparámetros sobreescritos (los del grid search ganador) al agente
+   * principal: los mezcla con los actuales y recrea el agente desde cero,
+   * conservando el estado de ejecución (si entrenaba, sigue entrenando).
+   */
+  aplicarHiperparametros(override = {}, reanudar = this.corriendo) {
+    this.hpOverride = { ...this.hpOverride, ...override };
+    this._pausar();
+    this.agente?.destruir();
+    this.metricas.reiniciar();
+    this.panelMetricas.reiniciar();
+    this.trazas.limpiar();
+    this.gestor.reiniciarTodos();
+    this._construirAgente();
+    fijarLineaBase();
+    if (reanudar) this._reanudar();
   }
 
   reiniciar() {
@@ -203,6 +236,7 @@ export class Aplicacion {
     this.dom.btnEntrenar.addEventListener("click", () => this._alternar());
     this.dom.btnPaso.addEventListener("click", () => this._pasoUnico());
     this.dom.btnReiniciar.addEventListener("click", () => this.reiniciar());
+    this.dom.btnGridSearch?.addEventListener("click", () => this.gridSearch?.abrir());
 
     this.dom.sliderVelocidad.addEventListener("input", (e) => {
       this.velocidad = +e.target.value;

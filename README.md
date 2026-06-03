@@ -38,6 +38,7 @@ Un cuaderno divulgativo de **61 páginas** en castellano que explica, paso a pas
 - **Entrenamiento acelerado por GPU** con TensorFlow.js: detección automática **WebGPU → WebGL → CPU**. ~24.000 experiencias/s en WebGPU.
 - **Arquitectura desacoplada**: cientos de entornos *headless* generan los datos; unos pocos *visuales* se dibujan ejecutando la misma política.
 - **UI adaptativa**: las métricas, las curvas y el **inspector** cambian según el algoritmo seleccionado.
+- **Búsqueda de hiperparámetros en vivo** (*grid search*): un pop-up prueba varias combinaciones entrenando un agente aislado por cada una, las ordena por recompensa en tiempo real y permite **aplicar la ganadora** al laboratorio con un clic.
 - **Sistema de trazas** estructuradas para monitorización (recompensa, pérdida, exploración, throughput, tensores activos).
 - **Sin fugas de memoria**: recuento de tensores constante durante todo el entrenamiento (verificado).
 - **Tooltips pedagógicos** extensos en castellano por toda la interfaz.

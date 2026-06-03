@@ -15,13 +15,16 @@ const ahoraPorDefecto =
     : () => Date.now();
 
 export class Orquestador {
-  constructor({ gestor, agente, metricas, trazas, idAlgoritmo, ahora = ahoraPorDefecto }) {
+  constructor({ gestor, agente, metricas, trazas, idAlgoritmo, ahora = ahoraPorDefecto, silencioso = false }) {
     this.gestor = gestor;
     this.agente = agente;
     this.metricas = metricas;
     this.trazas = trazas;
     this.idAlgoritmo = idAlgoritmo;
     this.ahora = ahora;
+    // Modo silencioso: no emite al bus global. Lo usa el grid search para
+    // entrenar agentes aislados sin secuestrar los paneles/curvas de la UI.
+    this.silencioso = silencioso;
     this.corriendo = false;
     this.pasoGlobal = 0; // experiencias acumuladas
     this._ultimoRegistro = 0;
@@ -31,12 +34,12 @@ export class Orquestador {
 
   arrancar() {
     this.corriendo = true;
-    bus.emitir(EVENTOS.ENTRENAMIENTO_INICIADO, { algoritmo: this.idAlgoritmo });
+    if (!this.silencioso) bus.emitir(EVENTOS.ENTRENAMIENTO_INICIADO, { algoritmo: this.idAlgoritmo });
   }
 
   pausar() {
     this.corriendo = false;
-    bus.emitir(EVENTOS.ENTRENAMIENTO_PAUSADO, { algoritmo: this.idAlgoritmo });
+    if (!this.silencioso) bus.emitir(EVENTOS.ENTRENAMIENTO_PAUSADO, { algoritmo: this.idAlgoritmo });
   }
 
   /**
@@ -74,7 +77,7 @@ export class Orquestador {
       this._registrarTraza(metrica);
     }
 
-    bus.emitir(EVENTOS.LOTE_COMPLETADO, { paso: this.pasoGlobal, metrica });
+    if (!this.silencioso) bus.emitir(EVENTOS.LOTE_COMPLETADO, { paso: this.pasoGlobal, metrica });
     return metrica;
   }
 
@@ -130,7 +133,7 @@ export class Orquestador {
       },
     });
 
-    bus.emitir(EVENTOS.METRICAS_ACTUALIZADAS, { traza, punto, historial: this.metricas.historial });
+    if (!this.silencioso) bus.emitir(EVENTOS.METRICAS_ACTUALIZADAS, { traza, punto, historial: this.metricas.historial });
     return traza;
   }
 
