@@ -360,9 +360,11 @@
     <!-- 3) Las recompensas -->
     <h3 class="sub">Las recompensas de este Arkanoid</h3>
     <p>Una recompensa de solo <span class="mono">+1 / −1</span> sería <b>pobre</b>: el agente recibiría señal en muy pocos
-      momentos. Aquí usamos varios eventos de distinta magnitud para dar pistas más ricas y frecuentes:</p>
+      momentos. Aquí usamos varios eventos de distinta magnitud para dar pistas más ricas y frecuentes. Esta es la
+      <b>lista completa</b> de recompensas del entorno (todas se suman en cada paso para formar la recompensa del paso):</p>
     <table class="params">
       <tr><th>Evento</th><th>Recompensa</th><th>Para qué</th></tr>
+      <tr><td class="k">Cada paso (vivir)</td><td>0.0</td><td>No penalizamos sobrevivir: el agente no tiene prisa por terminar. (Podría ponerse un pequeño coste negativo para incentivar la rapidez.)</td></tr>
       <tr><td class="k">Romper un ladrillo</td><td>+1.0</td><td>El objetivo del juego. Premio claro y repetible.</td></tr>
       <tr><td class="k">Devolver la pelota (rebote)</td><td>+0.2</td><td>Premio intermedio: enseña a no perder la pelota antes de saber romper ladrillos.</td></tr>
       <tr><td class="k">Perder la pelota</td><td>−1.0</td><td>Castigo terminal: termina el episodio. Le enseña a colocar la pala.</td></tr>
