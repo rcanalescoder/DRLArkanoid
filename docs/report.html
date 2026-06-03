@@ -154,7 +154,7 @@
   .porque{ font-size:11pt; color:var(--slate); background:var(--accent-soft,#eff4fe); border-radius:10px; padding:11px 15px; margin:0 0 12px; }
   .porque b{ color:var(--accent,#2563eb); }
   /* captura de app a pantalla completa partida en dos (efecto continuo) */
-  .appshot{ border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:0 12px 30px -16px rgba(17,24,39,.45); margin:12px 0 4px; }
+  .appshot{ max-width:74mm; margin:10px auto 4px; border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:0 12px 30px -16px rgba(17,24,39,.45); }
   .appshot img{ display:block; width:100%; }
   /* tabla comparativa de algoritmos en cajitas */
   .algocajas{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0; }
@@ -1102,6 +1102,10 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       PPO es la opción "sin sustos".</p>
 
     <h3 class="sub">Conclusiones</h3>
+    <p>¿Qué nos llevamos, en lenguaje de andar por casa? Que PPO fue, tras afinarlo, <b>el que más aprendió y el que antes
+      empezó a jugar bien</b>. Y una lección que vale más que cualquier número: el mayor salto no vino de cambiar de
+      algoritmo, sino de <b>dejar que la política se atreviera a decidir</b> en vez de quedarse indecisa (eso fue bajar la
+      "entropía"). Si tuvieras que elegir uno para empezar a resolver un problema nuevo sin sustos, PPO es la apuesta segura.</p>
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">PPO es <b>on-policy</b> y <b>actor-crítico</b>: mejora la política a pasitos
       <span class="term">recortados</span>, usa la <span class="term">ventaja</span> (GAE) para saber qué acciones
       reforzar y premia la <span class="term">entropía</span> para no dejar de explorar. Estable y de uso general.</div></div>
@@ -1229,6 +1233,10 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       menos partidas a cambio de más cálculo por paso. Donde PPO es sencillo y estable, SAC es eficiente y curioso.</p>
 
     <h3 class="sub">Conclusiones</h3>
+    <p>La idea que conviene quedarse de SAC es que <b>explorar bien no tiene por qué ser explorar al azar</b>. En vez de
+      tirar un dado (como DQN), SAC deja que el propio agente regule su "curiosidad" sobre la marcha, y eso le dio el
+      aprendizaje <b>más estable y suave</b> de los cinco. Es el que elegirías cuando cada partida cuesta cara y quieres
+      aprovechar cada dato sin que el entrenamiento dé bandazos.</p>
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">SAC es <b>off-policy</b> y de <span class="term">máxima entropía</span>: usa
       <span class="term">dos críticos</span> para no sobreestimar y una <span class="term">temperatura α automática</span>
       para mantener la exploración justa. Muy eficiente en datos y robusto.</div></div>
@@ -1359,6 +1367,11 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       bueno. Aquí lo es (RMSE bajo), pero el techo de recompensa recuerda que <b>imaginar nunca es del todo gratis</b>.</p>
 
     <h3 class="sub">Conclusiones</h3>
+    <p>El World Model encierra una idea preciosa: si el agente aprende a <b>imaginar</b> el juego, puede practicar "en su
+      cabeza" y exprimir cada partida real muchas veces. Cuando esa imaginación es fiel —como aquí—, aprende con
+      <b>poquísimos datos</b>. El pero, también fácil de entender: si su mundo imaginado se equivoca, practica sobre algo
+      falso; por eso su techo lo marca lo bien que sepa predecir la realidad. Es la opción cuando conseguir datos reales
+      es lento o caro.</p>
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">El World Model es <b>model-based</b>: aprende un
       <span class="term">modelo de dinámica</span> y lo usa para <span class="term">imaginar</span> experiencia (Dyna-Q),
       ganando eficiencia de muestra. El precio a vigilar es el <span class="term">model bias</span>.</div></div>
@@ -1516,6 +1529,11 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       para nosotros: la <b>memoria recurrente</b> como modelo de dinámica.</div>
 
     <h3 class="sub">Conclusiones</h3>
+    <p>La mayor enseñanza de esta variante no es un número, sino una forma de trabajar. Le dimos <b>memoria</b> (un LSTM)
+      esperando que aquí aportara poco —nuestro juego casi no la necesita— y, sin embargo, <b>igualó o superó</b> al modelo
+      base; y de paso nos descubrió algo que no habríamos adivinado: que necesita <b>explorar más</b> para alimentar esa
+      memoria con jugadas variadas. Es el recordatorio de que en estos sistemas conviene <b>medir antes que suponer</b>: los
+      datos nos corrigieron la intuición.</p>
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">El World Model RNN sustituye el modelo de un paso
       por un <span class="term">LSTM</span> que aprende <span class="term">secuencias</span> y arrastra
       <span class="term">memoria</span>, imaginando trayectorias más coherentes. Con el mismo presupuesto igualó o superó al
