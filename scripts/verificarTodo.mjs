@@ -1,5 +1,5 @@
 // ============================================================================
-//  Verificación rápida de los 4 algoritmos (backend CPU en Node)
+//  Verificación rápida de los 5 algoritmos (backend CPU en Node)
 //  Lanza scripts/entrenar.mjs para cada algoritmo con un presupuesto corto y
 //  recoge el veredicto de convergencia. Uso: npm run verificar
 // ============================================================================

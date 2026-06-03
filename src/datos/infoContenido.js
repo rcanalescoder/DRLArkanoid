@@ -247,7 +247,7 @@ export const INFO = {
   lab: { emoji:"🧠", titulo:"Arkanoid DRL Learning Lab", categoria:"Interfaz",
     resumen:"Un laboratorio para ver y entender cómo aprende un agente, en tiempo real.",
     secciones:[
-      {h:"Qué es",cuerpo:"Un entorno en el que cuatro algoritmos de aprendizaje por refuerzo profundo aprenden a jugar al Arkanoid <b>de verdad</b>, con redes neuronales reales ejecutándose en la GPU del navegador. A ninguno se le explican las reglas del juego: las descubren jugando miles de partidas y ajustando sus redes con lo que observan."},
+      {h:"Qué es",cuerpo:"Un entorno en el que cinco algoritmos de aprendizaje por refuerzo profundo aprenden a jugar al Arkanoid <b>de verdad</b>, con redes neuronales reales ejecutándose en la GPU del navegador. A ninguno se le explican las reglas del juego: las descubren jugando miles de partidas y ajustando sus redes con lo que observan."},
       {h:"El bucle de aprendizaje",cuerpo:"Todo gira en torno al mismo ciclo. El agente observa el <b>estado</b> (la situación del juego), elige una <b>acción</b> (mover la pala), el entorno responde con una <b>recompensa</b> y un nuevo estado, y el agente usa esa señal para ajustar su <b>política</b>. Repetido una y otra vez, ese ciclo es lo que llamamos aprender."},
       {h:"Cómo usarlo",cuerpo:"Se elige un algoritmo en la parte superior y se pulsa Entrenar; entonces puede observarse la partida, las métricas, el inspector y las curvas de aprendizaje. Cada elemento tiene un icono de información que abre una explicación a fondo de esa pieza."}],
     formula:"estado → acción → recompensa → estado siguiente → (y vuelta a empezar)" },
@@ -259,7 +259,7 @@ export const INFO = {
   inspector: { emoji:"🔬", titulo:"Inspector del algoritmo", categoria:"Interfaz",
     resumen:"La radiografía de lo que el agente piensa del estado que observa.",
     secciones:[
-      {h:"Qué muestra",cuerpo:"El contenido se adapta al algoritmo. En DQN y el World Model muestra los <b>valores Q</b> de cada acción (cuánto cree que vale cada movimiento), con la mejor resaltada. En PPO y SAC muestra las <b>probabilidades</b> de la política y el valor estimado del estado. En el World Model añade, además, la comparación entre el estado real y el que predice su modelo de dinámica."},
+      {h:"Qué muestra",cuerpo:"El contenido se adapta al algoritmo. En DQN y en los dos World Model muestra los <b>valores Q</b> de cada acción (cuánto cree que vale cada movimiento), con la mejor resaltada. En PPO y SAC muestra las <b>probabilidades</b> de la política y el valor estimado del estado. En los World Model añade, además, la comparación entre el estado real y el que predice su modelo de dinámica."},
       {h:"Para qué sirve",cuerpo:"Permite asomarse al «razonamiento» interno del agente: por qué prefiere una acción sobre otra en una situación concreta, y cómo cambian esas estimaciones a medida que entrena. Es la forma más directa de relacionar lo que se ve en la partida con lo que la red ha aprendido."}] },
   curvas: { emoji:"📈", titulo:"Curvas de entrenamiento", categoria:"Interfaz",
     resumen:"Cómo evoluciona el aprendizaje a lo largo del tiempo.",
@@ -267,9 +267,9 @@ export const INFO = {
       {h:"Cómo leerlas",cuerpo:"La curva de <b>recompensa</b> (verde) es la principal y debería subir; suele acompañarse de la tasa de éxito. La de <b>pérdida</b> no tiene por qué bajar siempre, pero no debe dispararse. Las otras dos gráficas se adaptan al algoritmo: tamaño del buffer y ε en DQN y World Model, entropía en PPO, temperatura α en SAC, y el error del modelo en el World Model."},
       {h:"Por qué oscilan",cuerpo:"Es normal que las curvas suban y bajen: el aprendizaje por refuerzo es ruidoso por naturaleza, porque el agente explora y el entorno tiene azar. Lo informativo es la <b>tendencia</b> a lo largo de muchos puntos, no el valor de un instante. Se registra un punto nuevo cada 250 experiencias acumuladas."}] },
   selectorAlgoritmo: { emoji:"🧩", titulo:"Versión del experimento", categoria:"Interfaz",
-    resumen:"Elige cuál de los cuatro algoritmos pilota al agente.",
+    resumen:"Elige cuál de los cinco algoritmos pilota al agente.",
     secciones:[
-      {h:"Qué hace",cuerpo:"Los cuatro algoritmos resuelven exactamente el mismo juego con filosofías distintas. Al cambiar de uno a otro, el agente se <b>recrea desde cero</b> (pierde todo lo aprendido) y toda la interfaz —métricas, curvas, inspector, tabla de conceptos— se reconfigura para reflejar el método elegido."},
+      {h:"Qué hace",cuerpo:"Los cinco algoritmos resuelven exactamente el mismo juego con filosofías distintas. Al cambiar de uno a otro, el agente se <b>recrea desde cero</b> (pierde todo lo aprendido) y toda la interfaz —métricas, curvas, inspector, tabla de conceptos— se reconfigura para reflejar el método elegido."},
       {h:"Para comparar",cuerpo:"Cada tarjeta indica la familia del algoritmo y si es on-policy u off-policy, y su icono de información abre la explicación completa. Cambiar de uno a otro permite contrastar cómo aborda cada filosofía el mismo problema."}] },
   controlEjecucion: { emoji:"⚙️", titulo:"Control de ejecución", categoria:"Interfaz",
     resumen:"Ajustes sobre cómo corre la simulación, en su mayoría sin afectar al aprendizaje.",
@@ -285,21 +285,21 @@ export const INFO = {
     resumen:"Qué técnicas usa, y cuáles no, el algoritmo seleccionado.",
     secciones:[
       {h:"Qué muestra",cuerpo:"El aprendizaje por refuerzo profundo funciona como un menú de técnicas combinables; cada algoritmo usa unas pocas. Esta tabla marca cuáles están activas en el método seleccionado: replay buffer, red objetivo, exploración ε-greedy, ventaja con GAE, objetivo recortado, doble crítico, máxima entropía, modelo de dinámica, planning, etc."},
-      {h:"Para qué sirve",cuerpo:"Permite ver de un vistazo en qué se parecen y en qué se diferencian los cuatro algoritmos, y entender por qué cada uno se comporta como lo hace. El icono de información de cada concepto abre su explicación detallada."}] },
+      {h:"Para qué sirve",cuerpo:"Permite ver de un vistazo en qué se parecen y en qué se diferencian los cinco algoritmos, y entender por qué cada uno se comporta como lo hace. El icono de información de cada concepto abre su explicación detallada."}] },
   flujoDatos: { emoji:"🔄", titulo:"Flujo de datos", categoria:"Interfaz",
     resumen:"El recorrido de una experiencia, desde que se genera hasta que mejora la política.",
     secciones:[
       {h:"Qué muestra",cuerpo:"El camino completo de los datos en este algoritmo: desde que los entornos generan experiencias jugando, hasta que esas experiencias entrenan la red y la política mejorada vuelve a actuar sobre los entornos."},
-      {h:"Cómo se adapta",cuerpo:"El recorrido cambia según el método. Los off-policy (DQN, SAC, World Model) pasan las experiencias por un <b>replay buffer</b> del que muestrean lotes aleatorios. PPO, on-policy, recoge <b>rollouts</b>, los procesa y los descarta. El World Model añade un paso extra: un <b>modelo de dinámica</b> que genera experiencia imaginada."}] },
+      {h:"Cómo se adapta",cuerpo:"El recorrido cambia según el método. Los off-policy (DQN, SAC y los dos World Model) pasan las experiencias por un <b>replay buffer</b> del que muestrean lotes aleatorios. PPO, on-policy, recoge <b>rollouts</b>, los procesa y los descarta. Los World Model añaden un paso extra: un <b>modelo de dinámica</b> que genera experiencia imaginada (en la variante recurrente, un LSTM entrenado con secuencias)."}] },
   replayPanel: { emoji:"🗃️", titulo:"Replay buffer (conceptual)", categoria:"Interfaz",
     resumen:"Las experiencias arquetípicas del juego, con su recompensa y su sorpresa.",
     secciones:[
       {h:"Qué muestra",cuerpo:"Una selección de las transiciones <span class=\"mono\">(s, a, r, s', done)</span> más representativas del Arkanoid, cada una con su recompensa real y su <b>TD-error</b> asociado, para ilustrar de qué están hechos los datos con los que se entrena."},
       {h:"Qué resalta",cuerpo:"Las experiencias más informativas —perder la pelota, romper un ladrillo— tienen mayor TD-error porque sorprenden más a la red. Con replay prioritario, justamente esas se volverían a muestrear con más frecuencia durante el entrenamiento, para que la red aprenda antes de los momentos clave."}] },
-  familias: { emoji:"🎓", titulo:"Las cuatro familias", categoria:"Interfaz",
+  familias: { emoji:"🎓", titulo:"Las familias de algoritmos", categoria:"Interfaz",
     resumen:"El mapa de los algoritmos del laboratorio y sus rasgos.",
     secciones:[
-      {h:"Qué muestra",cuerpo:"Un resumen comparado de los cuatro algoritmos: a qué familia pertenece cada uno —basado en valor, actor-crítico o model-based—, si es on-policy u off-policy, y qué aprende exactamente (valores de acción, una política, o además un modelo del entorno). El recuadro resaltado corresponde al algoritmo activo."},
+      {h:"Qué muestra",cuerpo:"Un resumen comparado de los cinco algoritmos: a qué familia pertenece cada uno —basado en valor, actor-crítico o model-based—, si es on-policy u off-policy, y qué aprende exactamente (valores de acción, una política, o además un modelo del entorno). El recuadro resaltado corresponde al algoritmo activo."},
       {h:"Para qué sirve",cuerpo:"Sitúa cada método dentro del panorama del aprendizaje por refuerzo profundo y ayuda a entender las grandes decisiones de diseño que los separan, antes de entrar en los detalles de cada uno."}] },
   transicion: { emoji:"🔗", titulo:"Transición actual", categoria:"Interfaz",
     resumen:"La unidad mínima de aprendizaje, mostrada en vivo.",
