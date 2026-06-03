@@ -21,6 +21,7 @@ import { PanelTransicion } from "./panelTransicion.js";
 import { ResumenConceptual } from "./resumenConceptual.js";
 import { ReplayConceptual } from "./replayConceptual.js";
 import { GridSearch } from "./gridSearch.js";
+import { Comparativa } from "./comparativa.js";
 
 export class Aplicacion {
   constructor() {
@@ -64,6 +65,9 @@ export class Aplicacion {
       valVisuales: $("valVisuales"),
       toggleShaping: $("toggleShaping"),
       btnGridSearch: $("btnGridSearch"),
+      tabs: $("tabsVista"),
+      vistaLaboratorio: $("vistaLaboratorio"),
+      vistaComparativa: $("vistaComparativa"),
     };
     this.ctx = this.dom.canvas.getContext("2d");
   }
@@ -125,6 +129,15 @@ export class Aplicacion {
       estaCorriendo: () => this.corriendo,
       aplicar: (override, reanudar) => this.aplicarHiperparametros(override, reanudar),
     });
+
+    // Pestaña de comparativa de modelos (benchmark).
+    this.comparativa = new Comparativa({
+      contenedor: this.dom.vistaComparativa,
+      pausar: () => this._pausar(),
+      reanudar: () => this._reanudar(),
+      estaCorriendo: () => this.corriendo,
+    });
+    this._conectarPestanas();
 
     fijarLineaBase();
     this._arrancarBucle();
@@ -267,6 +280,19 @@ export class Aplicacion {
       this.orquestador.gestor = this.gestor;
       this.rejilla.sincronizar(this.gestor.visuales);
       this.reiniciar();
+    });
+  }
+
+  _conectarPestanas() {
+    if (!this.dom.tabs) return;
+    this.dom.tabs.addEventListener("click", (e) => {
+      const tab = e.target.closest(".tab");
+      if (!tab) return;
+      const vista = tab.dataset.vista;
+      this.dom.tabs.querySelectorAll(".tab").forEach((t) =>
+        t.classList.toggle("activo", t === tab));
+      this.dom.vistaLaboratorio.classList.toggle("oculta", vista !== "laboratorio");
+      this.dom.vistaComparativa.classList.toggle("oculta", vista !== "comparativa");
     });
   }
 

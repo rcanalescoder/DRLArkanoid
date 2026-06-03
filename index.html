@@ -36,6 +36,13 @@
           que explica qué es, por qué importa y, cuando aplica, su fórmula y sus datos.</div>
       </div>
 
+      <!-- ===================== PESTAÑAS ===================== -->
+      <nav class="tabs" id="tabsVista">
+        <button class="tab activo" data-vista="laboratorio">🧪 Laboratorio</button>
+        <button class="tab" data-vista="comparativa">🏁 Comparativa de modelos</button>
+      </nav>
+
+      <div id="vistaLaboratorio" class="vista">
       <!-- ===================== FILA PRINCIPAL ===================== -->
       <section class="principal">
         <!-- Juego (izquierda) -->
@@ -182,6 +189,10 @@
           <span class="info" data-info="familias">i</span></div>
         <div class="variantes" id="variantes"></div>
       </section>
+      </div><!-- /vistaLaboratorio -->
+
+      <!-- ===================== VISTA COMPARATIVA ===================== -->
+      <div id="vistaComparativa" class="vista oculta"></div>
     </div>
 
     <script type="module" src="/src/main.js"></script>
