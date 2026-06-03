@@ -115,7 +115,7 @@ export const HIPERPARAMETROS = Object.freeze({
     frecuenciaEntrenamiento: 1, // entrenar cada N lotes de experiencia
     epsilonInicial: 1.0,
     epsilonFinal: 0.05,
-    pasosDecaimientoEpsilon: 25000,
+    pasosDecaimientoEpsilon: 12000,
     tau: 0.01, // soft update de la red objetivo
     dobleDQN: true,
     prioritario: false,
@@ -130,7 +130,7 @@ export const HIPERPARAMETROS = Object.freeze({
     tamMinibatch: 1024,
     epsilonClip: 0.2,
     coefValor: 0.5,
-    coefEntropia: 0.01,
+    coefEntropia: 0.003,
     maxNormaGradiente: 0.5,
   },
   [ALGORITMOS.SAC]: {
@@ -161,7 +161,7 @@ export const HIPERPARAMETROS = Object.freeze({
     tau: 0.01,
     epsilonInicial: 1.0,
     epsilonFinal: 0.05,
-    pasosDecaimientoEpsilon: 20000,
+    pasosDecaimientoEpsilon: 12000,
     dobleDQN: true,
   },
   // Variante recurrente: el modelo de dinámica es un LSTM que predice la
@@ -184,6 +184,9 @@ export const HIPERPARAMETROS = Object.freeze({
     tau: 0.01,
     epsilonInicial: 1.0,
     epsilonFinal: 0.05,
+    // OJO: a diferencia de DQN/WM, decaer ε más rápido EMPEORA esta variante
+    // (1.33→1.05 en pruebas): el LSTM necesita secuencias variadas, así que
+    // le conviene explorar más tiempo. Se mantiene en 20000 a propósito.
     pasosDecaimientoEpsilon: 20000,
     dobleDQN: true,
   },
