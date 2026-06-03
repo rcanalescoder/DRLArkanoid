@@ -1623,22 +1623,23 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <h3 class="sub">La búsqueda en rejilla, algoritmo por algoritmo</h3>
     <p>El laboratorio incorpora una <b>búsqueda en rejilla</b> (grid search): prueba combinaciones de los dos o tres ajustes
       más influyentes de cada algoritmo, entrena un agente <b>aislado</b> por combinación y las ordena por recompensa,
-      resaltando la mejor. Aquí están dos rejillas reales del pop-up, y debajo la tabla con lo que ganó en cada uno:</p>
+      resaltando la mejor. Así se ve el pop-up en vivo (ejemplo con DQN) y, debajo, el resultado real de la rejilla 3×3
+      de <b>los cinco</b> como mapa de calor (verde = más recompensa; la mejor celda, marcada con ✓):</p>
+    <figure><img src="assets/grid_dqn.jpg" /><figcaption>El pop-up en vivo: cada fila es una combinación entrenada de forma aislada, ordenada por recompensa, con un botón para aplicar la ganadora al laboratorio.</figcaption></figure>
     <div class="imgrow">
-      <figure><img src="assets/grid_dqn.jpg" /><figcaption>DQN · ritmo × γ. La mejor (en verde): 8e-4 / 0.99, el valor por defecto.</figcaption></figure>
-      <figure><img src="assets/grid_ppo.jpg" /><figcaption>PPO · ritmo × recorte ε. Cada fila es una combinación entrenada, ordenada por recompensa.</figcaption></figure>
+      <figure><img src="assets/gridcard_dqn.svg" /><figcaption>DQN · ritmo × γ</figcaption></figure>
+      <figure><img src="assets/gridcard_ppo.svg" /><figcaption>PPO · ritmo × recorte ε</figcaption></figure>
     </div>
-    <p class="note">Son capturas reales del pop-up. La búsqueda funciona igual para los cinco (incluido el World Model RNN,
-      cuya rejilla añadimos). SAC, World Model y World Model RNN entrenan mucho más lento sin GPU, así que mostramos dos
-      como muestra y resumimos lo que salió en cada rejilla:</p>
-    <table class="compare">
-      <tr><th>Modelo</th><th>Qué se barrió</th><th>Qué salió</th></tr>
-      <tr><td><b>DQN</b></td><td>ritmo × γ (3×3, 45k pasos)</td><td>8e-4 / 0.99 (la zona estable más alta). El ritmo rápido daba el pico pero también el peor caso.</td></tr>
-      <tr><td><b>PPO</b></td><td>coef. de entropía</td><td><b>0.003</b> ≫ 0.01: bajarlo más que dobló la recompensa.</td></tr>
-      <tr><td><b>SAC</b></td><td>entropía objetivo (0.4 / 0.55 / 0.7)</td><td>casi <b>insensible</b> (0.64 / 0.57 / 0.66): el valor por defecto vale.</td></tr>
-      <tr><td><b>World Model</b></td><td>velocidad de decaimiento de ε</td><td><b>12.000</b> &gt; 20.000: explotar antes ayuda.</td></tr>
-      <tr><td><b>World Model RNN</b></td><td>velocidad de decaimiento de ε</td><td><b>20.000</b> &gt; 12.000: al revés que el resto, le conviene explorar más.</td></tr>
-    </table>
+    <div class="imgrow">
+      <figure><img src="assets/gridcard_sac.svg" /><figcaption>SAC · ritmo del actor × entropía objetivo</figcaption></figure>
+      <figure><img src="assets/gridcard_worldModel.svg" /><figcaption>World Model · ritmo × planning</figcaption></figure>
+    </div>
+    <div class="imgrow">
+      <figure><img src="assets/gridcard_worldModelRecurrente.svg" /><figcaption>World Model RNN · ritmo × longitud de secuencia</figcaption></figure>
+    </div>
+    <p class="note">Las cinco rejillas se corren con presupuesto corto (5.000 pasos por celda) para ser ágiles, así que son
+      <b>ruidosas</b>: la mejor celda puede no coincidir con la de un análisis más largo (DQN, por ejemplo, prefiere 8e-4/0.99
+      con más pasos). Ese ruido es precisamente el motivo de no fiarse de una rejilla rápida y afinar con más cuidado, como sigue.</p>
 
     <h3 class="sub">El afinado que de verdad movió la aguja</h3>
     <p>Mirar solo la rejilla rápida no basta. Analizando las <b>curvas de convergencia</b> de corridas más largas
