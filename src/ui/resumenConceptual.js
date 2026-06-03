@@ -43,18 +43,21 @@ export class ResumenConceptual {
 
   _renderFlujo(def) {
     let pasos;
-    if (def.id === ALGORITMOS.WORLD_MODEL) {
+    const esModelBased = def.id === ALGORITMOS.WORLD_MODEL || def.id === ALGORITMOS.WORLD_MODEL_RECURRENTE;
+    if (esModelBased) {
+      const recurrente = def.id === ALGORITMOS.WORLD_MODEL_RECURRENTE;
       pasos = [
         { i: "🎮", n: "Entornos" },
         { i: "⚡", n: "Experiencias" },
-        { i: "🗃️", n: "Replay buffer" },
-        { i: "🔮", n: "Modelo (s,a)→s'" },
+        { i: "🗃️", n: recurrente ? "Buffer de secuencias" : "Replay buffer" },
+        { i: recurrente ? "🧬" : "🔮", n: recurrente ? "LSTM (secuencia)→s'" : "Modelo (s,a)→s'" },
         { i: "💭", n: "Imaginación" },
         { i: "🧠", n: "Q-net" },
         { i: "🎯", n: "Política" },
       ];
-      this.el.flujoDescripcion.textContent =
-        "Model-based (Dyna-Q): además de aprender de datos reales, el modelo de dinámica genera experiencias imaginadas con las que se entrena el Q-net, multiplicando los datos por cada paso real.";
+      this.el.flujoDescripcion.textContent = recurrente
+        ? "Model-based recurrente: el modelo de dinámica es un LSTM que aprende de SECUENCIAS y arrastra un estado oculto (memoria). Al imaginar, sus rollouts son más coherentes a más pasos que un modelo de un solo paso."
+        : "Model-based (Dyna-Q): además de aprender de datos reales, el modelo de dinámica genera experiencias imaginadas con las que se entrena el Q-net, multiplicando los datos por cada paso real.";
     } else if (def.politica === "on-policy") {
       pasos = [
         { i: "🎮", n: "Entornos" },

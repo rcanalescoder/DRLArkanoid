@@ -96,6 +96,7 @@ export const ALGORITMOS = Object.freeze({
   PPO: "ppo",
   SAC: "sac",
   WORLD_MODEL: "worldModel",
+  WORLD_MODEL_RECURRENTE: "worldModelRecurrente",
 });
 
 // ============================================================================
@@ -157,6 +158,29 @@ export const HIPERPARAMETROS = Object.freeze({
     arranqueModelo: 1000,
     pasosPlanning: 5, // transiciones imaginadas por paso real
     horizonteImaginacion: 3, // profundidad de los rollouts imaginados
+    tau: 0.01,
+    epsilonInicial: 1.0,
+    epsilonFinal: 0.05,
+    pasosDecaimientoEpsilon: 20000,
+    dobleDQN: true,
+  },
+  // Variante recurrente: el modelo de dinámica es un LSTM que predice la
+  // SECUENCIA del estado (mantiene un estado oculto), en vez de un MLP de un
+  // solo paso. Inspirado en el MDN-RNN de World Models (Ha & Schmidhuber).
+  [ALGORITMOS.WORLD_MODEL_RECURRENTE]: {
+    capasOcultas: [128, 128], // Q-net (igual que DQN)
+    unidadesLSTM: 128, // tamaño del estado oculto del LSTM (la "memoria")
+    tasaAprendizaje: 0.0008, // Q-net
+    tasaAprendizajeModelo: 0.0010, // LSTM de dinámica
+    gamma: 0.99,
+    tamBatch: 128, // batch del Q-net
+    tamBatchSec: 32, // nº de secuencias por actualización del LSTM
+    longitudSecuencia: 16, // L: pasos por secuencia de entrenamiento del LSTM
+    capacidadBuffer: 100000,
+    capacidadSecuencias: 256, // nº de episodios guardados para entrenar el LSTM
+    arranqueAprendizaje: 2000,
+    arranqueModelo: 1000,
+    pasosPlanning: 5, // pasos de imaginación recurrente por actualización
     tau: 0.01,
     epsilonInicial: 1.0,
     epsilonFinal: 0.05,

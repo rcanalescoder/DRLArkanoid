@@ -70,6 +70,20 @@ export const INFO = {
     dato: "Q-net 6→128→128→3 (Double DQN) · modelo de dinámica (6+3)→200→200→(Δs, r, done) · replay 100.000 · planning 5 imaginadas/paso real · arranque modelo 1.000, Q-net 2.000 · ε 1.0→0.05 · off-policy, model-based.",
   },
 
+  worldModelRecurrente: {
+    emoji: "🧬", titulo: "World Model recurrente — Dyna-Q + LSTM", categoria: "Algoritmo",
+    resumen: "Como el World Model, pero su modelo del juego tiene memoria: un LSTM que aprende secuencias.",
+    secciones: [
+      { h: "La idea en palabras llanas", cuerpo: "Esta es una variante del World Model. Comparte casi todo con él: aprende un <b>modelo</b> de cómo funciona el juego y entrena «en su cabeza» imaginando partidas (Dyna-Q), con un Q-net idéntico al de DQN para decidir. Lo único que cambia es <b>cómo es ese modelo del juego</b>.<br><br>El World Model normal predice de uno en uno: le das una situación y una acción, y te dice la siguiente, sin recordar nada de antes. Esta variante usa un modelo con <b>memoria</b>: procesa los pasos en orden y va arrastrando un resumen de todo lo que ha visto. Es la diferencia entre describir una foto suelta y entender una película." },
+      { h: "Qué es un LSTM (la memoria)", cuerpo: "El modelo con memoria es una <b>red recurrente</b>, en concreto un <b>LSTM</b> (Long Short-Term Memory). Una red normal trata cada entrada como independiente; una recurrente, en cambio, mantiene un <b>estado oculto</b> que actualiza paso a paso y que funciona como su memoria de lo ocurrido. Así, para predecir el siguiente estado no se basa solo en el actual, sino en toda la trayectoria reciente.<br><br>Por eso este modelo no se entrena con transiciones sueltas y barajadas, sino con <b>secuencias</b> ordenadas de un mismo episodio (aquí, tramos de 16 pasos). Necesita ver el orden para aprender a recordar." },
+      { h: "Por qué puede mejorar al World Model", cuerpo: "El punto débil del modelo de un solo paso aparece al <b>imaginar varios pasos seguidos</b>: encadena predicción sobre predicción, y un pequeño error en cada una se va acumulando hasta que la partida imaginada se vuelve irreal. Ese problema se denomina <b>sesgo del modelo</b> (model bias).<br><br>El LSTM se entrena precisamente para encajar secuencias enteras, y al imaginar arrastra su memoria de lo ya imaginado. El resultado es que sus rollouts imaginados se mantienen coherentes durante más pasos, con menos deriva. La pestaña «Comparativa» permite enfrentarlo al World Model normal y ver si, en la práctica, esa diferencia se traduce en aprender mejor." },
+      { h: "De dónde viene", cuerpo: "La idea está tomada de <b>«World Models»</b> (Ha &amp; Schmidhuber, 2018), donde un agente aprende un VAE que comprime la imagen, una memoria recurrente (MDN-RNN, un LSTM) que predice cómo evoluciona esa imagen comprimida, y un pequeño controlador. Aquí no hace falta el VAE —nuestro estado ya son 6 números, no una imagen— así que tomamos solo la pieza valiosa para nosotros: la <b>memoria recurrente</b> como modelo de dinámica. Usamos una versión simplificada que predice el estado directamente, sin la mezcla de gaussianas del MDN-RNN original." },
+      { h: "Qué se observa en pantalla", cuerpo: "Las métricas son las del World Model (error del modelo, pasos de planning) más el tamaño de la <b>memoria LSTM</b>. El inspector, igual que en el World Model, compara número a número el estado real con el que predijo el modelo recurrente." },
+    ],
+    formula: "h_t = LSTM(s_t ⊕ a_t, h_{t-1})   ·   (Δs, r, done) = Dense(h_t)   ·   s' = s + Δs",
+    dato: "Q-net 6→128→128→3 (Double DQN) · dinámica LSTM: (6+3)→128 (estado oculto)→(Δs, r, done) · entrena secuencias de 16 pasos, 32 por lote · buffer de 256 episodios · planning 5 imaginadas/paso real · ε 1.0→0.05 · off-policy, model-based recurrente.",
+  },
+
   // ───────────────────────── CONCEPTOS ─────────────────────────
   modelFree: { emoji:"🚀", titulo:"Model-free", categoria:"Concepto",
     resumen:"Aprende qué hacer sin construir un modelo del entorno.",

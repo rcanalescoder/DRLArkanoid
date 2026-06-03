@@ -15,4 +15,5 @@ export function registrarInspectores() {
   registrarInspector(ALGORITMOS.PPO, (c) => new InspectorPPO(c));
   registrarInspector(ALGORITMOS.SAC, (c) => new InspectorSAC(c));
   registrarInspector(ALGORITMOS.WORLD_MODEL, (c) => new InspectorWorldModel(c));
+  registrarInspector(ALGORITMOS.WORLD_MODEL_RECURRENTE, (c) => new InspectorWorldModel(c));
 }

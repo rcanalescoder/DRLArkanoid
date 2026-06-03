@@ -35,6 +35,11 @@ const CONFIG = {
     buffer: { clave: "errorModelo", titulo: "Error del modelo (RMSE)", leyenda: "error" },
     explora: { clave: "epsilon", titulo: "Exploración (ε)", leyenda: "ε" },
   },
+  [ALGORITMOS.WORLD_MODEL_RECURRENTE]: {
+    loss: { clave: "loss", titulo: "Pérdida Q", leyenda: "loss" },
+    buffer: { clave: "errorModelo", titulo: "Error del modelo LSTM (RMSE)", leyenda: "error" },
+    explora: { clave: "epsilon", titulo: "Exploración (ε)", leyenda: "ε" },
+  },
 };
 
 export class CurvasEntrenamiento {

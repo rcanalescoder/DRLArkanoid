@@ -11,9 +11,10 @@ const PRUEBAS = [
   { algo: "ppo", pasos: 60000, envs: 32 },
   { algo: "sac", pasos: 30000, envs: 128 },
   { algo: "worldModel", pasos: 24000, envs: 128 },
+  { algo: "worldModelRecurrente", pasos: 24000, envs: 128 },
 ];
 
-console.log("\n══════════ VERIFICACIÓN DE LOS 4 ALGORITMOS ══════════\n");
+console.log("\n══════════ VERIFICACIÓN DE LOS ALGORITMOS ══════════\n");
 const resultados = [];
 
 for (const p of PRUEBAS) {

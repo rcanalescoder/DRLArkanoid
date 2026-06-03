@@ -10,6 +10,7 @@ import { AgenteDQN } from "./agenteDQN.js";
 import { AgentePPO } from "./agentePPO.js";
 import { AgenteSAC } from "./agenteSAC.js";
 import { AgenteWorldModel } from "./agenteWorldModel.js";
+import { AgenteWorldModelRecurrente } from "./agenteWorldModelRecurrente.js";
 
 let _registrado = false;
 
@@ -86,6 +87,24 @@ export function registrarAgentes() {
       metrica3: { etiqueta: "ε exploración", clave: "epsilon", formato: "num" },
       metrica4: { etiqueta: "Error modelo", clave: "errorModelo", formato: "num" },
       metrica5: { etiqueta: "Planning", clave: "pasosPlanning", formato: "entero" },
+    },
+  });
+
+  registrarAlgoritmo({
+    id: ALGORITMOS.WORLD_MODEL_RECURRENTE,
+    nombre: "World Model RNN",
+    nombreLargo: "World Model recurrente · Dyna-Q + LSTM",
+    insignia: { texto: "recurrente", clase: "cyan" },
+    descripcion:
+      "Variante del World Model en la que el modelo de dinámica es un LSTM que predice la SECUENCIA del estado (mantiene memoria del pasado), en vez de un MLP de un solo paso. Inspirado en el MDN-RNN de World Models (Ha & Schmidhuber): imagina rollouts más coherentes a más pasos.",
+    familia: "Model-based · recurrente",
+    politica: "off-policy",
+    hiperparametros: HIPERPARAMETROS[ALGORITMOS.WORLD_MODEL_RECURRENTE],
+    crearAgente: (hp) => new AgenteWorldModelRecurrente(hp),
+    etiquetasMetricas: {
+      metrica3: { etiqueta: "ε exploración", clave: "epsilon", formato: "num" },
+      metrica4: { etiqueta: "Error modelo", clave: "errorModelo", formato: "num" },
+      metrica5: { etiqueta: "Memoria LSTM", clave: "unidadesLSTM", formato: "entero" },
     },
   });
 }

@@ -19,6 +19,7 @@ const IMPORTADORES = {
   ppo: () => import("../src/agentes/agentePPO.js").then((m) => m.AgentePPO),
   sac: () => import("../src/agentes/agenteSAC.js").then((m) => m.AgenteSAC),
   worldModel: () => import("../src/agentes/agenteWorldModel.js").then((m) => m.AgenteWorldModel),
+  worldModelRecurrente: () => import("../src/agentes/agenteWorldModelRecurrente.js").then((m) => m.AgenteWorldModelRecurrente),
 };
 
 function parseArgs(argv) {
