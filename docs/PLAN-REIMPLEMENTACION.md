@@ -108,9 +108,11 @@ completar + perder) · `time_to_first_brick` · `steps_alive` (≠ jugar bien) �
 *(Fase 0: success_rate, bricks_cleared, reward_total, reward_no_shaping, time_to_first_brick,
 steps_alive. Heatmap y train/test llegan en Fase 2 con el generador.)*
 
-**5.8 Timeout:** `max_steps ≈ k·n_ladrillos`. Para 80, orden 1500–2500 *(matiz: si se rompe
-~1 ladrillo por subida y una subida son ~30–50 pasos, podría quedarse corto → calibrar `k`
-para que una buena política limpie con margen; que el tope no cape el éxito por tiempo).*
+**5.8 Timeout:** `max_steps ≈ k·n_ladrillos`. **MEDIDO (no estimado):** un viaje pala→ladrillo→pala
+≈ **63 pasos**; a ~1 ladrillo/viaje, limpiar 28 necesita **~1.760 pasos**. ⇒ el `k` real es **~65–90
+por ladrillo** (no 25). Para 28 → timeout **~2.000–2.500**; para 80 → **~5.000–7.000**. El 600 actual
+**cae corto incluso para 28** (techo físico ~11 ladrillos aunque se juegue perfecto). Ver hallazgo crítico
+en el REGISTRO.
 
 ## QUÉ NO HACER
 - No reintroducir `Φ` ni shaping de proximidad. No usar recompensa media como éxito/avance.
@@ -154,4 +156,28 @@ el peso de las dos raíces de §2: raíz #1 real = **observación**; el shaping 
 no bajaron). NO es bug; coincide con el aviso del plan. La prueba **decisiva** es la **Puerta 1 (con
 vista)**. Avanzar a Fase 1.
 
-*(Próximo: Fase 1 — observación plana 6+28=34, MLP 34→128→128→3, medir Puerta 1.)*
+### [HALLAZGO CRÍTICO — el reloj] · 600 pasos hace el nivel INGANABLE
+Medición de la física (rastreador perfecto que solo sigue la bola, shaping OFF, Node):
+- 1 paso = 1 tic = la bola se mueve una vez (0.022 ≈ 2 % de la pantalla).
+- **Viaje pala→ladrillo→pala ≈ 63 pasos.** Limpiar 28 a ~1 ladrillo/viaje ≈ **1.760 pasos**.
+- El rastreador perfecto rompe **11/28 de media (máx 23) y NUNCA limpió** (0/333 episodios): se
+  queda sin tiempo a los 600. Techo físico con timeout=600 ≈ **~11 ladrillos**.
+
+**Implicación (re-prioriza el plan):** hay **tres muros**, en este orden de fundamentalidad:
+1. **El reloj (timeout 600).** Inganable por tiempo, da igual el algoritmo. → el más básico; **arreglar primero**.
+2. **Supervivencia.** Los agentes entrenados mueren a ~84 pasos (un rastreador sobrevive a 600). Aún
+   no han aprendido a devolver la bola de forma fiable. (Aprendible; el `+0.2` es la señal.)
+3. **Apuntar (observación).** Para romper lo que un rebote casi-vertical no alcanza → necesita ver los
+   ladrillos (Fase 1). El propio rastreador se atasca en ~11–23 por no apuntar.
+
+Nota: esto también explica la Puerta 0. Quitar `Φ` no subió los ladrillos porque el agente entrenado
+**muere pronto** (no es centrado vs no-centrado: es que no sobrevive), y porque **el reloj** lo capa.
+
+### NUEVO ORDEN DE FASES
+- **Fase 0.5 — El reloj (NUEVA, antes de Fase 1):** subir `MAX_PASOS_EPISODIO` para que el nivel sea
+  **físicamente limpiable con margen** (28 → ~2.500). Re-medir Puerta 0 con el reloj arreglado: ¿sube
+  ahora `bricks_cleared`? (un superviviente debería romper más). Mantener el timeout escalado por nivel.
+- **Fase 1 — Observación (vista):** como estaba, pero ya con reloj suficiente, para que la Puerta 1
+  ("limpia el nivel de forma fiable") sea físicamente alcanzable.
+
+*(Próximo: implementar Fase 0.5 —timeout— y re-medir, antes de la vista.)*
