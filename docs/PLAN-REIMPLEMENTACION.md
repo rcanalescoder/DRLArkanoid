@@ -213,5 +213,25 @@ Si una heurística lo logra, un DQN entrenado debe poder; iteramos hasta consegu
 → Cuando se iguale al rastreador (~26/38 %), pasar a **Fase 1 (vista)** para cerrar de 26 a 28 y subir el
 éxito hacia ~100 % apuntando a los ladrillos que quedan.
 
-*(Próximo a decidir con el usuario: ejecutar (1)+(2) —entrenar más + grid search por ladrillos— para
-alcanzar el techo del rastreador antes de meter la vista.)*
+### [Ejecución Propuestas 1+2] · entrenar más + grid search (DQN ciego, greedy, Node)
+Añadida **evaluación greedy (ε=0)** al harness (métrica honesta, comparable con el rastreador).
+- **DQN 300k, Φ OFF:** greedy **3.98 ladrillos / 0 % / sobrevive 189** (vs 84 a 80k → sube, pero lento).
+- **DQN 300k, Φ ON:** greedy **4.28 / 0 % / 200**. ⇒ **Φ NO arregla la supervivencia** (casi igual).
+- **Varianza alta:** media ~4 ladrillos pero **máximo 18-23** en sus mejores episodios → política de
+  supervivencia **frágil** (a veces sobrevive 23 ladrillos, casi siempre muere a ~200).
+- **Grid 150k (lr × εdecay):** combos ~1.5-5 ladrillos (a 150k apenas sobrevive); no cierra el salto a 26.
+
+**CONCLUSIÓN nº2:** el cuello es que **DQN aprende a SOBREVIVIR muy despacio y de forma frágil**, mientras
+una heurística trivial (seguir la bola) sobrevive ~2000 y saca 26. Afinar parámetros o entrenar un poco
+más NO basta (el salto 4→26 es enorme). ⇒ Toca **Propuesta 3 (variación)**.
+
+**Variación recomendada — mejor señal de supervivencia (potential-based, honesta):** la Φ que quitamos
+premiaba estar bajo la bola AHORA (persigue, va con retraso → mal maestro de supervivencia). Cambiarla por
+el **punto de caída previsto**: `Φ_land = −|x_intercepción − pala.x|`, donde `x_intercepción` = dónde
+cruzará la bola la línea de la pala (reflejando su trayectoria en las paredes). Enseña a **interceptar**
+(= sobrevivir bien, como el rastreador) y, como el rastreador centra y aun así saca 26, no impide llegar a
+~26 en ciego. Los últimos 1-2 ladrillos y el empuje al 100 % vienen con la **vista (Fase 1)**.
+Alternativa: currículum de física (bola más lenta / pala más ancha → endurecer).
+
+*(Próximo: implementar la variación de Φ_land —punto de caída— y medir si el DQN ciego alcanza el
+techo del rastreador (~26 / ~38 %).)*

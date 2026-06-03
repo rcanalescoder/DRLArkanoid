@@ -12,7 +12,7 @@ import { GestorEntornos } from "../src/entorno/gestorEntornos.js";
 import { RecolectorMetricas } from "../src/entrenamiento/metricas.js";
 import { SistemaTrazas } from "../src/nucleo/trazas.js";
 import { Orquestador } from "../src/entrenamiento/orquestador.js";
-import { HIPERPARAMETROS, ALGORITMOS } from "../src/nucleo/constantes.js";
+import { HIPERPARAMETROS, ALGORITMOS, CONFIGURACION_ENTORNO } from "../src/nucleo/constantes.js";
 
 const IMPORTADORES = {
   dqn: () => import("../src/agentes/agenteDQN.js").then((m) => m.AgenteDQN),
@@ -94,6 +94,26 @@ async function main() {
   const dB = bFinal - bInicial;
   const veredicto = dB > 0.5 ? "✅ rompe MÁS ladrillos" : dB > 0.05 ? "🟡 sube algo" : dB < -0.3 ? "❌ rompe MENOS" : "➖ sin cambio claro";
   console.log(`  Veredicto (ladrillos): ${veredicto}  (Δ=${dB.toFixed(2)})`);
+
+  // --- Evaluación GREEDY (lo que de verdad ha aprendido la política, ε=0) ---
+  // Es la métrica honesta y comparable con el rastreador perfecto (~26 ladr / 38 %).
+  const gEval = new GestorEntornos({ numHeadless: 48, numVisuales: 0, shaping: opts.shaping });
+  const mEval = new RecolectorMetricas();
+  let episodiosEval = 0, maxBricks = 0;
+  const KEVAL = 200, nE = 48, topePasos = (CONFIGURACION_ENTORNO.MAX_PASOS_EPISODIO + 5) * Math.ceil(KEVAL / nE) + 200;
+  for (let p = 0; p < topePasos && episodiosEval < KEVAL; p++) {
+    const estados = gEval.obtenerEstadosEntrenamiento();
+    const acc = agente.seleccionarAcciones(estados, nE, { entrenar: false });
+    const res = gEval.aplicarAcciones(acc);
+    if (res.episodios.length) {
+      mEval.registrarEpisodios(res.episodios);
+      episodiosEval += res.episodios.length;
+      for (const e of res.episodios) maxBricks = Math.max(maxBricks, e.ladrillosRotos);
+    }
+  }
+  const ge = mEval.obtenerInstantanea();
+  console.log(`  ▶▶ GREEDY (${episodiosEval} eps, ε=0) · success_rate=${(ge.successRate * 100).toFixed(1)}%  ·  ladrillos=${ge.bricksCleared.toFixed(2)}/28 (máx ${maxBricks})  ·  steps_alive≈${ge.stepsAlive.toFixed(0)}`);
+  console.log(`     referencia rastreador perfecto: ~26/28 · 37.6%`);
   console.log("────────────────────────────────────────────────────────────");
 
   agente.destruir();
