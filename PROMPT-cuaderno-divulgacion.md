@@ -38,6 +38,33 @@ Eres mi compañero de programación. Vas a crear, en ESTE repositorio (un proyec
 - **No subas a git** (`git push`) ni hagas commits salvo que yo lo pida; sí puedes hacer commits
   locales por hito si te lo digo.
 
+## 0.1) VOZ Y REDACCIÓN (criterios de estilo — innegociables)
+
+Estos criterios definen CÓMO se escribe cada explicación. Son el resultado de iterar el estilo hasta
+que un ingeniero junior —o alguien curioso sin background de IA— pueda leerlo de corrido. Respétalos
+en TODO el documento; pesan tanto como las reglas duras.
+
+- **Idea primero, término después.** Explica SIEMPRE la idea en lenguaje llano (y, si ayuda, con una
+  analogía) ANTES de nombrar el tecnicismo. El término técnico llega AL FINAL, como etiqueta de algo ya
+  entendido: «… y a ese porcentaje de azar se le denomina épsilon (ε)». NUNCA abras un párrafo con el
+  palabro para definirlo después.
+- **Registro neutro.** Nada de «los técnicos dicen», «los expertos llaman», «en el argot…», ni
+  coloquialismos ni guiños, ni condescendencia («como ves, es facilísimo»). Describe; no charles.
+- **Cero meta-información.** El documento NO se narra a sí mismo ni explica cómo leerse. Prohibido:
+  «en este capítulo verás», «fíjate que», «como adelantábamos», «las claves van resaltadas en azul»,
+  «tres palabras que oirás», «la regla de este capítulo». Cuenta el contenido, no el continente.
+- **Las fórmulas son OPCIONALES y van aparte.** El texto principal debe entenderse SIN leer una sola
+  fórmula. Toda fórmula vive en una caja gris «🔬 Para curiosos» (clase `.curiosos`), claramente
+  saltable. Nunca metas una ecuación en mitad de la explicación llana.
+- **Estructura real, no metáforas baratas.** La analogía da intuición; pero la sección «cómo funciona»
+  describe la estructura REAL (capas, dimensiones, regla de actualización). Prohibido «es como un embudo».
+- **Definir nombrando.** Cuando un concepto ya está explicado en llano, fíjalo en una caja naranja
+  `.palabra`: «<b>Épsilon (ε) y ε-greedy.</b> El porcentaje de movimientos al azar se denomina…».
+- **Pedagógico ≠ simplista.** No omitas el porqué de las decisiones: qué alternativas había y por qué se
+  eligió esta (idealmente en una tabla `table.compare`). Cada cifra es real y medida en el repo.
+- **Honestidad por encima del marketing.** Si un método NO gana en esta tarea, dilo y explica por qué
+  (p. ej. «en una tarea casi markoviana la memoria aporta poco»). Un matiz honesto vale más que un titular.
+
 ## 1) PASO 0 — Entiende el repo ANTES de escribir nada
 
 Explora el repositorio y deja por escrito (para ti) el inventario real:
@@ -286,6 +313,36 @@ Esto es lo que garantiza el «mismo estilo». No lo cambies salvo para añadir c
   .tree .dir{ color:#7dd3fc; font-weight:600; }
   .tree .cm{ color:#7e8da6; }
   .tree .hot{ color:#fcd34d; font-weight:700; }
+
+  /* === CLASES PEDAGÓGICAS (las que materializan los criterios de §0.1) === */
+  /* caja gris "Para curiosos": AQUÍ van TODAS las fórmulas (saltable) */
+  .curiosos{ background:#f5f6f8; border:1px dashed #c4cad6; border-radius:11px; padding:11px 15px; margin:11px 0; break-inside:avoid; page-break-inside:avoid; }
+  .curiosos .t{ font-weight:700; color:#5b6472; font-size:9pt; text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px; display:flex; align-items:center; gap:7px; }
+  /* caja naranja "palabra": fija el término DESPUÉS de explicarlo en llano */
+  .palabra{ background:#fff8ec; border:1px solid #f6e2bd; border-left:4px solid #d97706; border-radius:9px; padding:9px 14px; margin:9px 0; font-size:9.9pt; color:#7a5408; }
+  .palabra .w{ font-weight:700; color:#b45309; }
+  /* ejemplo paso a paso (azul) y checklist/aviso (ámbar) */
+  .ejemplo{ background:#f0f7ff; border:1px solid #cfe0fb; border-radius:11px; padding:12px 16px; margin:11px 0; }
+  .ejemplo .t{ font-weight:700; color:#1d4ed8; font-size:10.8pt; margin-bottom:6px; display:flex; align-items:center; gap:7px; }
+  .check{ background:#fff7ed; border:1px solid #fcd9a8; border-left:4px solid #d97706; border-radius:10px; padding:11px 15px; margin:11px 0; }
+  .check .t{ font-weight:700; color:#b45309; font-size:10.5pt; margin-bottom:5px; display:flex; align-items:center; gap:7px; }
+  /* "porque": párrafo destacado con el motivo de algo */
+  .porque{ font-size:11pt; color:var(--slate); background:var(--accent-soft,#eff4fe); border-radius:10px; padding:11px 15px; margin:0 0 12px; }
+  .porque b{ color:var(--accent,#2563eb); }
+  /* etiqueta de nivel (p. ej. "BÁSICO"/"AVANZADO") junto a un h3.sub */
+  .nivel{ display:inline-block; font-size:7.6pt; font-weight:700; text-transform:uppercase; letter-spacing:.6px; padding:2px 9px; border-radius:999px; background:var(--accent-soft,#eff4fe); color:var(--accent,#2563eb); margin-left:9px; vertical-align:middle; }
+  /* "interpretación" en 3 columnas: qué observamos / qué funcionó / qué mejoraríamos */
+  .interp{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:10px 0; }
+  .interp .col{ border-radius:11px; padding:11px 13px; font-size:9.5pt; }
+  .interp .obs{ background:#eef4ff; border:1px solid #cfe0fb; } .interp .ok{ background:#e9fbf4; border:1px solid #c7eede; } .interp .mejora{ background:#fef3e6; border:1px solid #f6dcb3; }
+  .interp .h{ font-weight:700; font-size:9.5pt; margin-bottom:4px; display:flex; gap:6px; align-items:center; }
+  .interp .obs .h{ color:#1d4ed8; } .interp .ok .h{ color:#0a7f57; } .interp .mejora .h{ color:#b45309; }
+  .interp ul{ margin:0; padding-left:15px; } .interp li{ margin:2px 0; color:var(--slate); }
+  /* glosario a dos columnas */
+  .glosario{ column-count:2; column-gap:24px; margin:8px 0; }
+  /* captura de app a pantalla completa partida en dos mitades (efecto continuo) */
+  .appshot{ border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:0 12px 30px -16px rgba(17,24,39,.45); margin:12px 0 4px; }
+  .appshot img{ display:block; width:100%; }
 </style>
 ```
 
@@ -297,92 +354,121 @@ Esto es lo que garantiza el «mismo estilo». No lo cambies salvo para añadir c
 
 1. **Portada** (`.cover`): kicker, título a 3 líneas, subtítulo, `.chips` con los temas, `.credits`
    (Autor / Licencia MIT / Repositorio) y `.foot`.
-2. **Introducción** (`.band b-ink`): de qué va, los protagonistas en una frase (`.defs`), y el hilo
-   conductor (la **mejora con agentes de IA**: proponer → entrenar → medir → quedarse con lo que
-   mejora). Nota recordando que **todas las cifras son reales**.
-3. **Una sección por tema/algoritmo** (alterna colores de banda: `b-blue`, `b-violet`, `b-pink`,
-   `b-cyan`), cada una con la **estructura pedagógica de 7 partes** de §3.4.
-4. **Comparador** (`.band b-ink`): tabla `table.compare` + conclusiones (`.takeaway`).
-5. **«Descárgalo y pruébalo»** (`.band b-green`): instrucciones de instalación en bloques `.code`
-   (clonar, backend, frontend/CLI, generar modelos/demos). Pon la URL del repo en un `.tint`.
-6. **«Cómo está organizado el código»** (`.band b-ink`): un `.tree` del monorepo (resaltando en
-   `.hot` dónde están **las redes** y **el entrenamiento**) + `.defs` de "dónde vive cada cosa".
-7. **«El código clave, tema a tema»** (`.band b-blue`): por cada algoritmo, 2–3 bloques `.code`
-   con **código REAL** del repo (ruta en `.fn`, etiqueta en `.role`): *la red*, *el entrenamiento*
-   y un *extra*. Cada bloque con su `.codecap`.
-8. **«Licencia y autoría»** (`.band b-ink`): `.defs` (Autor/Licencia/Repo/Entorno) + un bloque
-   `.code` con el **texto MIT completo EN CASTELLANO** (el mismo del fichero `LICENSE`).
+2. **On-ramp «empezamos de cero»** (`.band b-cyan`): una rampa suavísima antes de la teoría —las pocas
+   ideas mínimas para no perderse— para alguien que no sabe nada de IA. Sin meta-información (§0.1).
+3. **Introducción** (`.band b-ink`): de qué va y los protagonistas en una frase (`.defs`). Si hay app,
+   una captura a pantalla completa (puede partirse en dos mitades con `.appshot` para que quepa).
+4. **Fundamentos** (`.band b-violet`): el vocabulario esencial en llano —bucle agente↔entorno,
+   recompensa/retorno/descuento, exploración, valor, la idea de Bellman, qué es una red y cómo aprende
+   (pérdida/gradiente), red objetivo y **buffer de experiencia**—. Cada fórmula en `.curiosos`.
+5. **Anatomía / «cómo funciona por dentro»** (`.band b-cyan`): del juego a la red, paso a paso (arranque,
+   episodio, cómo «ve» el agente, los dos mundos rápido/visual, cómo se guardan los datos, el bucle de
+   entrenamiento, el paso de gradiente, cómo se actualizan las gráficas y **qué cuenta cada curva**).
+6. **Una sección por algoritmo** (alterna colores de banda: `b-blue`, `b-violet`, `b-pink`, `b-cyan`,
+   `b-green`), cada una con la **estructura pedagógica de §3.4**.
+7. **Comparador** (`.band b-ink`): tabla(s) `table.compare` enfrentando TODOS los algoritmos + `.takeaway`.
+8. **Medición** (`.band b-ink`): si hay herramienta de evaluación/benchmark, por qué la métrica ingenua
+   no basta y cómo se compara con justicia (evaluación **greedy**, mismo presupuesto) + captura del panel.
+9. **«Descárgalo y pruébalo»** (`.band b-green`): instalación en bloques `.code`. URL del repo en `.tint`.
+10. **«Cómo está organizado el código»** (`.band b-ink`): `.tree` del repo (resaltando en `.hot` las
+    **redes** y el **entrenamiento**) + `.defs` de "dónde vive cada cosa".
+11. **«El código clave, algoritmo a algoritmo»** (`.band b-blue`): 2–3 bloques `.code` con código REAL
+    por algoritmo (*la red*, *el entrenamiento*, un *extra*), cada uno con su `.codecap`.
+12. **Glosario** (`.band b-ink`, `.glosario` a dos columnas) y **«para seguir aprendiendo»** (referencias).
+13. **«Licencia y autoría»** (`.band b-ink`): `.defs` + bloque `.code` con el **texto MIT completo EN
+    CASTELLANO** (idéntico al fichero `LICENSE`).
 
-### 3.4 Plantilla de cada tema/algoritmo (las 7 partes) — rellénala con datos reales
+> **Páginas numeradas.** En `render.js` activa `displayHeaderFooter:true` con un `footerTemplate` que
+> pinte el número de página centrado en gris tenue (queda invisible sobre la portada a sangre oscura y
+> visible en las páginas de contenido). Mantén `preferCSSPageSize:true`.
+
+### 3.4 Plantilla de cada tema/algoritmo (estructura pedagógica) — rellénala con datos reales
+
+Cada algoritmo es un capítulo con estas secciones (`h3.sub`), EN ESTE ORDEN. No todas aplican a todos
+(p. ej. «comparación con el anterior» solo si el algoritmo es evolución/variante de otro; «búsqueda en
+rejilla» solo si la has corrido de verdad). Aplica SIEMPRE los criterios de §0.1: idea llana primero,
+término al final, fórmulas SOLO en `.curiosos`, registro neutro, sin meta.
+
+1. **¿Qué es «X»?** — idea en lenguaje llano + `.analogy`. Fija el término con una caja `.palabra`
+   *después* de explicarlo. (Si el concepto base es nuevo —p. ej. «¿qué es una política?» antes de
+   PPO— dale su propio `h3.sub` y su `.palabra` ANTES de este.)
+2. **¿Para qué sirve? (en el mundo real)** — rejilla `.uses` con 4 usos reales.
+3. **Cómo funciona (su estructura)** — describe la estructura REAL (capas, dims) + `.pipe`
+   (Estado → red → salida). La regla matemática va en `.curiosos` (NO en el cuerpo). Cierra con un
+   `.tint` «la idea clave». Cuando ayude, un `.ejemplo` paso a paso (numerado) de una iteración.
+4. **«Mecanismos propios»** — los trucos específicos del algoritmo, cada uno explicado en llano
+   (DQN: Double DQN, Huber, red objetivo; SAC: doble crítico, α automática; World Model: planning…).
+   Usa `.interp`/`.pm`/`.palabra` según convenga.
+5. **La función de pérdida: ¿qué error minimizamos?** — explícala en llano y justifica la elección:
+   qué OPCIONES había y por qué esta, en una `table.compare` (la fórmula, si acaso, en `.curiosos`).
+6. **El experimento: objetivo, entorno y parámetros** — `table.params` con CADA hiperparámetro real y
+   su efecto en lenguaje comprensible.
+7. **¿Por qué estos parámetros? (búsqueda en rejilla)** — SOLO si has corrido un grid search real:
+   `table.compare` con resultados medidos + conclusión honesta (incluida la varianza). Si no, omítela.
+8. **La interfaz** — `figure` con captura REAL del algoritmo entrenando (+ inspector si lo hay).
+9. **Resultados** — cifras y curvas REALES + `.pm` (⚠ el problema / ✔ la mejora encontrada).
+10. **Interpretación: qué pasó al entrenar** — caja `.interp` de 3 columnas: 📊 qué observamos /
+    ✓ qué funcionó / ↗ qué mejoraríamos. Honestidad (§0.1): si no destacó, dilo y explica por qué.
+11. **Comparación con el modelo del que parte** — SOLO si es variante/evolución de otro algoritmo:
+    `table.compare` enfrentando ambos eje por eje.
+12. **Conclusiones** — `.takeaway` «en una frase», cerrando con los términos ya explicados.
 
 ```html
 <section class="section">
-  <div class="band b-blue"><div class="n">TEMA 0X · «SUBTÍTULO»</div><h2>«Nombre del algoritmo»</h2>
-    <div class="tag">«Una frase de qué resuelve»</div></div>
+  <div class="band b-blue"><div class="n">ALGORITMO 0X · «FAMILIA»</div><h2>«Nombre»</h2>
+    <div class="tag">«Una frase de qué resuelve, en llano»</div></div>
   <div class="pad" style="--accent:#2563eb;--accent-soft:#eff4fe">
 
-    <!-- 1) ¿QUÉ ES? + analogía -->
-    <h3 class="sub">¿Qué es «el algoritmo»?</h3>
-    <p>«Explicación en lenguaje llano; define cada término al usarlo con <span class="term">así</span>.»</p>
-    <div class="analogy"><div class="ic">🎯</div><div class="bd"><div class="t">Una analogía</div>
-      «Analogía cotidiana (p. ej. aprender por premios/castigos, ensayo y error).»</div></div>
+    <h3 class="sub">¿Qué es «X»?</h3>
+    <p>«Idea en lenguaje llano. El tecnicismo llega al final.»</p>
+    <div class="palabra"><span class="w">«Término».</span> «Eso que acabamos de describir se denomina…».</div>
+    <div class="analogy"><div class="ic">🎯</div><div class="bd"><div class="t">Una analogía</div>«…».</div></div>
 
-    <!-- 2) ¿PARA QUÉ SIRVE? (mundo real) -->
     <h3 class="sub">¿Para qué sirve? (en el mundo real)</h3>
-    <div class="uses">
-      <div class="use"><div class="h"><span class="e">🎮</span>«Uso 1»</div><p>«…»</p></div>
-      <div class="use"><div class="h"><span class="e">🤖</span>«Uso 2»</div><p>«…»</p></div>
-      <div class="use"><div class="h"><span class="e">🚗</span>«Uso 3»</div><p>«…»</p></div>
-      <div class="use"><div class="h"><span class="e">📈</span>«Uso 4»</div><p>«…»</p></div>
-    </div>
+    <div class="uses"><div class="use"><div class="h"><span class="e">🎮</span>«Uso»</div><p>«…»</p></div><!-- ×4 --></div>
 
-    <!-- 3) CÓMO ES (estructura REAL, nada de "embudo") -->
     <h3 class="sub">Cómo funciona (su estructura)</h3>
-    <p>«Describe la red real (capas y dimensiones) y la regla de actualización real.»</p>
-    <div class="pipe">
-      <div class="stage"><div class="nm">Estado</div><div class="dim">«dim»</div></div>
-      <div class="arrow">→</div>
-      <div class="stage"><div class="nm">Red «política/valor»</div><div class="dim">«capas»</div></div>
-      <div class="arrow">→</div>
-      <div class="stage"><div class="nm">«Acción / Q / valor»</div><div class="dim">«dim»</div></div>
-    </div>
-    <div class="formula">«Regla real: p.ej. Q(s,a) ← Q(s,a) + α·[r + γ·max Q(s',·) − Q(s,a)]»</div>
-    <div class="tint"><div class="t">«La idea clave»</div>«El truco central (Bellman, gradiente de política, clip de PPO…).»</div>
+    <p>«Estructura REAL: capas, dimensiones, qué entra y qué sale.»</p>
+    <div class="pipe"><div class="stage"><div class="nm">Estado</div><div class="dim">«dim»</div></div>
+      <div class="arrow">→</div><div class="stage"><div class="nm">Red</div><div class="dim">«capas»</div></div>
+      <div class="arrow">→</div><div class="stage"><div class="nm">«Salida»</div><div class="dim">«dim»</div></div></div>
+    <div class="curiosos"><div class="t">🔬 Para curiosos: «la fórmula»</div><div class="bd">
+      <div class="formula">«Regla real: Q(s,a) ← r + γ·max Q(s',·)»</div>«Una línea de qué dice.»</div></div>
+    <div class="tint"><div class="t">La idea clave</div>«El truco central, en llano.»</div>
 
-    <!-- 4) EL EXPERIMENTO: objetivo + entorno + parámetros EXPLICADOS -->
+    <h3 class="sub">La función de pérdida: ¿qué error minimizamos?</h3>
+    <p>«Qué se minimiza, en llano, y por qué esta opción y no otra.»</p>
+    <table class="compare"><tr><th>Opción</th><th>Qué hace</th><th>Por qué la elegimos o no</th></tr>
+      <tr><td>«A»</td><td>«…»</td><td>«…»</td></tr><tr><td>«B» ✓</td><td>«…»</td><td>«Elegida porque…»</td></tr></table>
+
     <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
-    <p><b>El entorno.</b> «Nombre del entorno, qué observa el agente, qué acciones tiene, qué recompensa.»
-       <b>El objetivo:</b> maximizar la recompensa acumulada a lo largo de «N» episodios/pasos.</p>
-    <table class="params">
-      <tr><th>Ajuste</th><th>Qué es y qué efecto tiene</th></tr>
-      <tr><td class="k">learning_rate</td><td>«El tamaño de cada paso de aprendizaje…»</td></tr>
-      <tr><td class="k">gamma (γ)</td><td>«Cuánto importan las recompensas futuras vs. las inmediatas (0=cortoplacista, →1=previsor).»</td></tr>
-      <tr><td class="k">epsilon (ε)</td><td>«Probabilidad de explorar al azar en vez de explotar lo aprendido; suele decaer con el tiempo.»</td></tr>
-      <tr><td class="k">«replay/batch/…»</td><td>«…explicado en términos comprensibles.»</td></tr>
-    </table>
+    <table class="params"><tr><th>Ajuste</th><th>Valor</th><th>Qué es y qué efecto tiene</th></tr>
+      <tr><td class="k">«hp»</td><td>«valor»</td><td>«efecto en llano»</td></tr></table>
 
-    <!-- 5) LA INTERFAZ (captura real) -->
     <h3 class="sub">La interfaz</h3>
-    <figure><img src="assets/tab_«tema».jpg" /><figcaption>«Qué se ve: render del entorno, curva de recompensa, política…».</figcaption></figure>
+    <figure><img src="assets/app_«tema».jpg" /><figcaption>«Qué se ve.»</figcaption></figure>
 
-    <!-- 6) RESULTADOS + mejora con agentes -->
-    <h3 class="sub">Resultados y la mejora con agentes</h3>
-    <p>«Qué consigue: recompensa final/tasa de éxito REAL. Pon la curva de recompensa.»</p>
-    <figure><img src="assets/«curva_recompensa».jpg" /><figcaption>«Curva real de recompensa por episodio (medida por el propio proyecto).»</figcaption></figure>
-    <div class="pm">
-      <div class="box prob"><div class="h">⚠ El problema</div>«El defecto de la 1ª versión (inestable, no converge, lento…).»</div>
-      <div class="box mejo"><div class="h">✔ La mejora encontrada</div>«La variante que sí funcionó y POR QUÉ (target network, normalizar ventajas, reward shaping, doble DQN…).»</div>
-    </div>
+    <h3 class="sub">Resultados</h3>
+    <p>«Cifras REALES medidas.»</p>
+    <figure><img src="assets/curvas_«tema».jpg" /><figcaption>«Curva real.»</figcaption></figure>
+    <div class="pm"><div class="box prob"><div class="h">⚠ El problema</div>«…»</div>
+      <div class="box mejo"><div class="h">✔ La mejora encontrada</div>«…»</div></div>
 
-    <!-- 7) CONCLUSIONES (con los tecnicismos explicados) -->
+    <h3 class="sub">Interpretación: qué pasó al entrenar</h3>
+    <div class="interp">
+      <div class="col obs"><div class="h">📊 Qué observamos</div><ul><li>«…»</li></ul></div>
+      <div class="col ok"><div class="h">✓ Qué funcionó</div><ul><li>«…»</li></ul></div>
+      <div class="col mejora"><div class="h">↗ Qué mejoraríamos</div><ul><li>«…»</li></ul></div></div>
+
     <h3 class="sub">Conclusiones</h3>
-    <div class="takeaway"><div class="t">En una frase</div><div class="bd">«Resumen claro; usa los términos técnicos PERO explicándolos (γ, ε-greedy, on/off-policy, ventaja, sample efficiency…).»</div></div>
+    <div class="takeaway"><div class="t">En una frase</div><div class="bd">«Resumen con términos ya explicados.»</div></div>
   </div>
 </section>
 ```
 
-> Si el agente **juega** un episodio, añade una tira de fotogramas (varias `figure` en `.imgrow`, o
-> una sola imagen-montaje) mostrando el agente actuando: es el equivalente vistoso a una animación.
+> Si el repo tiene una **pestaña/herramienta de medición** (benchmark, comparador en vivo), dale su
+> propia sección: por qué la métrica ingenua no basta, cómo se mide con justicia (p. ej. evaluación
+> **greedy** sobre partidas nuevas y mismo presupuesto), qué se mide y captura del panel.
 
 ### 3.5 Bloque de "código clave" (rellénalo con código REAL del repo)
 
@@ -494,10 +580,16 @@ Equivalencias de contenido:
   real medido.
 
 ## 6) CHECKLIST FINAL antes de darlo por bueno
+- [ ] **Voz (§0.1) en TODO**: idea llana antes que el término; registro neutro; **cero meta-información**;
+      **toda fórmula dentro de `.curiosos`** (el cuerpo se entiende sin ellas); honestidad (si algo no gana, se dice).
 - [ ] `LICENSE` MIT en castellano, copyright a nombre de Roberto Canales Mora.
-- [ ] PDF generado, **verificado página a página** (rasterizado), en pocos MB, español.
+- [ ] PDF generado, **verificado página a página** (rasterizado), en pocos MB, español, **páginas numeradas**.
 - [ ] Portada con Autor / Licencia MIT / Repositorio.
-- [ ] Cada tema con sus **7 partes**; estructura real (sin metáforas baratas); **parámetros explicados**.
+- [ ] Cada algoritmo con su **estructura de §3.4**: ¿qué es? + analogía, para qué sirve, estructura real,
+      **función de pérdida (opciones + por qué)**, parámetros explicados, interfaz, resultados,
+      **interpretación (qué observamos/funcionó/mejoraríamos)** y, si es variante, **comparación con el anterior**.
+- [ ] Términos fijados con `.palabra` *después* de explicarlos; conceptos con su caja, no sueltos.
+- [ ] Sección de **medición** (si hay benchmark): por qué la curva de entrenamiento no basta + evaluación greedy.
 - [ ] Sección de instalación + estructura del código (árbol) + **código clave real** por algoritmo.
 - [ ] Sección de licencia con el **texto MIT completo en castellano** (idéntico al fichero `LICENSE`).
 - [ ] README visual: hero del PDF (portada clicable + botón de descarga + tira de páginas) y **captura

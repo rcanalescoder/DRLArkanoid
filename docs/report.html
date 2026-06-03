@@ -1365,10 +1365,144 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
   </div>
 </section>
 
+<!-- ============================ ALGORITMO 05 · WORLD MODEL RNN ============================ -->
+<section class="section">
+  <div class="band b-green"><div class="n">ALGORITMO 05 · MODEL-BASED RECURRENTE</div><h2>World Model RNN — Dyna-Q + LSTM</h2>
+    <div class="tag">El mismo World Model, pero con un modelo del juego que tiene memoria.</div></div>
+  <div class="pad" style="--accent:#0c9f6e;--accent-soft:#e9fbf4">
+
+    <h3 class="sub">¿Qué es un World Model recurrente?</h3>
+    <p>Es una variante del World Model anterior. Comparte casi todo con él: aprende un <b>modelo del juego</b> y entrena
+      «imaginando» partidas (Dyna-Q), con un Q-net idéntico al de DQN para decidir. Lo único que cambia es <b>cómo es ese
+      modelo del juego</b>. El World Model normal predice de uno en uno: le das una situación y una acción, y te dice la
+      siguiente, sin recordar nada de lo anterior. Esta variante usa un modelo <b>con memoria</b>: procesa los pasos en
+      orden y va arrastrando un resumen de todo lo que ha visto.</p>
+    <div class="palabra"><span class="w">Red recurrente y LSTM.</span> Una red que mantiene un resumen del pasado y lo
+      actualiza paso a paso se denomina <b>red recurrente</b>; la variante concreta que usamos aquí, capaz de recordar
+      tanto lo reciente como lo lejano, se denomina <b>LSTM</b> (Long Short-Term Memory). Ese resumen interno se denomina
+      <b>estado oculto</b>.</p>
+    <div class="analogy"><div class="ic">🎬</div><div class="bd"><div class="t">Una analogía</div>
+      Es la diferencia entre describir una <b>foto suelta</b> y entender una <b>película</b>. El World Model normal mira
+      cada instante por separado; el recurrente ve la secuencia y recuerda hacia dónde iban las cosas, como quien conduce
+      una carretera que ya ha recorrido antes.</div></div>
+
+    <h3 class="sub">¿Para qué sirve? (en el mundo real)</h3>
+    <div class="uses">
+      <div class="use"><div class="h"><span class="e">🎥</span>Cuando el presente no basta</div><p>Si una sola observación no dice todo (por ejemplo, un fotograma sin velocidad), la memoria reconstruye lo que falta a partir del pasado.</p></div>
+      <div class="use"><div class="h"><span class="e">🌫️</span>Información incompleta</div><p>Entornos donde el agente no ve el estado completo: la memoria suple lo oculto recordando lo ya visto.</p></div>
+      <div class="use"><div class="h"><span class="e">📈</span>Secuencias temporales</div><p>Series en el tiempo (sensores, audio, texto): predecir el siguiente valor a partir de toda la historia, no solo del último instante.</p></div>
+      <div class="use"><div class="h"><span class="e">🏎️</span>Modelos del mundo</div><p>Es la pieza central de «World Models» (Ha &amp; Schmidhuber): un simulador aprendido que imagina el futuro a partir de imágenes.</p></div>
+    </div>
+
+    <h3 class="sub">Cómo funciona (su estructura)</h3>
+    <p>Las dos piezas son las del World Model —un <b>Q-net</b> que decide y un <b>modelo de dinámica</b> que predice el
+      futuro—, pero el modelo deja de ser un perceptrón de un solo paso y pasa a ser un <b>LSTM</b>. En vez de mirar cada
+      <span class="mono">(s, a)</span> por separado, procesa una <b>secuencia</b> de pasos en orden y, en cada uno, mezcla
+      la entrada actual con su memoria del pasado para predecir el incremento <span class="mono">Δs</span>, la recompensa y
+      si termina.</p>
+    <div class="pipe">
+      <div class="stage"><div class="nm">Secuencia (s, a)</div><div class="dim">16 pasos</div></div>
+      <div class="arrow">→</div>
+      <div class="stage"><div class="nm">LSTM</div><div class="dim">memoria h: 128</div></div>
+      <div class="arrow">→</div>
+      <div class="stage"><div class="nm">Δs, r, done</div><div class="dim">en cada paso</div></div>
+      <div class="arrow">→</div>
+      <div class="stage"><div class="nm">Q-net</div><div class="dim">imagina con memoria</div></div>
+    </div>
+    <p>Como un LSTM aprende de secuencias ordenadas, no le sirve el replay buffer que baraja transiciones sueltas: necesita
+      su propia memoria que guarde los episodios <b>en orden</b>. Por eso esta variante añade un <b>buffer de secuencias</b>
+      que acumula cada partida completa y luego muestrea tramos contiguos de 16 pasos para entrenar.</p>
+    <div class="curiosos"><div class="t">🔬 Para curiosos: el estado oculto</div><div class="bd">
+      En cada paso, el LSTM combina la entrada actual (el estado y la acción, <span class="mono">s_t ⊕ a_t</span>) con su
+      memoria anterior <span class="mono">h_{t-1}</span> para producir una memoria nueva, y de ahí salen las predicciones:
+      <div class="formula">h_t = LSTM(s_t ⊕ a_t, h_{t-1})    ·    (Δs, r, done) = Dense(h_t)    ·    s' = s + Δs</div>
+      Ese <span class="mono">h_t</span> resume toda la trayectoria vista hasta el momento; es lo que le da «memoria».</div></div>
+    <div class="tint"><div class="t">La idea clave: imaginar con memoria</div>Al imaginar varios pasos seguidos, el LSTM no
+      parte de cero en cada uno: arrastra su estado oculto por toda la trayectoria imaginada. Así las predicciones
+      encadenadas se desvían menos que las de un modelo que mira cada paso aislado.</div>
+
+    <h3 class="sub">La función de pérdida: aprender secuencias enteras</h3>
+    <p>El modelo recurrente se entrena, como el del World Model, de forma <b>supervisada</b>: acertar el cambio de estado
+      <span class="mono">Δs</span> (error cuadrático), la recompensa (error cuadrático) y si el episodio termina (entropía
+      cruzada). La diferencia es que la pérdida se promedia <b>a lo largo de toda la secuencia</b> de 16 pasos, no sobre
+      transiciones sueltas: así el LSTM aprende a encadenar, no solo a dar un paso. La decisión de diseño está en cómo
+      construir ese modelo del juego:</p>
+    <table class="compare">
+      <tr><th>Opción</th><th>Cómo predice</th><th>Por qué la elegimos o no</th></tr>
+      <tr><td><b>Perceptrón de un paso</b> (algoritmo 04)</td><td>Cada (s, a) por separado, sin memoria.</td><td>Simple y rápido; pero al imaginar varios pasos acumula error (model bias). Es la versión base.</td></tr>
+      <tr><td><b>LSTM por secuencias</b> ✓</td><td>Procesa los pasos en orden y arrastra memoria; se entrena sobre tramos.</td><td>Imagina trayectorias más coherentes a más pasos. El coste: necesita secuencias y es algo más lento. La variante de este capítulo.</td></tr>
+    </table>
+
+    <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
+    <table class="params">
+      <tr><th>Ajuste</th><th>Valor</th><th>Qué es y qué efecto tiene</th></tr>
+      <tr><td class="k">unidades_lstm</td><td>128</td><td>Tamaño de la memoria (estado oculto): cuánto «cabe» en el resumen del pasado.</td></tr>
+      <tr><td class="k">long_secuencia</td><td>16</td><td>Pasos por tramo con que se entrena el LSTM: cuánta historia ve de una vez.</td></tr>
+      <tr><td class="k">batch_secuencias</td><td>32</td><td>Cuántos tramos se usan en cada actualización del modelo.</td></tr>
+      <tr><td class="k">buffer_secuencias</td><td>256</td><td>Episodios completos guardados en orden para muestrear tramos.</td></tr>
+      <tr><td class="k">pasos_planning</td><td>5</td><td>Actualizaciones del Q-net con datos imaginados por cada paso real.</td></tr>
+    </table>
+
+    <h3 class="sub">La interfaz</h3>
+    <figure><img src="assets/app_worldmodel_rnn.jpg" /><figcaption>World Model RNN entrenando en el navegador. Las métricas son las del World Model (error del modelo, planning) más el tamaño de la memoria LSTM; el inspector compara el estado real con el predicho por el modelo recurrente.</figcaption></figure>
+
+    <h3 class="sub">Resultados</h3>
+    <p>En una verificación de 20.000 pasos (CPU), la recompensa subió de <b>−0.055 a ~0.44</b> (veredicto «aprende»), con el
+      error del modelo LSTM bajando de 1.0 a <b>~0.13</b> (RMSE sobre estados normalizados) y memoria plana (~43 tensores,
+      sin fugas). En el navegador (WebGPU) entrena con normalidad: el error del modelo cae a ~0.15 y la imaginación
+      recurrente funciona. Es un resultado de partida razonable, en la liga de los demás.</p>
+    <div class="pm">
+      <div class="box prob"><div class="h">⚠ El matiz de esta tarea</div>Nuestro estado ya incluye la <b>velocidad</b> de la pelota, así que un solo instante casi basta para predecir el siguiente (es «casi markoviano»). La memoria del LSTM aporta menos aquí que en una tarea con información incompleta.</div>
+      <div class="box mejo"><div class="h">✔ Dónde luce</div>Su ventaja —imaginar trayectorias largas más coherentes— se nota cuando el presente no basta, como en el «World Models» original, que aprende desde <b>imágenes</b> (sin velocidad explícita).</div>
+    </div>
+
+    <h3 class="sub">Interpretación: qué pasó al entrenar</h3>
+    <div class="interp">
+      <div class="col obs"><div class="h">📊 Qué observamos</div><ul>
+        <li>El LSTM aprende la física por secuencias: su error baja de 1.0 a <b>~0.13</b>.</li>
+        <li>La recompensa sube a ~0.44; en línea con el World Model base, no por encima.</li>
+        <li>Sin fugas de memoria pese a entrenar por secuencias e imaginar con estado oculto.</li>
+      </ul></div>
+      <div class="col ok"><div class="h">✓ Qué funcionó</div><ul>
+        <li>El <b>buffer de secuencias</b> + entrenar sobre tramos de 16 pasos.</li>
+        <li>Arrastrar el estado oculto al imaginar: rollouts coherentes.</li>
+        <li>Reutilizar el Q-net de DQN sin cambios: solo cambia el modelo.</li>
+      </ul></div>
+      <div class="col mejora"><div class="h">↗ Qué mejoraríamos</div><ul>
+        <li>Probarlo en una tarea con <b>información incompleta</b>, donde la memoria mande.</li>
+        <li>Predecir una <b>distribución</b> (como el MDN-RNN original), no un único futuro.</li>
+        <li>Alargar el horizonte imaginado aprovechando que la memoria lo sostiene mejor.</li>
+      </ul></div>
+    </div>
+
+    <h3 class="sub">Comparación con el modelo del que parte (World Model)</h3>
+    <p>Es el mismo World Model con una sola pieza cambiada: el modelo de dinámica gana memoria.</p>
+    <table class="compare">
+      <tr><th>Eje</th><th>World Model (04)</th><th>World Model RNN (05)</th></tr>
+      <tr><td>Modelo de dinámica</td><td>Perceptrón de un paso.</td><td><b>LSTM</b> (red recurrente con memoria).</td></tr>
+      <tr><td>Cómo se entrena</td><td>Transiciones sueltas barajadas.</td><td><b>Secuencias</b> ordenadas (tramos de 16 pasos).</td></tr>
+      <tr><td>Al imaginar</td><td>Cada paso parte de cero.</td><td>Arrastra el <b>estado oculto</b>: más coherente.</td></tr>
+      <tr><td>Memoria que usa</td><td>Replay buffer.</td><td>Replay buffer <b>+ buffer de secuencias</b>.</td></tr>
+      <tr><td>Dónde brilla</td><td>Estado completo (como el nuestro).</td><td>Información incompleta / secuencias.</td></tr>
+    </table>
+    <div class="palabra"><span class="w">De dónde viene.</span> La idea está tomada de <b>«World Models»</b> (Ha &amp;
+      Schmidhuber, 2018), donde un agente aprende a comprimir la imagen del juego (con un autocodificador, el VAE), una
+      memoria recurrente (un LSTM) que predice cómo evoluciona esa imagen comprimida, y un pequeño controlador. Aquí
+      <b>no hace falta el VAE</b> —nuestro estado ya son 6 números, no una imagen—, así que tomamos solo la pieza valiosa
+      para nosotros: la <b>memoria recurrente</b> como modelo de dinámica.</div>
+
+    <h3 class="sub">Conclusiones</h3>
+    <div class="takeaway"><div class="t">En una frase</div><div class="bd">El World Model RNN sustituye el modelo de un paso
+      por un <span class="term">LSTM</span> que aprende <span class="term">secuencias</span> y arrastra
+      <span class="term">memoria</span>, imaginando trayectorias más coherentes. En esta tarea casi markoviana iguala al
+      World Model base; su ventaja real asoma cuando el presente no basta.</div></div>
+  </div>
+</section>
+
 <!-- ============================ COMPARADOR ============================ -->
 <section class="section">
-  <div class="band b-ink"><div class="n">COMPARADOR</div><h2>Los cuatro, cara a cara</h2>
-    <div class="tag">Misma tarea, mismo entorno, cuatro filosofías distintas.</div></div>
+  <div class="band b-ink"><div class="n">COMPARADOR</div><h2>Los cinco, cara a cara</h2>
+    <div class="tag">Misma tarea, mismo entorno, cinco filosofías distintas.</div></div>
   <div class="pad" style="--accent:#374151;--accent-soft:#f3f4f6">
     <table class="compare">
       <tr><th>Algoritmo</th><th>Familia</th><th>Política</th><th>Qué aprende</th><th>Exploración</th><th>Señal propia</th><th>Reward real*</th></tr>
@@ -1376,30 +1510,82 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <tr><td>PPO</td><td>Model-free · actor-crítico</td><td>on-policy</td><td>π(a|s) + V(s)</td><td>entropía</td><td>entropía, ventaja</td><td>0.1 → 0.99 (4.08 en CPU)</td></tr>
       <tr><td>SAC</td><td>Model-free · actor-crítico</td><td>off-policy</td><td>π + 2·Q</td><td>máx. entropía (α)</td><td>temperatura α</td><td>0 → 0.99</td></tr>
       <tr><td>World Model</td><td>Model-based</td><td>off-policy</td><td>dinámica + Q</td><td>ε-greedy</td><td>error del modelo</td><td>0 → 0.71</td></tr>
+      <tr><td>World Model RNN</td><td>Model-based · recurrente</td><td>off-policy</td><td>dinámica (LSTM) + Q</td><td>ε-greedy</td><td>error del modelo</td><td>0 → 0.44 (CPU)</td></tr>
     </table>
-    <p class="legend">* Recompensa media de los últimos 100 episodios, medida en ejecuciones reales (navegador con WebGPU; el dato de PPO en CPU es de una corrida más larga). El throughput observado fue de ~24.000 exp/s en WebGPU frente a ~5.600 exp/s en CPU.</p>
+    <p class="legend">* Recompensa media de los últimos 100 episodios, medida en ejecuciones reales (navegador con WebGPU; los datos de PPO y del World Model RNN son de corridas en CPU). El throughput observado fue de ~24.000 exp/s en WebGPU frente a ~5.600 exp/s en CPU.</p>
 
     <h3 class="sub">La misma maquinaria, dimensión a dimensión</h3>
-    <p>Y aquí están los cuatro enfrentados en cada decisión de diseño que hemos ido viendo capítulo a capítulo:</p>
-    <table class="compare">
-      <tr><th>Dimensión</th><th>DQN</th><th>PPO</th><th>SAC</th><th>World Model</th></tr>
-      <tr><td><b>Familia</b></td><td>Valor</td><td>Actor-crítico</td><td>Actor-crítico</td><td>Model-based</td></tr>
-      <tr><td><b>Qué aprende</b></td><td>Valor de cada acción</td><td>Estrategia + valor</td><td>Estrategia + 2 valores</td><td>Física + valor</td></tr>
-      <tr><td><b>Nº de redes</b></td><td>2</td><td>2</td><td><b>5</b></td><td>2</td></tr>
-      <tr><td><b>Función de pérdida</b></td><td>Huber (TD)</td><td>Recortada + V + entropía</td><td>3 pérdidas (min-Q, actor, α)</td><td>Regresión + Huber</td></tr>
-      <tr><td><b>Memoria</b></td><td>Replay buffer</td><td>Rollout (usa y tira)</td><td>Replay buffer</td><td>Replay buffer</td></tr>
-      <tr><td><b>Exploración</b></td><td>ε-greedy</td><td>Entropía fija</td><td>Entropía con α <b>auto</b></td><td>ε-greedy</td></tr>
-      <tr><td><b>Eficiencia en datos</b></td><td>Alta</td><td>Media</td><td>Alta</td><td><b>La más alta</b>*</td></tr>
-      <tr><td><b>Estabilidad</b></td><td>Media-alta</td><td><b>La mejor</b></td><td>Alta</td><td>Según el modelo</td></tr>
-      <tr><td><b>Coste por paso</b></td><td>Bajo</td><td>Bajo</td><td>Alto</td><td>Medio</td></tr>
-      <tr><td><b>Su riesgo propio</b></td><td>Sobreestimar Q</td><td>Pasos grandes</td><td>Cómputo</td><td>Model bias</td></tr>
-      <tr><td><b>Brilla cuando…</b></td><td>Quieres un cimiento simple</td><td>Quieres cero sustos</td><td>Los datos son caros y hay que explorar</td><td>Cada dato real cuesta mucho</td></tr>
+    <p>Y aquí están los cinco enfrentados en cada decisión de diseño que hemos ido viendo capítulo a capítulo:</p>
+    <table class="compare" style="font-size:8.3pt">
+      <tr><th>Dimensión</th><th>DQN</th><th>PPO</th><th>SAC</th><th>World Model</th><th>World Model RNN</th></tr>
+      <tr><td><b>Familia</b></td><td>Valor</td><td>Actor-crítico</td><td>Actor-crítico</td><td>Model-based</td><td>Model-based</td></tr>
+      <tr><td><b>Qué aprende</b></td><td>Valor de cada acción</td><td>Estrategia + valor</td><td>Estrategia + 2 valores</td><td>Física + valor</td><td>Física (LSTM) + valor</td></tr>
+      <tr><td><b>Nº de redes</b></td><td>2</td><td>2</td><td><b>5</b></td><td>2</td><td>2</td></tr>
+      <tr><td><b>Función de pérdida</b></td><td>Huber (TD)</td><td>Recortada + V + entropía</td><td>3 pérdidas (min-Q, actor, α)</td><td>Regresión + Huber</td><td>Regresión (secuencias) + Huber</td></tr>
+      <tr><td><b>Memoria</b></td><td>Replay buffer</td><td>Rollout (usa y tira)</td><td>Replay buffer</td><td>Replay buffer</td><td>Replay <b>+ secuencias</b></td></tr>
+      <tr><td><b>Modelo de dinámica</b></td><td>—</td><td>—</td><td>—</td><td>MLP (1 paso)</td><td><b>LSTM</b> (secuencia)</td></tr>
+      <tr><td><b>Exploración</b></td><td>ε-greedy</td><td>Entropía fija</td><td>Entropía con α <b>auto</b></td><td>ε-greedy</td><td>ε-greedy</td></tr>
+      <tr><td><b>Eficiencia en datos</b></td><td>Alta</td><td>Media</td><td>Alta</td><td><b>La más alta</b>*</td><td>Alta*</td></tr>
+      <tr><td><b>Estabilidad</b></td><td>Media-alta</td><td><b>La mejor</b></td><td>Alta</td><td>Según el modelo</td><td>Según el modelo</td></tr>
+      <tr><td><b>Coste por paso</b></td><td>Bajo</td><td>Bajo</td><td>Alto</td><td>Medio</td><td>Medio-alto</td></tr>
+      <tr><td><b>Su riesgo propio</b></td><td>Sobreestimar Q</td><td>Pasos grandes</td><td>Cómputo</td><td>Model bias</td><td>Model bias</td></tr>
+      <tr><td><b>Brilla cuando…</b></td><td>Quieres un cimiento simple</td><td>Quieres cero sustos</td><td>Los datos son caros y hay que explorar</td><td>Cada dato real cuesta mucho</td><td>El presente no basta (memoria)</td></tr>
     </table>
     <p class="legend">* "La más alta" siempre que el modelo aprendido sea fiel; si no, el model bias lo penaliza.</p>
 
     <div class="takeaway"><div class="t">Qué llevarse</div><div class="bd">No hay un "mejor" universal: <b>DQN</b> es el cimiento más simple;
       <b>PPO</b> es el más estable y de uso general; <b>SAC</b> es el más eficiente en datos y explora solo; el
-      <b>World Model</b> es el más ambicioso (aprende el juego) y el más delicado. Entender los cuatro es entender el mapa del RL profundo.</div></div>
+      <b>World Model</b> es el más ambicioso (aprende el juego) y el más delicado; y el <b>World Model RNN</b> le añade
+      memoria (un LSTM) para imaginar secuencias más coherentes. Entender los cinco es entender el mapa del RL profundo.</div></div>
+  </div>
+</section>
+
+<!-- ============================ MEDICIÓN ============================ -->
+<section class="section">
+  <div class="band b-ink"><div class="n">MEDICIÓN</div><h2>Medir de verdad: ¿quién juega mejor?</h2>
+    <div class="tag">Por qué la curva de entrenamiento no basta, y cómo comparar con justicia.</div></div>
+  <div class="pad" style="--accent:#374151;--accent-soft:#f3f4f6">
+
+    <h3 class="sub">El problema: la recompensa de entrenar no es justa</h3>
+    <p>Sería tentador comparar a los cinco mirando su curva de recompensa durante el entrenamiento y coronar al de la curva
+      más alta. Pero esa comparación es <b>injusta</b>, porque mientras entrena, cada algoritmo <b>explora de una manera
+      distinta</b>: DQN mueve al azar una fracción de las veces, SAC se obliga a probar cosas a propósito, PPO decide con
+      algo de aleatoriedad. Esa exploración <b>ensucia</b> la recompensa: un algoritmo puede tener una política excelente y
+      aun así puntuar bajo durante el entrenamiento porque se está forzando a experimentar.</p>
+    <div class="ejemplo"><div class="t">🧮 Un ejemplo</div>
+      Imagina dos alumnos igual de buenos. A uno le dejas hacer el examen tal cual; al otro le obligas a responder 1 de
+      cada 4 preguntas al azar «para que explore». El segundo sacará peor nota, pero <b>no porque sepa menos</b>. Comparar
+      sus notas así no dice quién sabe más. Con los algoritmos pasa lo mismo.</div>
+
+    <h3 class="sub">La solución: evaluar la política «en limpio»</h3>
+    <p>Para comparar con justicia, tras entrenar cada modelo se le hace «el examen en limpio»: se le deja jugar
+      <b>sin exploración</b> —eligiendo siempre lo que cree mejor— sobre un puñado de <b>partidas nuevas</b>, y se mide cómo
+      le va. Así se compara la <b>calidad real</b> de cada política, sin el ruido de la exploración.</p>
+    <div class="palabra"><span class="w">Actuar en modo greedy.</span> Jugar sin exploración, eligiendo siempre la acción
+      que la red considera mejor, se denomina actuar en modo <b>greedy</b> (o <b>determinista</b>). Es lo contrario de
+      explorar.</div>
+
+    <h3 class="sub">Qué se mide (y por qué)</h3>
+    <table class="params">
+      <tr><th>Métrica</th><th>Qué dice</th></tr>
+      <tr><td class="k">Recompensa greedy</td><td>La calidad real de la política, ya sin el ruido de la exploración. Es la medida principal.</td></tr>
+      <tr><td class="k">Tasa de éxito</td><td>Porcentaje de partidas en que limpia todos los ladrillos: ¿resuelve la tarea o solo sobrevive?</td></tr>
+      <tr><td class="k">Ladrillos rotos</td><td>Progreso fino, útil cuando el éxito total todavía es raro.</td></tr>
+      <tr><td class="k">Eficiencia de muestra</td><td>Cuántos pasos necesita para superar un umbral de recompensa: ¿quién aprende con menos datos?</td></tr>
+      <tr><td class="k">Estabilidad</td><td>Cuánto oscila la curva al final (su desviación): ¿sube suave o a tirones?</td></tr>
+      <tr><td class="k">Throughput</td><td>Experiencias por segundo: lo barato o caro que es cada paso de ese algoritmo.</td></tr>
+    </table>
+    <div class="note">Para que la comparación sea limpia, los cinco se entrenan con el <b>mismo presupuesto</b> de pasos, los
+      <b>mismos entornos</b> y las <b>mismas recompensas</b>, y se evalúan sobre partidas nuevas. Misma vara de medir para todos.</div>
+
+    <h3 class="sub">La pestaña «Comparativa»</h3>
+    <p>El laboratorio incorpora esto como una herramienta: una segunda pestaña que, con un botón, entrena los cinco modelos
+      con el mismo presupuesto, los evalúa en modo greedy y presenta un <b>panel de resultados</b>: las curvas de
+      aprendizaje superpuestas, una tabla con las métricas de arriba (marcando la mejor de cada columna) y un veredicto.</p>
+    <figure><img src="assets/comparativa_dashboard.jpg" /><figcaption>La pestaña Comparativa tras enfrentar a los cinco modelos: curvas de aprendizaje superpuestas (izquierda) y la tabla de evaluación greedy con la mejor marca de cada columna (derecha), más un veredicto automático.</figcaption></figure>
+    <div class="takeaway"><div class="t">En una frase</div><div class="bd">Construir un modelo no basta: hay que <b>medirlo bien</b>.
+      La recompensa de entrenamiento mezcla la exploración de cada uno; la comparación justa es la <span class="term">evaluación
+      greedy</span> —sin exploración, sobre partidas nuevas y con el mismo presupuesto para todos.</div></div>
   </div>
 </section>
 

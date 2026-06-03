@@ -1,6 +1,6 @@
 # 🧠 Arkanoid DRL Learning Lab
 
-Un **laboratorio educativo de Deep Reinforcement Learning** donde cuatro algoritmos —**DQN, PPO, SAC y World Model**— aprenden a jugar al Arkanoid **en tu navegador**, con redes neuronales reales sobre **TensorFlow.js** y aceleración **WebGPU** (Metal/MPS en Apple Silicon). El agente no conoce las reglas del juego: las descubre jugando cientos de partidas en paralelo, y tú lo ves aprender en tiempo real.
+Un **laboratorio educativo de Deep Reinforcement Learning** donde cinco algoritmos —**DQN, PPO, SAC, World Model y World Model RNN**— aprenden a jugar al Arkanoid **en tu navegador**, con redes neuronales reales sobre **TensorFlow.js** y aceleración **WebGPU** (Metal/MPS en Apple Silicon). El agente no conoce las reglas del juego: las descubre jugando cientos de partidas en paralelo, y tú lo ves aprender en tiempo real.
 
 No es un prototipo visual: el entrenamiento es **real** y está **verificado**. Cada algoritmo entrena con redes neuronales, actualiza sus pesos por descenso de gradiente y mejora de forma medible (recompensa al alza, sin fugas de memoria).
 
@@ -10,19 +10,22 @@ No es un prototipo visual: el entrenamiento es **real** y está **verificado**. 
 | 02 | **PPO** — Proximal Policy Optimization | Model-free · actor-crítico · on-policy | Optimiza la política con objetivo recortado + ventajas (GAE). |
 | 03 | **SAC** — Soft Actor-Critic (discreto) | Model-free · actor-crítico · off-policy | Máxima entropía, dos críticos y temperatura α automática. |
 | 04 | **World Model** — Dyna-Q | Model-based · off-policy | Aprende un modelo de la dinámica y entrena "imaginando". |
+| 05 | **World Model RNN** — Dyna-Q + LSTM | Model-based · recurrente · off-policy | El modelo de la dinámica es un LSTM con memoria que aprende secuencias. |
+
+Además, una pestaña **🏁 Comparativa** entrena los cinco con el mismo presupuesto y los evalúa en modo **greedy** (sin exploración) para compararlos con justicia en un dashboard.
 
 ---
 
 ## 📄 Cuaderno PDF — descárgalo
 
-Un cuaderno divulgativo de **61 páginas** en castellano que explica, paso a paso y con capturas reales, **los fundamentos del RL** (el bucle agente–entorno, los componentes, las recompensas, los episodios y la red neuronal) y **cómo funciona todo por dentro**: cómo arranca y se ejecuta el juego, cómo el agente toma los controles, cómo se guardan los datos, cómo se entrena la red y cómo se actualizan las gráficas. Cada uno de los cuatro algoritmos tiene su capítulo homogéneo —red, **función de pérdida** (qué opciones había y por qué la elegida), justificación de parámetros (con **búsqueda en rejilla**), interpretación de resultados y comparación con el anterior— y se cierra con una **tabla comparativa global**.
+Un cuaderno divulgativo de **68 páginas** en castellano que explica, paso a paso y con capturas reales, **los fundamentos del RL** (el bucle agente–entorno, los componentes, las recompensas, los episodios y la red neuronal) y **cómo funciona todo por dentro**: cómo arranca y se ejecuta el juego, cómo el agente toma los controles, cómo se guardan los datos, cómo se entrena la red y cómo se actualizan las gráficas. Cada uno de los cinco algoritmos tiene su capítulo homogéneo —red, **función de pérdida** (qué opciones había y por qué la elegida), justificación de parámetros (con **búsqueda en rejilla**), interpretación de resultados y comparación con el anterior—, se cierra con una **tabla comparativa global** y una sección de **medición** (por qué la evaluación **greedy** es la forma justa de comparar).
 
 <p align="center">
   <a href="docs/Arkanoid-DRL-Learning-Lab.pdf"><img src="docs/assets/pdf_cover.jpg" width="340" alt="Portada del cuaderno PDF" /></a>
 </p>
 <p align="center">
   <a href="docs/Arkanoid-DRL-Learning-Lab.pdf"><b>⬇️&nbsp;&nbsp;Descargar el PDF</b></a>
-  &nbsp;&nbsp;·&nbsp;&nbsp;61 páginas&nbsp;&nbsp;·&nbsp;&nbsp;~6,5 MB&nbsp;&nbsp;·&nbsp;&nbsp;español
+  &nbsp;&nbsp;·&nbsp;&nbsp;68 páginas&nbsp;&nbsp;·&nbsp;&nbsp;~6,5 MB&nbsp;&nbsp;·&nbsp;&nbsp;español
 </p>
 <p align="center">
   <a href="docs/Arkanoid-DRL-Learning-Lab.pdf"><img src="docs/assets/pdf_preview.jpg" width="820" alt="Páginas de muestra del cuaderno" /></a>
@@ -34,10 +37,11 @@ Un cuaderno divulgativo de **61 páginas** en castellano que explica, paso a pas
 
 ## ✨ Características
 
-- **4 algoritmos de RL reales** con redes neuronales (no simulaciones): DQN, PPO, SAC discreto y un World Model (Dyna-Q).
+- **5 algoritmos de RL reales** con redes neuronales (no simulaciones): DQN, PPO, SAC discreto, un World Model (Dyna-Q) y un **World Model recurrente** (Dyna-Q + LSTM).
 - **Entrenamiento acelerado por GPU** con TensorFlow.js: detección automática **WebGPU → WebGL → CPU**. ~24.000 experiencias/s en WebGPU.
 - **Arquitectura desacoplada**: cientos de entornos *headless* generan los datos; unos pocos *visuales* se dibujan ejecutando la misma política.
 - **UI adaptativa**: las métricas, las curvas y el **inspector** cambian según el algoritmo seleccionado.
+- **Pestaña Comparativa** (*benchmark*): entrena los cinco con el mismo presupuesto y los evalúa en modo **greedy** (sin exploración) sobre partidas nuevas; dashboard con curvas superpuestas, tabla de métricas y veredicto.
 - **Búsqueda de hiperparámetros en vivo** (*grid search*): un pop-up prueba varias combinaciones entrenando un agente aislado por cada una, las ordena por recompensa en tiempo real y permite **aplicar la ganadora** al laboratorio con un clic.
 - **Sistema de trazas** estructuradas para monitorización (recompensa, pérdida, exploración, throughput, tensores activos).
 - **Sin fugas de memoria**: recuento de tensores constante durante todo el entrenamiento (verificado).
@@ -62,10 +66,10 @@ npm run dev            # abre http://localhost:5173 y pulsa ▶ Entrenar
 ./arrancar.sh
 ```
 
-Verificar que los 4 algoritmos aprenden (sin navegador, backend CPU) o entrenar uno con trazas por consola:
+Verificar que los 5 algoritmos aprenden (sin navegador, backend CPU) o entrenar uno con trazas por consola:
 
 ```bash
-npm run verificar                                    # entrena los 4 y reporta si aprenden
+npm run verificar                                    # entrena los 5 y reporta si aprenden
 node scripts/entrenar.mjs dqn --pasos 40000 --envs 128
 ```
 
@@ -99,6 +103,16 @@ Actor-crítico de **máxima entropía**: maximiza recompensa y aleatoriedad, con
 **Model-based**: aprende un modelo de la dinámica (s,a)→(s',r) y entrena la política con experiencia **imaginada**.
 
 <p align="center"><img src="docs/assets/app_worldmodel.jpg" width="780" alt="World Model" /><br/><sub>Las métricas se adaptan (Error del modelo, Planning) y el inspector compara el estado real con el predicho.</sub></p>
+
+### World Model RNN — Dyna-Q + LSTM
+**Model-based recurrente**: el mismo World Model, pero su modelo de la dinámica es un **LSTM** que aprende de **secuencias** y arrastra un estado oculto (memoria), para imaginar trayectorias más coherentes. Inspirado en el MDN-RNN de *World Models* (Ha & Schmidhuber, 2018).
+
+<p align="center"><img src="docs/assets/app_worldmodel_rnn.jpg" width="780" alt="World Model RNN" /><br/><sub>Las métricas incluyen el tamaño de la memoria LSTM; el inspector compara el estado real con el predicho por el modelo recurrente.</sub></p>
+
+### 🏁 Comparativa de modelos
+Una segunda pestaña entrena los cinco con el **mismo presupuesto** y los evalúa en modo **greedy** (sin exploración) sobre partidas nuevas — la forma justa de compararlos, ya que la recompensa de entrenamiento mezcla la exploración de cada uno.
+
+<p align="center"><img src="docs/assets/comparativa_dashboard.jpg" width="780" alt="Comparativa de modelos" /><br/><sub>Curvas de aprendizaje superpuestas, tabla de evaluación greedy (mejor marca por columna) y veredicto automático.</sub></p>
 
 ---
 
@@ -136,7 +150,7 @@ docs/                  # el cuaderno PDF + capturas
 |---------|----------|
 | `npm run dev` | Arranca el laboratorio en `http://localhost:5173`. |
 | `./arrancar.sh` | Arranca y, si ya estaba en marcha, rearranca. |
-| `npm run verificar` | Entrena los 4 algoritmos (CPU) y reporta si aprenden. |
+| `npm run verificar` | Entrena los 5 algoritmos (CPU) y reporta si aprenden. |
 | `node scripts/entrenar.mjs <algo>` | Entrena un algoritmo por consola mostrando trazas. |
 | `npm run build` | Empaqueta para producción con Vite. |
 
