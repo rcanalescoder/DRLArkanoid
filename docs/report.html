@@ -212,6 +212,48 @@
   </div>
 </section>
 
+<!-- ============================ ON-RAMP (lo más básico) ============================ -->
+<section class="section">
+  <div class="band b-cyan"><div class="n">EMPEZAMOS DE CERO</div><h2>Aprender jugando, como tú</h2>
+    <div class="tag">Sin una sola fórmula: solo la idea, con palabras de andar por casa.</div></div>
+  <div class="pad" style="--accent:#0891b2;--accent-soft:#e7f7fb">
+    <p class="lead">Olvida por un momento la palabra «inteligencia artificial». Imagina que le enseñas a alguien un juego que
+      no ha visto nunca, pero <b>sin explicarle las reglas</b>. Lo único que puedes decirle, después de cada movimiento, es
+      <b>«bien»</b> o <b>«mal»</b>. Al principio se moverá al azar y fallará; pero si insiste, irá notando qué movimientos
+      le dan más «bien» y los repetirá. Eso —ni más ni menos— es el <b>aprendizaje por refuerzo</b>. Y es justo lo que vas a
+      ver en pantalla con el Arkanoid.</p>
+
+    <div class="analogy"><div class="ic">🐕</div><div class="bd"><div class="t">La analogía del adiestramiento</div>
+      Cuando enseñas un truco a un perro no le explicas anatomía ni física: le das un premio cuando lo hace bien. Con muchas
+      repeticiones, el perro asocia «esta acción → premio» y la repite. El agente hace lo mismo, pero el premio es un número.</div></div>
+
+    <h3 class="sub">Las cuatro palabras que necesitas (y nada más, de momento)</h3>
+    <div class="uses">
+      <div class="use"><div class="h"><span class="e">🤖</span>El agente</div><p>El «jugador». No es una persona: es la red neuronal que mira la pantalla y decide cómo mover la pala. Es quien aprende.</p></div>
+      <div class="use"><div class="h"><span class="e">🎮</span>La acción</div><p>Lo único que el agente puede hacer aquí: mover la pala a la <b>izquierda</b>, a la <b>derecha</b> o <b>dejarla quieta</b>. Tres opciones, nada más.</p></div>
+      <div class="use"><div class="h"><span class="e">🎁</span>La recompensa</div><p>El «bien/mal» convertido en número: <b>+1</b> por romper un ladrillo, <b>−1</b> por perder la bola. El agente solo quiere sumar lo máximo posible.</p></div>
+      <div class="use"><div class="h"><span class="e">🔁</span>El episodio</div><p>Una partida entera, desde el saque hasta perder la bola (o ganar). El agente juega <b>miles</b> de episodios; en cada uno mejora un poquito.</p></div>
+    </div>
+
+    <h3 class="sub">Los primeros minutos de vida del agente (lo que vas a ver)</h3>
+    <p>Cuando le des a <b>▶ Entrenar</b>, no esperes magia inmediata. El agente nace sin saber nada. Esto es lo que ocurre,
+      y por qué la curva de recompensa hace lo que hace:</p>
+    <table class="params">
+      <tr><th>Momento</th><th>Qué hace el agente</th><th>La recompensa…</th></tr>
+      <tr><td class="k">Segundo 0</td><td>Mueve la pala al azar. La bola cae al vacío casi siempre.</td><td>muy baja (pierde la bola enseguida).</td></tr>
+      <tr><td class="k">Primer minuto</td><td>Empieza a intuir que conviene poner la pala <b>debajo</b> de la bola.</td><td>sube: ya devuelve la bola algunas veces.</td></tr>
+      <tr><td class="k">Después</td><td>Devuelve la bola con soltura y va rompiendo ladrillos.</td><td>claramente positiva y al alza.</td></tr>
+      <tr><td class="k">Con suerte y tiempo</td><td>Aprende a colar la bola arriba y reventar varios de golpe.</td><td>se dispara (combos).</td></tr>
+    </table>
+    <div class="note">Si al principio ves la recompensa <b>negativa</b>, <b>es normal</b>: el agente todavía está aprendiendo lo
+      más básico (no perder la bola). No está roto; está practicando. Dale unos segundos.</div>
+
+    <div class="takeaway"><div class="t">Quédate con esto</div><div class="bd">Un agente que <b>prueba</b>, recibe <b>premios y
+      castigos</b>, y <b>repite lo que funciona</b>. Todo lo demás de esta guía es ponerle nombre técnico y herramientas a
+      esta idea tan simple. Ahora sí, vamos a nombrar las cosas. →</div></div>
+  </div>
+</section>
+
 <!-- ============================ INTRODUCCIÓN ============================ -->
 <section class="section">
   <div class="band b-ink"><div class="n">INTRODUCCIÓN</div><h2>De un ladrillo a una política</h2>
@@ -324,6 +366,13 @@
       aleja en el tiempo cuenta un poco menos.</p>
     <div class="formula">G = r₀ + γ·r₁ + γ²·r₂ + γ³·r₃ + …      <span style="color:#8a909b">// γ=0.99 → previsor; γ→0 → cortoplacista</span></div>
     <figure><img src="assets/dg_descuento.svg" /><figcaption>El descuento: las recompensas futuras pesan menos (γ^t). Por eso el agente prefiere ganar pronto, pero sin ignorar lo que vendrá.</figcaption></figure>
+    <div class="ejemplo"><div class="t">🧮 Mini-ejemplo: calcular un retorno</div>
+      <ol>
+        <li>Imagina que en los próximos 3 pasos ganas <span class="mono">r = 1, 0, 1</span> y que <span class="mono">γ = 0.9</span>.</li>
+        <li>El retorno es <span class="mono">G = 1 + 0.9·0 + 0.9²·1 = 1 + 0 + 0.81 = <b>1.81</b></span>.</li>
+        <li>Fíjate: ese último «+1», por estar dos pasos en el futuro, solo cuenta como <span class="mono">0.81</span>. Cuanto más lejos, menos pesa. Con γ=0.99 (lo que usamos) pesaría casi igual: el agente es muy previsor.</li>
+      </ol>
+    </div>
 
     <!-- Exploración vs explotación -->
     <h3 class="sub">Exploración vs explotación, en la práctica</h3>
@@ -366,11 +415,17 @@
       <tr><th>Evento</th><th>Recompensa</th><th>Para qué</th></tr>
       <tr><td class="k">Cada paso (vivir)</td><td>0.0</td><td>No penalizamos sobrevivir: el agente no tiene prisa por terminar. (Podría ponerse un pequeño coste negativo para incentivar la rapidez.)</td></tr>
       <tr><td class="k">Romper un ladrillo</td><td>+1.0</td><td>El objetivo del juego. Premio claro y repetible.</td></tr>
+      <tr><td class="k">Combo (ladrillos seguidos)</td><td>+0.5 · (n−1)</td><td>Bonus por cada ladrillo extra de una misma subida, sin que la bola vuelva a la pala. El 1.º suma +1, el 2.º +1.5, el 3.º +2… Premia reventar varios de golpe.</td></tr>
       <tr><td class="k">Devolver la pelota (rebote)</td><td>+0.2</td><td>Premio intermedio: enseña a no perder la pelota antes de saber romper ladrillos.</td></tr>
       <tr><td class="k">Perder la pelota</td><td>−1.0</td><td>Castigo terminal: termina el episodio. Le enseña a colocar la pala.</td></tr>
       <tr><td class="k">Completar el nivel</td><td>+5.0</td><td>Gran premio terminal por limpiar los 28 ladrillos.</td></tr>
       <tr><td class="k">Acercar la pala a la pelota</td><td>shaping ≈ +0.3·Δ</td><td>Recompensa densa y telescópica (potential shaping): da señal en cada paso sin cambiar la política óptima. Acelera mucho el aprendizaje inicial.</td></tr>
     </table>
+    <div class="tint"><div class="t">Diseñar recompensas para enseñar una estrategia</div>Fíjate en el <b>combo</b>: con él no solo premiamos
+      romper ladrillos, sino romper <b>muchos de una</b>. Así empujamos al agente hacia la jugada maestra del Breakout
+      —colar la bola por un lateral para que rebote arriba y reviente una hilera entera— <b>sin programársela</b>: la
+      <b>descubre</b> porque le da más recompensa. Ese es el arte del <span class="term">reward shaping</span>: elegir bien
+      los premios para que la conducta deseada emerja sola.</div>
     <figure><img src="assets/replay_conceptual.jpg" /><figcaption>Panel "Replay buffer (conceptual)" de la app: las experiencias y su recompensa real. Las más informativas (perder la bola, romper un ladrillo) tienen mayor TD-error y se repiten más con replay prioritario.</figcaption></figure>
 
     <!-- La neurona -->
@@ -655,6 +710,14 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       elige y quién evalúa la acción), <b>pérdida Huber</b> (menos sensible a errores grandes) y <b>red objetivo</b>
       con actualización suave.</div>
     <figure><img src="assets/dg_dqn.svg" /><figcaption>El circuito de DQN: la red online elige la acción (ε-greedy); el replay buffer y la red objetivo alimentan la pérdida TD que la entrena.</figcaption></figure>
+    <div class="ejemplo"><div class="t">🧮 Ejemplo paso a paso: una decisión de DQN</div>
+      <ol>
+        <li>En el estado actual, la red da <span class="mono">Q = [0.2, 0.8, 0.5]</span> para [←, ·, →].</li>
+        <li>Con <span class="mono">ε = 0.1</span>: el 90% de las veces elige el máximo (·, Q=0.8); el 10%, una acción al azar (explorar).</li>
+        <li>Para entrenar (Double DQN): la red <b>online</b> dice que en el estado siguiente la mejor acción es «→»; la red <b>objetivo</b> la valora en 1.2. El objetivo es <span class="mono">r + γ·1.2</span>.</li>
+        <li>Separar quién <b>elige</b> (online) de quién <b>evalúa</b> (objetivo) evita que un Q inflado por ruido se realimente. Eso es Double DQN.</li>
+      </ol>
+    </div>
 
     <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
     <p><b>El entorno.</b> Arkanoid: el agente observa 6 números, dispone de 3 acciones y recibe +1 por ladrillo, +0.1 por
@@ -730,6 +793,14 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       [1−ε, 1+ε] (con ε=0.2, a [0.8, 1.2]). Así nunca da un paso tan grande que arruine la política. Las ventajas se
       estiman con <span class="term">GAE</span> (combina errores TD de varios pasos) para reducir la varianza.</div>
     <figure><img src="assets/dg_ppo_clip.svg" /><figcaption>El recorte en acción: si la nueva política se aleja demasiado de la vieja (ρ fuera de [0.8, 1.2]), el objetivo deja de crecer. Eso frena los cambios bruscos.</figcaption></figure>
+    <div class="ejemplo"><div class="t">🧮 Ejemplo paso a paso: el recorte de PPO</div>
+      <ol>
+        <li>El agente tomó «→» y resultó mejor de lo esperado: ventaja <span class="mono">A = +2</span>.</li>
+        <li>La política nueva hace esa acción un 30% más probable que la vieja → ratio <span class="mono">ρ = 1.3</span>.</li>
+        <li>Objetivo sin recortar: <span class="mono">ρ·A = 1.3·2 = 2.6</span>. Pero ρ=1.3 supera el límite <span class="mono">1+ε = 1.2</span> → se recorta a <span class="mono">1.2·2 = 2.4</span>.</li>
+        <li>PPO toma el <b>mínimo</b>: <span class="mono">min(2.6, 2.4) = 2.4</span>. Así, por mucho que mejore, no deja que la política se mueva más de un 20% de golpe: estabilidad.</li>
+      </ol>
+    </div>
 
     <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
     <p>Mismo entorno Arkanoid. PPO es <b>on-policy</b>: recoge un rollout, lo exprime en varias épocas y lo tira.</p>
@@ -804,6 +875,14 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <div class="tint"><div class="t">La idea clave: temperatura automática</div>α pondera cuánta entropía exigimos. En vez de fijarlo a mano, SAC lo
       <b>aprende</b> para alcanzar una entropía objetivo (aquí, 0.55·log 3). Si la política explora poco, α sube; si
       explora demasiado, baja. En nuestras ejecuciones, α bajó de 0.20 a <b>~0.165</b> sola.</div>
+    <div class="ejemplo"><div class="t">🧮 Ejemplo paso a paso: cómo se autoajusta α</div>
+      <ol>
+        <li>La política da probabilidades <span class="mono">[0.5, 0.3, 0.2]</span>. Su entropía es <span class="mono">H = −Σ p·log p ≈ 1.03</span> (cerca del máximo, log 3 ≈ 1.10).</li>
+        <li>La entropía objetivo es <span class="mono">0.55·log 3 ≈ 0.60</span>.</li>
+        <li>Como <span class="mono">1.03 &gt; 0.60</span>, el agente explora <b>más</b> de lo deseado → <b>α baja</b> (menos premio a la aleatoriedad) y la política se afila poco a poco.</li>
+        <li>Si fuera al revés (política casi fija, <span class="mono">H &lt; 0.60</span>), <b>α subiría</b> para forzar más exploración. Por eso α no hay que tocarla a mano: se ajusta sola.</li>
+      </ol>
+    </div>
 
     <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
     <table class="params">
@@ -875,6 +954,14 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <div class="tint"><div class="t">La idea clave: planning con datos imaginados</div>Por cada paso real hacemos <b>5</b> actualizaciones del Q-net
       con transiciones que <b>genera el modelo</b>, partiendo de estados muestreados del buffer. Si el modelo es bueno,
       es casi gratis multiplicar el aprendizaje.</div>
+    <div class="ejemplo"><div class="t">🧮 Ejemplo paso a paso: una transición imaginada</div>
+      <ol>
+        <li>Se toma un estado real del buffer; el agente (greedy) elegiría «→».</li>
+        <li>El <b>modelo</b> predice: la bola sube un poco (Δs), recompensa <span class="mono">r ≈ 0</span> (aún no rompe nada), <span class="mono">done = no</span>.</li>
+        <li>Con <span class="mono">s' = s + Δs</span> ya tenemos una transición <b>imaginada</b> (s, →, 0, s', no), sin haber tocado el juego real.</li>
+        <li>El Q-net entrena con ella igual que con una real (Bellman). Y esto se repite <b>5 veces por cada paso real</b> → 5× más aprendizaje… siempre que el modelo acierte (por eso vigilamos su error RMSE).</li>
+      </ol>
+    </div>
 
     <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
     <table class="params">
