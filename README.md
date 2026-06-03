@@ -165,4 +165,4 @@ docs/                  # el cuaderno PDF + capturas
 
 ## 📜 Licencia
 
-Código del laboratorio: **MIT** (ver [LICENSE](LICENSE)). © 2026 Roberto Canales Mora — con Claude Chat / Code.
+Código del laboratorio: **MIT** (ver [LICENSE](LICENSE)). © 2026 Roberto Canales Mora — con Claude Chat / Code · [www.robertocanales.com](https://www.robertocanales.com)

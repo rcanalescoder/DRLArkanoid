@@ -195,15 +195,16 @@
 <div class="cover">
   <div class="kicker">Cuaderno de divulgación · Deep Reinforcement Learning</div>
   <h1>Arkanoid<br/>DRL<br/>Learning Lab</h1>
-  <div class="sub">Cuatro algoritmos de aprendizaje por refuerzo aprendiendo a jugar al Arkanoid en el navegador,
+  <div class="sub">Cinco algoritmos de aprendizaje por refuerzo aprendiendo a jugar al Arkanoid en el navegador,
     con redes neuronales <b>reales</b> sobre TensorFlow.js y aceleración <b>WebGPU</b>. Sin trucos: el agente
     no conoce las reglas del juego; las descubre jugando.</div>
   <div class="chips">
     <span class="chip">DQN</span><span class="chip">PPO</span><span class="chip">SAC</span>
-    <span class="chip">World Model</span><span class="chip">TensorFlow.js</span><span class="chip">WebGPU</span>
+    <span class="chip">World Model</span><span class="chip">World Model RNN</span><span class="chip">TensorFlow.js</span><span class="chip">WebGPU</span>
   </div>
   <div class="credits">
-    <div class="cr"><span class="lbl">Autor</span><span class="val">Roberto Canales Mora</span></div>
+    <div class="cr"><span class="lbl">Autor</span><span class="val">Roberto Canales Mora · con Claude</span></div>
+    <div class="cr"><span class="lbl">Web</span><span class="val mono">www.robertocanales.com</span></div>
     <div class="cr"><span class="lbl">Licencia</span><span class="val">MIT</span></div>
     <div class="cr"><span class="lbl">Repositorio</span><span class="val mono">github.com/rcanalescoder/DRLArkanoid</span></div>
   </div>
@@ -296,7 +297,7 @@
 <!-- ============================ FUNDAMENTOS DE RL ============================ -->
 <section class="section">
   <div class="band b-violet"><div class="n">FUNDAMENTOS</div><h2>El vocabulario esencial</h2>
-    <div class="tag">Los conceptos en los que se apoyan los cuatro algoritmos.</div></div>
+    <div class="tag">Los conceptos en los que se apoyan los cinco algoritmos.</div></div>
   <div class="pad" style="--accent:#7c3aed;--accent-soft:#f4effe">
 
     <!-- 1) El bucle agente-entorno -->
@@ -521,12 +522,12 @@
   <div class="band b-cyan"><div class="n">CÓMO FUNCIONA POR DENTRO</div><h2>Del juego a la red neuronal</h2>
     <div class="tag">El ciclo de vida completo de una iteración de entrenamiento, paso a paso.</div></div>
   <div class="pad" style="--accent:#0891b2;--accent-soft:#e7f7fb">
-    <p class="lead">Los cuatro algoritmos comparten la misma <b>maquinaria</b>. Este es el ciclo que se repite en cada paso de
+    <p class="lead">Los cinco algoritmos comparten la misma <b>maquinaria</b>. Este es el ciclo que se repite en cada paso de
       entrenamiento; el mismo esqueleto sirve para cualquier proyecto de aprendizaje por refuerzo: cambia el juego y el
       algoritmo, pero las piezas (entorno, agente, memoria, bucle, métricas) son siempre las mismas.</p>
 
-    <h3 class="sub">Los cuatro inquilinos de esta maquinaria</h3>
-    <p>En este laboratorio conviven <b>cuatro algoritmos</b> distintos. Todos usan el mismo esqueleto que verás en esta
+    <h3 class="sub">Los cinco inquilinos de esta maquinaria</h3>
+    <p>En este laboratorio conviven <b>cinco algoritmos</b> distintos. Todos usan el mismo esqueleto que verás en esta
       sección; se diferencian en <b>qué aprenden</b> y en <b>cómo guardan la experiencia</b>. Esta es la vista de pájaro
       antes de entrar al detalle de cada uno:</p>
     <div class="algocajas">
@@ -542,10 +543,13 @@
       <div class="algocaja"><div class="ti">🔮 World Model</div><div class="fa">Basado en modelo · Dyna-Q</div>
         <p>Primero aprende un <b>simulador del propio juego</b> y luego entrena también <b>imaginando</b> partidas dentro
         de él. Así exprime al máximo cada dato real. El más ambicioso.</p></div>
+      <div class="algocaja" style="grid-column:1 / -1"><div class="ti">🧬 World Model RNN</div><div class="fa">Basado en modelo · recurrente (LSTM)</div>
+        <p>El mismo World Model, pero su simulador es un <b>LSTM con memoria</b>: en vez de mirar cada instante por separado,
+        aprende de <b>secuencias</b> y recuerda hacia dónde iban las cosas, así imagina trayectorias más coherentes.</p></div>
     </div>
     <p class="note" style="background:#e7f7fb;border-color:#bfe6f0;color:#0e6478">Esta tabla es solo el "quién es quién".
       Cada algoritmo tiene después su propio capítulo con su red, su función de pérdida, sus parámetros y sus resultados;
-      y al final, una <b>tabla comparativa</b> de los cuatro cara a cara.</p>
+      y al final, una <b>tabla comparativa</b> de los cinco cara a cara.</p>
 
     <!-- 1) Arranque y ejecución del juego -->
     <h3 class="sub">1 · Cómo arranca y se ejecuta el juego</h3>
@@ -646,7 +650,7 @@ paso(accion) {
     <div class="codecap">El agente convierte estados en acciones. <b>ε-greedy</b>: con probabilidad ε actúa al azar (explorar), si no elige la mejor acción conocida (explotar).</div>
 
     <div class="imgrow">
-      <figure><img src="assets/panel_algoritmo.jpg" /><figcaption>Eliges qué cerebro pilota: DQN, PPO, SAC o World Model. Cambiarlo recrea el agente desde cero.</figcaption></figure>
+      <figure><img src="assets/panel_algoritmo.jpg" /><figcaption>Eliges qué cerebro pilota: DQN, PPO, SAC, World Model o World Model RNN. Cambiarlo recrea el agente desde cero.</figcaption></figure>
       <figure><img src="assets/panel_controles.jpg" /><figcaption>Los mandos: velocidad (lotes/frame), nº de entornos de entrenamiento y de observación, y el reward shaping.</figcaption></figure>
     </div>
 
@@ -777,12 +781,12 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <figure><img src="assets/curvas_dqn.jpg" /><figcaption><b>Después:</b> la recompensa sube (verde), la pérdida se asienta (rojo), el buffer se llena (azul) y ε decae (ámbar).</figcaption></figure>
     </div>
     <h3 class="sub">Qué cuenta cada curva</h3>
-    <p>El panel dibuja <b>cuatro curvas</b>. Las <b>dos primeras son iguales en los cuatro algoritmos</b>; las otras dos
+    <p>El panel dibuja <b>cuatro curvas</b>. Las <b>dos primeras son iguales en los cinco algoritmos</b>; las otras dos
       cambian porque miden el mecanismo propio de cada uno.</p>
     <div class="pm">
       <div class="box mejo" style="background:#e9fbf4;border-color:#c7eede"><div class="h" style="color:#0a7f57">🟢 Recompensa (todos)</div>
         La métrica reina: recompensa media de los últimos 100 episodios. <b>Si sube, aprende.</b> Es la única curva que
-        de verdad dice si el agente mejora. La leemos en los cuatro modelos.</div>
+        de verdad dice si el agente mejora. La leemos en los cinco modelos.</div>
       <div class="box mejo" style="background:#fdeef0;border-color:#f6c9cf"><div class="h" style="color:#b91c1c">🔴 Pérdida (todos)</div>
         El error de la red al ajustarse. <b>Ojo:</b> en RL el objetivo se mueve mientras aprendes, así que <b>no tiene
         que bajar siempre</b> como en otros campos. Lo que vigilamos es que <b>no se dispare</b> (eso sí sería mala
@@ -957,7 +961,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     </div>
 
     <h3 class="sub">Conclusiones</h3>
-    <p>DQN es el <b>primero</b> de los cuatro y hará de <b>línea de base</b>: los siguientes algoritmos los compararemos
+    <p>DQN es el <b>primero</b> de los cinco y hará de <b>línea de base</b>: los siguientes algoritmos los compararemos
       contra él. Su gran virtud es la <b>eficiencia con los datos</b> (reutiliza cada experiencia muchas veces) a cambio
       de necesitar varios estabilizadores para no romperse.</p>
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">DQN es <b>off-policy</b> y <b>basado en valor</b>: aprende Q(s,a) reutilizando un
@@ -1068,7 +1072,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <figure><img src="assets/curvas_ppo.jpg" /><figcaption>Curvas reales de PPO. La gráfica de "datos" muestra los ladrillos rotos de media; la de exploración, la entropía de la política.</figcaption></figure>
     <div class="pm">
       <div class="box prob"><div class="h">⚠ El problema</div>Optimizar la política sin freno provoca pasos enormes que <b>destrozan</b> lo aprendido: la recompensa colapsa de golpe.</div>
-      <div class="box mejo"><div class="h">✔ La mejora encontrada</div>El <b>objetivo recortado</b> + <b>normalizar las ventajas</b> + <b>recorte de gradiente</b>. Resultado: la curva más estable de los cuatro, sin caídas bruscas.</div>
+      <div class="box mejo"><div class="h">✔ La mejora encontrada</div>El <b>objetivo recortado</b> + <b>normalizar las ventajas</b> + <b>recorte de gradiente</b>. Resultado: la curva más estable de los cinco, sin caídas bruscas.</div>
     </div>
 
     <h3 class="sub">Interpretación: qué pasó al entrenar</h3>
@@ -1079,7 +1083,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
         <li>La entropía arranca alta y <b>baja despacio</b> al afilarse la política.</li>
       </ul></div>
       <div class="col ok"><div class="h">✓ Qué funcionó</div><ul>
-        <li>El <b>recorte</b> evita el colapso: es el más estable de los cuatro.</li>
+        <li>El <b>recorte</b> evita el colapso: es el más estable de los cinco.</li>
         <li>Llega a romper <b>varios ladrillos</b> por episodio.</li>
         <li>Apenas necesita afinado: funciona "a la primera".</li>
       </ul></div>
@@ -1343,7 +1347,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <div class="col ok"><div class="h">✓ Qué funcionó</div><ul>
         <li>Predecir <b>Δs</b> e imaginar <b>a 1 paso</b>: el modelo se mantiene honesto.</li>
         <li>Los datos imaginados <b>aceleran</b> el aprendizaje del Q-net.</li>
-        <li>Es la mayor <b>eficiencia de muestra</b> de los cuatro.</li>
+        <li>Es la mayor <b>eficiencia de muestra</b> de los cinco.</li>
       </ul></div>
       <div class="col mejora"><div class="h">↗ Qué mejoraríamos</div><ul>
         <li>El <b>model bias</b> pone techo: imaginar de más enseña un mundo falso.</li>
@@ -1757,7 +1761,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <div class="use"><div class="h"><span class="e">🔧</span>Toca γ y ε</div><p>Baja γ a 0.8: ¿se vuelve cortoplacista? Acelera el decaimiento de ε: ¿explora menos y se estanca?</p></div>
       <div class="use"><div class="h"><span class="e">🏗️</span>Cambia la red</div><p>Prueba capas más grandes o más pequeñas en <span class="mono">constantes.js</span> y mira el efecto en la curva.</p></div>
       <div class="use"><div class="h"><span class="e">🎁</span>Rediseña las recompensas</div><p>Sube el castigo por perder o el premio por romper: observa cómo cambia el comportamiento del agente.</p></div>
-      <div class="use"><div class="h"><span class="e">⚔️</span>Compara algoritmos</div><p>Entrena los cuatro el mismo tiempo y compara recompensa, estabilidad y velocidad.</p></div>
+      <div class="use"><div class="h"><span class="e">⚔️</span>Compara algoritmos</div><p>Entrena los cinco el mismo tiempo y compara recompensa, estabilidad y velocidad.</p></div>
     </div>
   </div>
 </section>
@@ -1775,7 +1779,7 @@ npm install          <span class="cm"># vite + @tensorflow/tfjs + backend WebGPU
     <div class="code" style="--accent:#0c9f6e"><div class="fn">terminal<span class="role">arrancar</span></div><pre>npm run dev          <span class="cm"># abre http://localhost:5173 y pulsa ▶ Entrenar</span>
 ./arrancar.sh        <span class="cm"># alternativa: arranca y, si ya estaba, rearranca</span></pre></div>
     <h3 class="sub">3 · Verifica o entrena por consola (sin navegador)</h3>
-    <div class="code" style="--accent:#0c9f6e"><div class="fn">terminal<span class="role">verificación</span></div><pre>npm run verificar    <span class="cm"># entrena los 4 algoritmos (CPU) y reporta si aprenden</span>
+    <div class="code" style="--accent:#0c9f6e"><div class="fn">terminal<span class="role">verificación</span></div><pre>npm run verificar    <span class="cm"># entrena los 5 algoritmos (CPU) y reporta si aprenden</span>
 node scripts/entrenar.mjs dqn --pasos 40000 --envs 128   <span class="cm"># entrena uno y muestra trazas</span></pre></div>
     <div class="note">Requiere Node ≥ 18 y un navegador con WebGPU (Chrome/Edge/Safari recientes). Si no hay WebGPU,
       el laboratorio cae automáticamente a WebGL y, en último caso, a CPU.</div>
@@ -1877,6 +1881,7 @@ const lossAlphaT = pasoGradiente(this.optAlpha, () =&gt; {
   <div class="pad" style="--accent:#374151;--accent-soft:#f3f4f6">
     <dl class="defs">
       <dt>Autor</dt><dd>Roberto Canales Mora · con Claude Chat / Code</dd>
+      <dt>Web</dt><dd class="mono">www.robertocanales.com</dd>
       <dt>Licencia</dt><dd>MIT</dd>
       <dt>Repositorio</dt><dd class="mono">github.com/rcanalescoder/DRLArkanoid</dd>
       <dt>Entorno</dt><dd>Vite + TensorFlow.js (WebGPU / WebGL / CPU). Probado en macOS (Apple Silicon M4).</dd>
