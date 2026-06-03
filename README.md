@@ -15,14 +15,14 @@ No es un prototipo visual: el entrenamiento es **real** y está **verificado**. 
 
 ## 📄 Cuaderno PDF — descárgalo
 
-Un cuaderno divulgativo de **49 páginas** en castellano que explica, paso a paso y con capturas reales, **los fundamentos del RL** (el bucle agente–entorno, los componentes, las recompensas y la red neuronal) y **cómo funciona todo por dentro**: cómo arranca y se ejecuta el juego, cómo el agente toma los controles, cómo se guardan los datos, cómo se entrena la red y cómo se actualizan las gráficas — además de los cuatro algoritmos uno a uno.
+Un cuaderno divulgativo de **52 páginas** en castellano que explica, paso a paso y con capturas reales, **los fundamentos del RL** (el bucle agente–entorno, los componentes, las recompensas y la red neuronal) y **cómo funciona todo por dentro**: cómo arranca y se ejecuta el juego, cómo el agente toma los controles, cómo se guardan los datos, cómo se entrena la red y cómo se actualizan las gráficas — además de los cuatro algoritmos uno a uno.
 
 <p align="center">
   <a href="docs/Arkanoid-DRL-Learning-Lab.pdf"><img src="docs/assets/pdf_cover.jpg" width="340" alt="Portada del cuaderno PDF" /></a>
 </p>
 <p align="center">
   <a href="docs/Arkanoid-DRL-Learning-Lab.pdf"><b>⬇️&nbsp;&nbsp;Descargar el PDF</b></a>
-  &nbsp;&nbsp;·&nbsp;&nbsp;49 páginas&nbsp;&nbsp;·&nbsp;&nbsp;~4,4 MB&nbsp;&nbsp;·&nbsp;&nbsp;español
+  &nbsp;&nbsp;·&nbsp;&nbsp;52 páginas&nbsp;&nbsp;·&nbsp;&nbsp;~4,5 MB&nbsp;&nbsp;·&nbsp;&nbsp;español
 </p>
 <p align="center">
   <a href="docs/Arkanoid-DRL-Learning-Lab.pdf"><img src="docs/assets/pdf_preview.jpg" width="820" alt="Páginas de muestra del cuaderno" /></a>

@@ -141,6 +141,19 @@
   .reflist .r{ border-left:3px solid var(--line); padding:5px 13px; margin:8px 0; font-size:9.8pt; color:var(--slate); }
   .reflist .r b{ color:var(--ink); }
 
+  /* "Ojo con esta palabra": glosa llana de un término donde aparece */
+  .palabra{ background:#fff8ec; border:1px solid #f6e2bd; border-left:4px solid #d97706; border-radius:9px; padding:9px 14px; margin:9px 0; font-size:9.9pt; color:#7a5408; }
+  .palabra .w{ font-weight:700; color:#b45309; }
+  .palabra b{ color:#5c3f06; }
+  /* "Para curiosos (opcional)": el detalle técnico/fórmula, que se puede saltar */
+  .curiosos{ background:#f5f6f8; border:1px dashed #c4cad6; border-radius:11px; padding:11px 15px; margin:11px 0; break-inside:avoid; page-break-inside:avoid; }
+  .curiosos .t{ font-weight:700; color:#5b6472; font-size:9pt; text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px; display:flex; align-items:center; gap:7px; }
+  .curiosos .bd{ font-size:9.6pt; color:var(--slate); line-height:1.55; }
+  .curiosos .bd b{ color:var(--ink); }
+  /* "de qué va y por qué te importa" al abrir una sección */
+  .porque{ font-size:11pt; color:var(--slate); background:var(--accent-soft,#eff4fe); border-radius:10px; padding:11px 15px; margin:0 0 12px; }
+  .porque b{ color:var(--accent,#2563eb); }
+
   h3.sub{ break-after:avoid; page-break-after:avoid; }
   figure,.pm,.bars,.uses,.analogy,.takeaway,.pipe,table.compare,table.params,.defs{ break-inside:avoid; page-break-inside:avoid; }
   .code,.tree{ break-inside:avoid; page-break-inside:avoid; }
@@ -308,12 +321,13 @@
 
 <!-- ============================ FUNDAMENTOS DE RL ============================ -->
 <section class="section">
-  <div class="band b-violet"><div class="n">FUNDAMENTOS</div><h2>Las reglas del juego del RL</h2>
-    <div class="tag">El bucle agente–entorno, los componentes de cualquier sistema de RL, las recompensas y la red neuronal que usamos.</div></div>
+  <div class="band b-violet"><div class="n">FUNDAMENTOS</div><h2>El vocabulario, en cristiano</h2>
+    <div class="tag">Le ponemos nombre a lo que viste en el capítulo anterior, sin dar nada por sabido.</div></div>
   <div class="pad" style="--accent:#7c3aed;--accent-soft:#f4effe">
-    <p class="lead">Antes de entrar en cada algoritmo conviene fijar el vocabulario. Todo el aprendizaje por refuerzo —da igual el
-      método— gira en torno a un mismo bucle y a un puñado de componentes. Si los entiendes aquí, el resto del cuaderno
-      encaja solo.</p>
+    <div class="porque"><b>La regla de este capítulo:</b> primero te explico cada idea con palabras normales y una comparación;
+      el término técnico va <b>al final, entre paréntesis</b>, como premio. Si te tropiezas con una palabra que no he
+      explicado antes, es un fallo mío. Las cajas grises <b>«Para curiosos»</b> guardan el detalle matemático: puedes
+      <b>saltártelas</b> sin perderte nada.</div>
 
     <!-- 1) El bucle agente-entorno -->
     <h3 class="sub">El bucle principal: agente ↔ entorno</h3>
@@ -354,9 +368,18 @@
       <div class="use"><div class="h"><span class="e">🗃️</span>Memoria (replay)</div><p>Un almacén de experiencias pasadas (s,a,r,s') del que se muestrean lotes para entrenar. Rompe la correlación temporal y reutiliza cada dato. Propio de métodos off-policy.</p></div>
       <div class="use"><div class="h"><span class="e">🔮</span>Modelo del entorno</div><p>Una predicción de cómo responde el entorno: dado (s,a), ¿cuál es s' y r? La mayoría de métodos no lo usan (model-free); el World Model sí (model-based).</p></div>
     </div>
-    <div class="tint"><div class="t">On-policy vs off-policy</div>Un método <b>on-policy</b> (PPO) solo aprende de datos generados por su política
-      actual y los descarta tras usarlos. Uno <b>off-policy</b> (DQN, SAC, World Model) puede aprender de experiencias viejas
-      guardadas en memoria, lo que lo hace más eficiente en datos pero a veces menos estable.</div>
+    <h3 class="sub">¿Aprender solo de lo último, o también de lo viejo?</h3>
+    <p>Hay dos «escuelas», y se entienden pensando en cómo estudiarías para un examen. <b>Forma A:</b> repasas solo lo de
+      hoy y por la noche tiras los apuntes; mañana, apuntes nuevos. <b>Forma B:</b> guardas todos los apuntes viejos en una
+      carpeta y repasas un poco de todo, también lo de hace semanas.</p>
+    <figure><img src="assets/dg_onoff.svg" /><figcaption>Dos formas de aprovechar la experiencia: tirar los «apuntes» de cada tanda de partidas, o guardarlos y reutilizarlos.</figcaption></figure>
+    <p>El agente aprende igual. En la <b>Forma A</b> solo aprende de su <b>última tanda de partidas</b> y la olvida enseguida:
+      aprovecha menos cada partida, pero es más estable (así es PPO). En la <b>Forma B</b> <b>guarda partidas viejas en una
+      memoria</b> y las reutiliza muchas veces: aprende con menos partidas, pero a veces se vuelve más inestable (así son
+      DQN, SAC y World Model).</p>
+    <div class="palabra"><span class="w">Las palabras técnicas:</span> a la Forma A se la llama <b>on-policy</b> («aprende de
+      lo que genera su política actual») y a la Forma B, <b>off-policy</b> («puede aprender de datos de antes»). Y esa
+      «carpeta» de apuntes viejos de la Forma B es el <b>replay buffer</b> (la memoria de experiencias).</div>
 
     <!-- Retorno y descuento -->
     <h3 class="sub">Recompensa, retorno y descuento</h3>
@@ -364,7 +387,9 @@
       <span class="term">retorno</span> (G): la suma de <b>todas</b> las recompensas futuras. Pero el futuro lejano es
       incierto, así que se <span class="term">descuenta</span> con un factor <b>γ</b> (gamma) entre 0 y 1: cada paso que se
       aleja en el tiempo cuenta un poco menos.</p>
-    <div class="formula">G = r₀ + γ·r₁ + γ²·r₂ + γ³·r₃ + …      <span style="color:#8a909b">// γ=0.99 → previsor; γ→0 → cortoplacista</span></div>
+    <div class="curiosos"><div class="t">🔬 Para curiosos: la fórmula del retorno</div><div class="bd">
+      <span class="mono">G = r₀ + γ·r₁ + γ²·r₂ + γ³·r₃ + …</span> &nbsp;Con <b>γ=0.99</b> el agente es muy previsor (el futuro casi
+      no se descuenta); con <b>γ→0</b> sería cortoplacista (solo le importaría el premio inmediato).</div></div>
     <figure><img src="assets/dg_descuento.svg" /><figcaption>El descuento: las recompensas futuras pesan menos (γ^t). Por eso el agente prefiere ganar pronto, pero sin ignorar lo que vendrá.</figcaption></figure>
     <div class="ejemplo"><div class="t">🧮 Mini-ejemplo: calcular un retorno</div>
       <ol>
@@ -375,16 +400,41 @@
     </div>
 
     <!-- Exploración vs explotación -->
-    <h3 class="sub">Exploración vs explotación, en la práctica</h3>
-    <p>Ya vimos el dilema. ¿Cómo se resuelve en la práctica? La receta más simple (la usan <b>DQN</b> y el <b>World
-      Model</b>) es <span class="term">ε-greedy</span>: con probabilidad ε el agente actúa <b>al azar</b> (explora) y el
-      resto del tiempo elige <b>lo mejor que conoce</b> (explota). ε empieza alto (todo exploración) y <b>decae</b> con el
-      tiempo hacia un valor pequeño. <b>PPO</b> y <b>SAC</b> exploran de otra forma: con una política
-      <b>estocástica</b> (muestrean acciones) y premiando la <b>entropía</b>.</p>
-    <figure><img src="assets/dg_epsilon.svg" /><figcaption>Decaimiento de ε en DQN: de 1.0 (explorar siempre) a 0.05 (explotar casi siempre) a lo largo de 25.000 pasos.</figcaption></figure>
+    <h3 class="sub">Probar cosas nuevas o ir a lo seguro</h3>
+    <p>El agente tiene un dilema constante: ¿prueba un movimiento nuevo (por si es mejor) o repite lo que ya sabe que
+      funciona? La forma más simple de decidirlo es <b>echarlo a suertes</b>. Imagina que, antes de cada movimiento, tira
+      un dado: si sale un número bajo, prueba una acción <b>al azar</b>; si no, hace <b>lo que ya conoce</b>.</p>
+    <figure><img src="assets/dg_dado.svg" /><figcaption>La receta más simple para decidir entre probar (explorar) y ir a lo seguro (explotar): un poco de azar antes de cada movimiento.</figcaption></figure>
+    <p>Al principio le interesa probar mucho (todavía no sabe nada), así que el dado manda explorar muy a menudo. Según
+      aprende, prueba cada vez menos: ese porcentaje de azar <b>va bajando poco a poco</b>.</p>
+    <figure><img src="assets/dg_epsilon.svg" /><figcaption>El porcentaje de movimientos «al azar» empieza alto (probar mucho) y baja con el tiempo hacia un mínimo (ya casi solo aprovecha lo aprendido).</figcaption></figure>
+    <div class="palabra"><span class="w">Tres palabras que oirás:</span> a ese porcentaje de azar se le llama <b>épsilon (ε)</b>
+      y a toda la receta, <b>ε-greedy</b> (la usan DQN y el World Model). Cuando algo «va bajando poco a poco», los técnicos
+      dicen que <b>«decae»</b>.</div>
+    <p>PPO y SAC exploran de otra manera: su «cerebro» ya elige <b>con un puntito de azar de fábrica</b>, no siempre lo
+      mismo. Compáralo con elegir siempre la misma acción (predecible) frente a repartir entre varias:</p>
+    <figure><img src="assets/dg_estocastica.svg" /><figcaption>Elegir siempre lo mismo (a la izquierda) frente a elegir con algo de azar repartido entre las acciones (a la derecha).</figcaption></figure>
+    <div class="palabra"><span class="w">La palabra:</span> a un «cerebro» que elige con algo de azar (no siempre lo mismo) se
+      le llama política <b>estocástica</b>. Lo contrario —siempre la misma elección— es <b>determinista</b>.</div>
+    <p>Y SAC, además, <b>se premia a sí mismo por no volverse predecible</b>, por mantener variedad en sus decisiones. ¿Por
+      qué? Porque un agente que siempre hace lo mismo deja de descubrir cosas. A esa «cantidad de variedad o sorpresa» en
+      sus elecciones se le pone número:</p>
+    <figure><img src="assets/dg_entropia.svg" /><figcaption>Cuando casi siempre elige lo mismo, hay poca «variedad» (entropía baja); cuando reparte entre varias acciones, hay mucha (entropía alta).</figcaption></figure>
+    <div class="palabra"><span class="w">La palabra:</span> esa medida de «cuánta variedad/sorpresa hay en las decisiones» se
+      llama <b>entropía</b>. Más entropía = más exploración. SAC la premia para no cerrarse demasiado pronto.</div>
+
+    <!-- El valor -->
+    <h3 class="sub">¿Cómo de buena es una situación? El «valor»</h3>
+    <p>Cuando juegas, intuyes al vuelo si una jugada «pinta bien» o si «vas a perder». El agente aprende a ponerle un
+      <b>número</b> a esa intuición: cuántos puntos espera conseguir a partir de esa situación. Si la pala está justo bajo
+      la bola y quedan ladrillos, pinta bien (número alto). Si la bola se escapa por un lado, pinta mal (número bajo).</p>
+    <figure><img src="assets/dg_valor.svg" /><figcaption>El «valor» es el número que la red le pone a cada situación: cuánto premio espera conseguir desde ahí en adelante.</figcaption></figure>
+    <div class="palabra"><span class="w">Las palabras:</span> a ese número se le llama <b>valor</b>. Cuando responde a «cómo de
+      buena es esta situación», se escribe <b>V(s)</b>. Cuando responde a «cómo de bueno es hacer este movimiento en esta
+      situación», se escribe <b>Q(s, a)</b>. Aprender a estimar bien estos números es media batalla del RL.</div>
 
     <!-- Bellman -->
-    <h3 class="sub">La ecuación de Bellman <span class="nivel">la idea central</span></h3>
+    <h3 class="sub">El truco para no mirar infinitos pasos (Bellman)</h3>
     <p>¿Cómo estimamos el valor de algo si depende de todo el futuro? El truco de <span class="term">Bellman</span> es
       <b>recursivo</b>: el valor de tomar una acción ahora = la recompensa inmediata <b>más</b> el valor (descontado) de lo
       mejor que pueda hacer después. Así, en vez de mirar infinitos pasos, solo miramos <b>un paso y el valor del
@@ -450,12 +500,15 @@
       <b>generaliza</b> a estados que nunca vio exactamente. Eso es lo "deep" del Deep RL.</div>
 
     <!-- Descenso de gradiente -->
-    <h3 class="sub">Aprender = descenso de gradiente</h3>
-    <p>¿Cómo se “ajustan” los pesos de la red? Definimos una <span class="term">pérdida</span> (lo equivocada que está la
-      predicción respecto al objetivo) y la bajamos a pasitos: el <span class="term">descenso de gradiente</span> empuja
-      cada peso en la dirección que reduce el error. El tamaño de cada paso es el <b>learning rate</b>. Entrenar es repetir
-      esto millones de veces.</p>
-    <figure><img src="assets/dg_gradiente.svg" /><figcaption>Descenso de gradiente: cada actualización mueve los pesos “colina abajo” en la superficie de pérdida, acercándose al mínimo.</figcaption></figure>
+    <h3 class="sub">Aprender = ir afinando los mandos</h3>
+    <p>¿Y cómo «aprende» de verdad la red? Imagina que afinas una radio antigua girando el dial <b>poco a poco</b> hasta que
+      se oye claro, o un termostato hasta dar con la temperatura justa. La red hace lo mismo con sus miles de mandos internos
+      (sus <b>pesos</b>): mide cuánto se ha equivocado y mueve cada mando <b>un poquito</b> en la dirección que reduce el
+      error. Repetido millones de veces, va «sonando» cada vez mejor.</p>
+    <figure><img src="assets/dg_gradiente.svg" /><figcaption>Cada ajuste mueve los mandos «cuesta abajo», hacia donde la red se equivoca menos. El fondo del valle es la versión de la red que mejor acierta.</figcaption></figure>
+    <div class="palabra"><span class="w">Las palabras:</span> a «cuánto se equivoca» se le llama <b>pérdida</b>; al método de
+      moverse cuesta abajo, <b>descenso de gradiente</b>; y a lo grande que es cada pasito, <b>learning rate</b> (tasa de
+      aprendizaje). Pasos grandes = rápido pero a trompicones; pasos pequeños = lento pero estable.</div>
 
     <!-- 5) Red actual vs objetivo -->
     <h3 class="sub">Red actual y red objetivo</h3>
@@ -468,7 +521,10 @@
       <div class="box mejo" style="background:#f4effe;border-color:#e2d2fb"><div class="h" style="color:#6d28d9">🎯 Red objetivo</div>
         Una <b>copia que se mueve despacio</b> y solo sirve para calcular el objetivo. Da un blanco estable al que apuntar.</div>
     </div>
-    <div class="formula">θ⁻ ← τ·θ + (1−τ)·θ⁻      <span style="color:#8a909b">// soft update (Polyak), τ = 0.01: la objetivo copia un 1% de la actual por paso</span></div>
+    <div class="curiosos"><div class="t">🔬 Para curiosos: cómo se «mueve despacio» la copia</div><div class="bd">
+      En vez de copiar la red entera de golpe, la objetivo copia <b>un poquito</b> de la actual en cada paso:
+      <span class="mono">θ⁻ ← τ·θ + (1−τ)·θ⁻</span> con <span class="mono">τ = 0.01</span> (un 1% por paso). Se llama
+      <i>soft update</i> o promedio de Polyak. El resultado: un blanco que cambia despacio y no marea al entrenamiento.</div></div>
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">El RL es un bucle agente–entorno guiado por recompensas; el agente aprende
       una <span class="term">política</span> apoyándose en estimaciones de <span class="term">valor</span>, una red neuronal
       que <span class="term">aproxima</span> esas funciones, y trucos de estabilidad como la <span class="term">red
