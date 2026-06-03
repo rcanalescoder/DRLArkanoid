@@ -233,5 +233,47 @@ cruzará la bola la línea de la pala (reflejando su trayectoria en las paredes)
 ~26 en ciego. Los últimos 1-2 ladrillos y el empuje al 100 % vienen con la **vista (Fase 1)**.
 Alternativa: currículum de física (bola más lenta / pala más ancha → endurecer).
 
-*(Próximo: implementar la variación de Φ_land —punto de caída— y medir si el DQN ciego alcanza el
-techo del rastreador (~26 / ~38 %).)*
+### [GRID COMPLETO — corrige la conclusión nº2] · el afinado SÍ funcionó
+Ranking (greedy, 150k/combo, por ladrillos):
+- **GANADORA: lr=0.0008 · εdecay=8000 → 9.92 ladrillos · 4 % éxito · sobrevive 577 · máx 28.**
+- Resto: 1.4–2.8 ladrillos. El **único** cambio de la ganadora vs el default es **εdecay 12000→8000**.
+
+**Por qué:** en una tarea de supervivencia, explorar (moverse al azar) **mata**; decaer ε antes hace que
+el agente deje de explorar pronto y **practique sobrevivir con su política real** → aprende mucho mejor.
+(El εdecay "óptimo" depende del objetivo: optimizando RECOMPENSA salía 12000; optimizando LADRILLOS sale
+8000. Lección: optimizar la métrica real.)
+
+**CORRECCIÓN a la conclusión nº2:** afinar parámetros **SÍ** bastó para dar un salto x6 (1.7→9.9 ladrillos,
+0→4 % éxito, supervivencia 80→577) — la variación Φ_land **NO es necesaria de momento**. Camino abierto
+solo con grid + más entrenamiento.
+
+### [RESULTADO 500k ganadora — Fase 0/0.5 CERRADA] · el ciego YA limpia, pero NO es lo que buscamos
+**DQN ciego, εdecay=8000, 500k, GREEDY:** **success_rate=56 % · 26.86/28 ladrillos · sobrevive 2258.**
+Supera al rastreador perfecto (37.6 %). Recorrido: 0 % → (reloj) → 37.6 % posible → (εdecay+500k) → 56 %.
+
+**PERO (clave para no autoengañarnos):** esto es sobre la rejilla **LLENA 4×7**, y se gana por
+**SOBREVIVIR + la bola rebota por todo** (en una rejilla llena, una bola que dura 2258 pasos acaba
+tocando casi todo). **NO es apuntar ni resolver puzzles.** En niveles **dispersos/variados** (Fase 2) el
+ciego fracasará porque no ve dónde quedan los ladrillos. ⇒ El ciego ha cumplido su función (confirmar
+diagnóstico + dar los parámetros) y **se agota aquí**. Seguir puliéndolo NO acerca al objetivo.
+
+**Lo que se TRANSFIERE a la vista (no perder):**
+- **Reloj escalable** `MAX_PASOS = 90·filas·columnas` (4×7→2520; 8×10→7200). Regla dura.
+- **`εdecay = 8000`** (no 12000): decaer la exploración pronto es clave para la supervivencia. (Pendiente
+  de fijar como default DQN en la nueva sesión, o re-validar con la observación nueva.)
+- Harness con **eval greedy (ε=0)**; **grid que optimiza la métrica real** (`scripts/grid_supervivencia.mjs`).
+- **Rastreador perfecto** como referencia/medidor de viabilidad física.
+
+## ▶▶ ARRANQUE PARA LA NUEVA SESIÓN (empezar aquí)
+La sesión actual está saturada. Continuar en una **sesión nueva, enfocada en la VISTA**. Prompt sugerido:
+
+> «Reparación Arkanoid DRL — continúa desde `docs/PLAN-REIMPLEMENTACION.md` (léelo entero, sobre todo el
+> REGISTRO). Fase 0/0.5 cerrada: el agente ciego ya limpia el 4×7 lleno (56 %) por supervivencia, pero NO
+> apunta. Construye la **Fase 1**: añadir la observación de los ladrillos (vector plano `6+28=34`, MLP
+> `34→128→128→3`, DQN, `εdecay=8000`, reloj ya escalado) sobre el 4×7 fijo y medir la Puerta 1 (¿con vista
+> limpia de forma fiable?). Luego **Fase 2** (8×10 + conv + generador + splits + currículum) para
+> generalización. Respeta los PRINCIPIOS DE TRABAJO del plan: el objetivo manda, verificar cada fase
+> contra el objetivo, y NUNCA "el algoritmo no puede" → iterar (pasos / grid / variaciones).»
+
+*(Objetivo real recordatorio: apuntar a los ladrillos vivos y GENERALIZAR a niveles no vistos — eso solo
+llega con la VISTA, que es lo que falta por construir.)*
