@@ -1,33 +1,44 @@
 /* ============================================================================
-   base.css — variables, reset y tipografía
+   base.css — variables, reset y tipografía  ·  TEMA CLARO
    ============================================================================ */
 
 :root {
-  /* Paleta oscura */
-  --fondo: #0a0e16;
-  --fondo-panel: #121826;
-  --fondo-panel-2: #1a2234;
-  --fondo-elevado: #222c42;
-  --borde: #2a3550;
-  --borde-suave: #1e2740;
+  /* Superficies (claras) */
+  --fondo: #eef1f7;
+  --fondo-panel: #ffffff;
+  --fondo-panel-2: #ffffff;
+  --fondo-elevado: #f5f7fa; /* tarjetas internas, pistas de barras */
+  --borde: #e2e6ee;
+  --borde-suave: #eef0f5;
 
-  --texto: #e6ecf5;
-  --texto-suave: #9fb0c8;
-  --texto-tenue: #647190;
+  /* Texto */
+  --texto: #11181f;
+  --texto-suave: #4b5563;
+  --texto-tenue: #8a909b;
 
-  --acento: #4ea3ff; /* azul */
-  --acento-2: #8b6dff; /* violeta */
-  --exito: #3ddc97; /* verde */
-  --alerta: #ffb454; /* ámbar */
-  --error: #ff6b81; /* rojo */
-  --reward: #3ddc97;
-  --loss: #ff6b81;
-  --explora: #ffb454;
-  --buffer: #4ea3ff;
+  /* Acentos */
+  --acento: #2563eb; /* azul */
+  --acento-2: #7c3aed; /* violeta */
+  --exito: #0c9f6e; /* verde */
+  --alerta: #d97706; /* ámbar */
+  --error: #e5484d; /* rojo */
+  --reward: #0c9f6e;
+  --loss: #e5484d;
+  --explora: #d97706;
+  --buffer: #2563eb;
 
-  --radio: 12px;
-  --radio-s: 8px;
-  --sombra: 0 6px 24px rgba(0, 0, 0, 0.35);
+  /* Soft (fondos teñidos para badges/tooltips) */
+  --azul-soft: #eff4fe;
+  --verde-soft: #e9fbf4;
+  --violeta-soft: #f4effe;
+  --ambar-soft: #fef3e6;
+  --rojo-soft: #fdeef0;
+  --cyan-soft: #e7f7fb;
+
+  --radio: 16px;
+  --radio-s: 10px;
+  --sombra: 0 10px 30px -18px rgba(17, 24, 39, 0.30);
+  --sombra-suave: 0 2px 8px -4px rgba(17, 24, 39, 0.12);
   --fuente: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
 }
@@ -40,17 +51,19 @@
 
 html,
 body {
-  background: radial-gradient(1200px 700px at 70% -10%, #15203a 0%, var(--fondo) 60%);
+  background: linear-gradient(180deg, #f7f9fc 0%, var(--fondo) 100%);
+  background-attachment: fixed;
   color: var(--texto);
   font-family: var(--fuente);
   font-size: 14px;
-  line-height: 1.45;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4 {
-  font-weight: 650;
+  font-weight: 680;
   letter-spacing: -0.01em;
+  color: var(--texto);
 }
 
 a {
@@ -58,12 +71,14 @@ a {
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 11px;
+  height: 11px;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--borde);
+  background: #cfd6e2;
   border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 ::-webkit-scrollbar-track {
   background: transparent;

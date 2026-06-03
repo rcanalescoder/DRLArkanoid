@@ -57,7 +57,7 @@ export const CONFIGURACION_ENTORNO = Object.freeze({
 // --- Recompensas (tunables) -------------------------------------------------
 export const RECOMPENSAS = Object.freeze({
   PASO: 0.0, // coste por paso (0 = no penalizar la supervivencia)
-  GOLPEAR_PALA: 0.10, // premio por devolver la pelota con la pala
+  GOLPEAR_PALA: 0.2, // premio por devolver la pelota con la pala (rebote correcto)
   ROMPER_LADRILLO: 1.0, // premio por destruir un ladrillo
   PERDER_PELOTA: -1.0, // penalización terminal al perder la pelota
   COMPLETAR_NIVEL: 5.0, // premio terminal al limpiar todos los ladrillos

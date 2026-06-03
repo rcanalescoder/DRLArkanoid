@@ -92,8 +92,8 @@ function serie(canvas, x, series) {
   min -= pad;
   max += pad;
 
-  // Rejilla
-  ctx.strokeStyle = "rgba(255,255,255,0.05)";
+  // Rejilla (tenue, sobre fondo claro)
+  ctx.strokeStyle = "rgba(17,24,39,0.07)";
   ctx.lineWidth = 1;
   for (let i = 0; i <= 3; i++) {
     const yy = (H - 8) * (i / 3) + 4;

@@ -19,6 +19,7 @@ import { PanelMetricas } from "./panelMetricas.js";
 import { CurvasEntrenamiento } from "./curvasEntrenamiento.js";
 import { PanelTransicion } from "./panelTransicion.js";
 import { ResumenConceptual } from "./resumenConceptual.js";
+import { ReplayConceptual } from "./replayConceptual.js";
 
 export class Aplicacion {
   constructor() {
@@ -101,6 +102,7 @@ export class Aplicacion {
       this.envSeleccionado = i;
       this.dom.envSeleccionado.textContent = `env ${i}`;
     });
+    this.replay = new ReplayConceptual(document.getElementById("replayConceptual"));
 
     this._construirChips();
     this._conectarControles();
@@ -134,11 +136,7 @@ export class Aplicacion {
     this.panelMetricas.configurar(def);
     this.curvas.configurar(this.idAlgoritmo);
     this.resumen.configurar(def);
-    this.dom.descAlgoritmo.innerHTML = `${def.descripcion}
-      <span class="meta-algo">
-        <span class="badge">${def.familia}</span>
-        <span class="badge">${def.politica}</span>
-      </span>`;
+    this.replay.configurar(def);
   }
 
   cambiarAlgoritmo(id) {
@@ -172,18 +170,27 @@ export class Aplicacion {
   _construirChips() {
     this.dom.chips.innerHTML = "";
     for (const def of listarAlgoritmos()) {
-      const chip = document.createElement("button");
-      chip.className = "chip" + (def.id === this.idAlgoritmo ? " activo" : "");
-      chip.textContent = def.nombre;
-      chip.dataset.id = def.id;
-      chip.title = def.nombreLargo;
-      chip.addEventListener("click", () => this.cambiarAlgoritmo(def.id));
-      this.dom.chips.appendChild(chip);
+      const card = document.createElement("div");
+      card.className = "algo-card" + (def.id === this.idAlgoritmo ? " activo" : "");
+      card.dataset.id = def.id;
+      const ins = def.insignia
+        ? `<span class="badge ${def.insignia.clase}">${def.insignia.texto}</span>`
+        : "";
+      card.innerHTML = `
+        <div class="cab">
+          <div class="nom">${def.nombre}
+            <span class="info">i<span class="tip"><b>${def.nombreLargo}.</b> ${def.descripcion}</span></span>
+          </div>
+          ${ins}
+        </div>
+        <div class="desc">${def.familia} · ${def.politica}</div>`;
+      card.addEventListener("click", () => this.cambiarAlgoritmo(def.id));
+      this.dom.chips.appendChild(card);
     }
   }
 
   _marcarChipActivo() {
-    this.dom.chips.querySelectorAll(".chip").forEach((c) =>
+    this.dom.chips.querySelectorAll(".algo-card").forEach((c) =>
       c.classList.toggle("activo", c.dataset.id === this.idAlgoritmo)
     );
   }

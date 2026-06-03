@@ -21,6 +21,7 @@ export function registrarAgentes() {
     id: ALGORITMOS.DQN,
     nombre: "DQN",
     nombreLargo: "Deep Q-Network",
+    insignia: { texto: "recomendado", clase: "verde" },
     descripcion:
       "Aprende la función de valor-acción Q(s,a) y actúa de forma ε-greedy. Usa replay buffer y red objetivo. Aquí: Double DQN + pérdida Huber + soft update.",
     familia: "Model-free · basado en valor",
@@ -38,6 +39,7 @@ export function registrarAgentes() {
     id: ALGORITMOS.PPO,
     nombre: "PPO",
     nombreLargo: "Proximal Policy Optimization",
+    insignia: { texto: "política", clase: "violeta" },
     descripcion:
       "Optimiza directamente la política con un objetivo recortado (clipped surrogate) y una crítica de valor. On-policy: recoge rollouts y los procesa en varias épocas. Usa GAE para estimar ventajas.",
     familia: "Model-free · actor-crítico",
@@ -55,6 +57,7 @@ export function registrarAgentes() {
     id: ALGORITMOS.SAC,
     nombre: "SAC",
     nombreLargo: "Soft Actor-Critic (discreto)",
+    insignia: { texto: "avanzado", clase: "ambar" },
     descripcion:
       "Actor-crítico de máxima entropía. Dos críticos Q (reduce sobreestimación), política estocástica y temperatura α ajustada automáticamente para mantener la exploración. Versión discreta (Christodoulou 2019).",
     familia: "Model-free · actor-crítico",
@@ -72,6 +75,7 @@ export function registrarAgentes() {
     id: ALGORITMOS.WORLD_MODEL,
     nombre: "World Model",
     nombreLargo: "World Model · Dyna-Q",
+    insignia: { texto: "model-based", clase: "cyan" },
     descripcion:
       "Aprende un modelo de la dinámica del entorno (s,a)→(s',r) y lo usa para generar experiencias imaginadas con las que entrenar la política (Dyna-Q). Combina datos reales e imaginados.",
     familia: "Model-based",

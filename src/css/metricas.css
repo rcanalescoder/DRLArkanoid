@@ -130,7 +130,7 @@
 }
 .barra-q .pista {
   height: 16px;
-  background: var(--fondo);
+  background: #e9edf4;
   border-radius: 5px;
   overflow: hidden;
   position: relative;

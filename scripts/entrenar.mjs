@@ -75,8 +75,11 @@ async function main() {
 
   // --- Resumen de convergencia ---
   const inst = metricas.obtenerInstantanea();
-  const primeros = rewards.slice(0, Math.max(1, Math.floor(rewards.length * 0.15)));
-  const ultimos = rewards.slice(-Math.max(1, Math.floor(rewards.length * 0.15)));
+  // Descartar los ceros iniciales (antes de que termine el primer episodio).
+  const primerNoCero = rewards.findIndex((v) => v !== 0);
+  const r = primerNoCero > 0 ? rewards.slice(primerNoCero) : rewards;
+  const primeros = r.slice(0, Math.max(1, Math.floor(r.length * 0.15)));
+  const ultimos = r.slice(-Math.max(1, Math.floor(r.length * 0.15)));
   const media = (a) => a.reduce((x, y) => x + y, 0) / a.length;
   const rInicial = media(primeros);
   const rFinal = media(ultimos);

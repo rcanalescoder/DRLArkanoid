@@ -32,7 +32,7 @@ export class ResumenConceptual {
       fila.className = "concepto " + (c.usado ? "usado" : "no-usado");
       fila.innerHTML = `
         <div class="nombre">${c.nombre}
-          <span class="ayuda">?<span class="tip"><b>${c.nombre}.</b> ${c.descripcion}</span></span>
+          <span class="info">i<span class="tip"><b>${c.nombre}.</b> ${c.descripcion}</span></span>
           <span class="resumen">— ${c.resumen}</span>
         </div>
         <span></span>

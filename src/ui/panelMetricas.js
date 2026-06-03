@@ -32,8 +32,8 @@ export class PanelMetricas {
       etq.textContent = d.etiqueta;
       if (d.ayuda) {
         const a = document.createElement("span");
-        a.className = "ayuda";
-        a.innerHTML = `?<span class="tip">${d.ayuda}</span>`;
+        a.className = "info";
+        a.innerHTML = `i<span class="tip">${d.ayuda}</span>`;
         etq.appendChild(a);
       }
       const val = document.createElement("div");
