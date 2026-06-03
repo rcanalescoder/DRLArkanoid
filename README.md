@@ -22,7 +22,7 @@ Un cuaderno divulgativo de **52 páginas** en castellano que explica, paso a pas
 </p>
 <p align="center">
   <a href="docs/Arkanoid-DRL-Learning-Lab.pdf"><b>⬇️&nbsp;&nbsp;Descargar el PDF</b></a>
-  &nbsp;&nbsp;·&nbsp;&nbsp;52 páginas&nbsp;&nbsp;·&nbsp;&nbsp;~4,5 MB&nbsp;&nbsp;·&nbsp;&nbsp;español
+  &nbsp;&nbsp;·&nbsp;&nbsp;52 páginas&nbsp;&nbsp;·&nbsp;&nbsp;~4,8 MB&nbsp;&nbsp;·&nbsp;&nbsp;español
 </p>
 <p align="center">
   <a href="docs/Arkanoid-DRL-Learning-Lab.pdf"><img src="docs/assets/pdf_preview.jpg" width="820" alt="Páginas de muestra del cuaderno" /></a>
