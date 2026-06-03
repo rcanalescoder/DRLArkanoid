@@ -1,0 +1,88 @@
+# Pasos realizados — Arkanoid DRL Learning Lab
+# Este fichero se actualiza conforme se completa cada paso del plan
+
+## Sesión 1 (2026-06-03)
+
+### Prototipo inicial (completado)
+- [x] Estructura inicial vanilla JS con ES modules
+- [x] Simulación Arkanoid funcional (15 entornos)
+- [x] UI completa con tooltips, métricas, curvas estáticas
+- [x] Selector de algoritmo (DQN/PPO/SAC/WorldModel) — solo visual
+- [x] Nota: Este prototipo NO tenía entrenamiento real
+
+### Plan de arquitectura (completado)
+- [x] Plan completo en PLAN.md (Vite, 4 algos reales, pools separados, bus eventos)
+
+## Sesión 2 (2026-06-03) — RECONSTRUCCIÓN REAL
+
+### Fase 1: Infraestructura + DQN real  [COMPLETADA Y VERIFICADA]
+- [x] Setup Vite + @tensorflow/tfjs + @tensorflow/tfjs-backend-webgpu (npm)
+- [x] constantes.js (entorno, recompensas con shaping potencial, hiperparámetros)
+- [x] busEventos.js (pub/sub)
+- [x] gestorTensores.js (tidy, leak detection, soft update, pasoGradiente con clip)
+- [x] trazas.js (buffer circular, impresión periódica, export JSON)
+- [x] registroAlgoritmos.js (factory + registro de inspectores)
+- [x] entornoArkanoid.js (FÍSICA DE PASO FIJO, shaping Φ(s)=-|pelota.x-pala.x|)
+- [x] gestorEntornos.js (pool headless + pool visual, arrays planos)
+- [x] replayBuffer.js + replayPrioritario.js (sum-tree PER) + rolloutBuffer.js (GAE)
+- [x] constructorRedes.js (MLP factory, variablesEntrenables, logSoftmax)
+- [x] agenteBase.js + agenteDQN.js (Double DQN + Huber + soft update)
+- [x] orquestador.js (training loop desacoplado de UI) + metricas.js
+- [x] Harness Node scripts/entrenar.mjs (verificación rápida con backend CPU)
+- [x] ENTRENADO Y VERIFICADO: DQN aprende (reward 0→0.45, sin fugas, 26 tensores planos)
+
+### Fase 2: PPO real  [COMPLETADA Y VERIFICADA]
+- [x] agentePPO.js (actor+crítico, GAE, clipped surrogate, K épocas, grad clip)
+- [x] ENTRENADO Y VERIFICADO: PPO aprende (reward 0.1→0.83, monotónico, 44 tensores planos)
+
+### Fase 3: SAC Discreto real  [COMPLETADA Y VERIFICADA]
+- [x] agenteSAC.js (actor + 2 críticos + 2 objetivo + α auto-ajustada)
+- [x] ENTRENADO Y VERIFICADO: SAC aprende (reward 0→0.45, α 0.2→0.16, 76 tensores planos)
+
+### Fase 4: World Model real  [COMPLETADA Y VERIFICADA]
+- [x] agenteWorldModel.js (modelo dinámica (s,a)→(Δs,r,done) + Dyna-Q planning)
+- [x] ENTRENADO Y VERIFICADO: WM aprende (reward 0→0.50, RMSE modelo ~0.15, 46 tensores planos)
+
+### Notas de convergencia (backend CPU en Node; en navegador WebGPU será más rápido)
+- Los 4 algoritmos demuestran aprendizaje medible (la recompensa sube de forma clara).
+- Sin fugas de tensores en ninguno (recuento estable tras el arranque).
+- El agente aprende a SEGUIR/DEVOLVER la pelota; romper los 28 ladrillos y "ganar"
+  requiere entrenamientos largos (tasa de éxito ~0% en estas ventanas cortas de verificación).
+- catalogoAgentes.js registra los 4 (Node-safe, sin DOM).
+
+### Fase 1 (continuación): UI recompuesta  [COMPLETADA Y VERIFICADA EN NAVEGADOR]
+- [x] index.html con nuevo layout (importante arriba, pedagógico abajo)
+- [x] main.js (bootstrap + detección backend WebGPU/WebGL/CPU)
+- [x] aplicacion.js (controlador + bucle rAF, controles, cambio de algoritmo)
+- [x] renderizador.js + rejillaEntornos.js (pool visual con selección)
+- [x] panelMetricas.js (labels adaptativos por algoritmo)
+- [x] Controles de ejecución: velocidad, entornos headless/visuales, shaping
+- [x] curvasEntrenamiento.js (reward/éxito, loss, buffer/datos, exploración — adaptativas)
+- [x] panelTransicion.js + flujoDatos + resumenConceptual.js + conceptos.js
+- [x] inspectores DQN/PPO/SAC/WorldModel (registrados en navegador)
+- [x] CSS modular (base, layout, componentes, juego, metricas, inspectores)
+
+### Verificación en navegador (preview tools, WebGPU)  [COMPLETADA]
+- [x] Arranca, detecta backend = WEBGPU (Metal/MPS en el M4 Max)
+- [x] DQN entrena: reward 0→0.94, curvas pueblan, 26 tensores planos, sin errores
+- [x] PPO entrena: reward 0→0.99, 1 update completo, 39 tensores planos
+- [x] SAC entrena: reward 0→0.99, α auto 0.2→0.165, 77 tensores planos
+- [x] World Model entrena: reward 0→0.71, error modelo RMSE 0.066, 48 tensores planos
+- [x] Inspector y métricas se ADAPTAN al cambiar de algoritmo (verificado los 4)
+- [x] Sin fugas de tensores al cambiar de algoritmo (dispose correcto)
+- [x] Throughput ~24.000 exp/s en WebGPU (vs ~5.600 en CPU Node)
+- [x] Responsive: colapsa a 1 columna en tablet/móvil
+- NOTA: en el preview headless rAF está limitado (~0.5 lotes/s); en pestaña visible
+  real va a 60fps. Verificado el motor conduciéndolo directamente (window.__drl).
+
+### Fase 5: Pulido  [COMPLETADA]
+- [x] Tooltips pedagógicos extensos en castellano (métricas, conceptos, controles)
+- [x] Responsive testing (tablet)
+- [x] Layout: juego + métricas + inspector + curvas visibles sin scroll en escritorio
+- [x] Legacy del prototipo movido a legacy/ (js/ y css/ antiguos)
+- [x] scripts/verificarTodo.mjs (npm run verificar) para re-verificar los 4
+
+## ESTADO FINAL: proyecto completo y verificado.
+##   - Arrancar: npm run dev  → abrir http://localhost:5173 en el navegador
+##   - Verificar algoritmos (CPU, rápido): npm run verificar
+##   - Entrenar uno en consola: node scripts/entrenar.mjs <dqn|ppo|sac|worldModel>

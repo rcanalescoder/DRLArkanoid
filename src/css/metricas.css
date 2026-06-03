@@ -1,0 +1,163 @@
+/* ============================================================================
+   metricas.css — tarjetas de métricas clave y curvas de entrenamiento
+   ============================================================================ */
+
+.metricas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.metrica {
+  background: var(--fondo-elevado);
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio-s);
+  padding: 11px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.metrica .etiqueta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--texto-tenue);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.metrica .valor {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.metrica .delta {
+  font-size: 11px;
+  font-family: var(--mono);
+}
+.metrica.reward .valor {
+  color: var(--reward);
+}
+.metrica.loss .valor {
+  color: var(--loss);
+}
+.delta.sube {
+  color: var(--exito);
+}
+.delta.baja {
+  color: var(--error);
+}
+
+/* --- Curvas --- */
+.curva {
+  background: var(--fondo-panel);
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio-s);
+  padding: 10px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.curva .cabecera-curva {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--texto-tenue);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.curva .leyenda {
+  display: flex;
+  gap: 10px;
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.curva .leyenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--texto-suave);
+}
+.curva .leyenda i {
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+.curva canvas {
+  width: 100%;
+  height: 120px;
+  display: block;
+}
+
+/* --- Inspector --- */
+.inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.inspector .titulo-insp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 650;
+}
+.inspector .subtitulo {
+  font-size: 11px;
+  color: var(--texto-tenue);
+}
+.barra-q {
+  display: grid;
+  grid-template-columns: 30px 1fr 56px;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.barra-q .acc {
+  font-family: var(--mono);
+  font-size: 16px;
+  color: var(--texto-suave);
+  text-align: center;
+}
+.barra-q .pista {
+  height: 16px;
+  background: var(--fondo);
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+}
+.barra-q .relleno {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--acento), var(--acento-2));
+  transition: width 0.15s ease;
+}
+.barra-q.optima .relleno {
+  background: linear-gradient(90deg, var(--exito), #2fb87a);
+}
+.barra-q .num {
+  font-family: var(--mono);
+  text-align: right;
+  color: var(--texto);
+}
+.insp-fila {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--texto-suave);
+  padding: 3px 0;
+  border-top: 1px solid var(--borde-suave);
+}
+.insp-fila b {
+  font-family: var(--mono);
+  color: var(--texto);
+}

@@ -1,0 +1,242 @@
+/* ============================================================================
+   componentes.css — tarjetas, botones, sliders, chips, tooltips
+   ============================================================================ */
+
+.panel {
+  background: linear-gradient(180deg, var(--fondo-panel) 0%, var(--fondo-panel-2) 100%);
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio);
+  padding: 14px;
+  box-shadow: var(--sombra);
+}
+.panel.compacto {
+  padding: 10px 12px;
+}
+
+/* --- Botones --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--borde);
+  background: var(--fondo-elevado);
+  color: var(--texto);
+  padding: 9px 16px;
+  border-radius: var(--radio-s);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.btn:hover {
+  border-color: var(--acento);
+  transform: translateY(-1px);
+}
+.btn:active {
+  transform: translateY(0);
+}
+.btn.primario {
+  background: linear-gradient(180deg, var(--acento) 0%, #2f7fe0 100%);
+  border-color: transparent;
+  color: #06101f;
+}
+.btn.primario.entrenando {
+  background: linear-gradient(180deg, var(--alerta) 0%, #e08c2f 100%);
+}
+.btn.fantasma {
+  background: transparent;
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --- Chips de selección de algoritmo --- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  position: relative;
+  border: 1px solid var(--borde);
+  background: var(--fondo-elevado);
+  color: var(--texto-suave);
+  border-radius: 999px;
+  padding: 8px 15px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.chip:hover {
+  border-color: var(--acento);
+  color: var(--texto);
+}
+.chip.activo {
+  background: linear-gradient(180deg, rgba(78, 163, 255, 0.22), rgba(139, 109, 255, 0.18));
+  border-color: var(--acento);
+  color: var(--texto);
+  box-shadow: 0 0 0 1px rgba(78, 163, 255, 0.3);
+}
+
+/* --- Sliders --- */
+.control-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.control-slider .etiqueta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+.control-slider .valor {
+  font-family: var(--mono);
+  color: var(--acento);
+  font-weight: 600;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--fondo-elevado);
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--acento);
+  cursor: pointer;
+  border: 2px solid #0a0e16;
+  box-shadow: 0 0 0 1px var(--acento);
+}
+
+/* --- Toggle --- */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--texto-suave);
+  cursor: pointer;
+}
+.toggle input {
+  appearance: none;
+  width: 36px;
+  height: 20px;
+  background: var(--fondo-elevado);
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+  border: 1px solid var(--borde);
+  transition: background 0.2s;
+}
+.toggle input::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--texto-suave);
+  top: 2px;
+  left: 2px;
+  transition: all 0.2s;
+}
+.toggle input:checked {
+  background: var(--acento);
+}
+.toggle input:checked::after {
+  left: 18px;
+  background: #06101f;
+}
+
+/* --- Badges / estado --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--fondo-elevado);
+  border: 1px solid var(--borde);
+  color: var(--texto-suave);
+}
+.badge .punto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--texto-tenue);
+}
+.badge.ok .punto {
+  background: var(--exito);
+  box-shadow: 0 0 8px var(--exito);
+}
+.badge.activo .punto {
+  background: var(--alerta);
+  box-shadow: 0 0 8px var(--alerta);
+  animation: latido 1.2s infinite;
+}
+@keyframes latido {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* --- Tooltips pedagógicos --- */
+.ayuda {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid var(--borde);
+  color: var(--texto-tenue);
+  font-size: 10px;
+  cursor: help;
+  position: relative;
+  flex: none;
+}
+.ayuda:hover {
+  color: var(--acento);
+  border-color: var(--acento);
+}
+.ayuda .tip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  max-width: 78vw;
+  background: #0c1322;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-s);
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--texto-suave);
+  text-align: left;
+  box-shadow: var(--sombra);
+  z-index: 40;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+.ayuda .tip b {
+  color: var(--texto);
+}
+.ayuda:hover .tip {
+  visibility: visible;
+  opacity: 1;
+}

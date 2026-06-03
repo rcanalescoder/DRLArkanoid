@@ -1,0 +1,120 @@
+/* ============================================================================
+   layout.css — estructura de la página (importante arriba, pedagógico abajo)
+   ============================================================================ */
+
+.app {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 18px 22px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* --- Cabecera --- */
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 6px 2px;
+}
+.cabecera .titulo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cabecera .titulo h1 {
+  font-size: 20px;
+}
+.cabecera .titulo .sub {
+  font-size: 12px;
+  color: var(--texto-tenue);
+}
+.cabecera-controles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* --- Fila principal: juego (izq) + métricas/inspector/curvas (der) --- */
+.principal {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.col-derecha {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Métricas clave + inspector (zona caliente, arriba a la derecha) */
+.fila-metricas-inspector {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 14px;
+  align-items: stretch;
+}
+
+/* Curvas de entrenamiento (2x2) */
+.curvas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* --- Tira de transición --- */
+.tira-transicion {
+  display: flex;
+  align-items: center;
+}
+
+/* --- Fila de controles: selector algoritmo + ejecución --- */
+.fila-controles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* --- Rejilla de entornos visuales --- */
+.seccion-entornos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* --- Zona pedagógica (inferior) --- */
+.fila-pedagogica {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+}
+
+.seccion-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--texto-tenue);
+  margin-bottom: 2px;
+}
+
+/* Responsive */
+@media (max-width: 1180px) {
+  .principal {
+    grid-template-columns: 1fr;
+  }
+  .fila-metricas-inspector {
+    grid-template-columns: 1fr;
+  }
+  .fila-controles,
+  .fila-pedagogica {
+    grid-template-columns: 1fr;
+  }
+}

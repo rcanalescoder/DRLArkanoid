@@ -1,0 +1,18 @@
+# Dependencias
+node_modules/
+
+# Build
+dist/
+.vite/
+
+# Prototipo antiguo (se conserva en local, no se publica)
+legacy/
+
+# Sistema / editores
+.DS_Store
+*.log
+npm-debug.log*
+
+# Temporales
+/tmp/
+*.tmp

@@ -1,0 +1,165 @@
+/* ============================================================================
+   inspectores.css — tabla de conceptos, flujo de datos, variantes pedagógicas
+   y elementos específicos de algunos inspectores (estado predicho del WM)
+   ============================================================================ */
+
+/* --- Tabla de conceptos usados / no usados --- */
+.tabla-conceptos {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.concepto {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radio-s);
+  background: var(--fondo-elevado);
+  border: 1px solid var(--borde-suave);
+  font-size: 13px;
+}
+.concepto .nombre {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+}
+.concepto .resumen {
+  color: var(--texto-tenue);
+  font-size: 11px;
+}
+.concepto .marca {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.concepto.usado {
+  border-color: rgba(61, 220, 151, 0.3);
+}
+.concepto.usado .marca {
+  background: rgba(61, 220, 151, 0.16);
+  color: var(--exito);
+}
+.concepto.no-usado {
+  opacity: 0.55;
+}
+.concepto.no-usado .marca {
+  background: var(--fondo);
+  color: var(--texto-tenue);
+}
+
+/* --- Flujo de datos --- */
+.flujo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.flujo-pasos {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.flujo-nodo {
+  flex: 1;
+  min-width: 84px;
+  background: var(--fondo-elevado);
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio-s);
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 11px;
+  position: relative;
+}
+.flujo-nodo .icono {
+  font-size: 18px;
+  display: block;
+  margin-bottom: 4px;
+}
+.flujo-nodo .n {
+  font-weight: 650;
+  color: var(--texto);
+}
+.flujo-nodo.activo {
+  border-color: var(--acento);
+  box-shadow: 0 0 0 1px rgba(78, 163, 255, 0.3);
+}
+.flujo-flecha {
+  align-self: center;
+  color: var(--acento);
+  font-size: 16px;
+}
+
+/* --- Variantes pedagógicas (footer) --- */
+.variantes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.variante {
+  background: var(--fondo-elevado);
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio-s);
+  padding: 12px 14px;
+}
+.variante h4 {
+  font-size: 13px;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.variante p {
+  font-size: 12px;
+  color: var(--texto-suave);
+  line-height: 1.5;
+}
+.variante .etiqueta-familia {
+  font-size: 10px;
+  color: var(--texto-tenue);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --- Estado predicho (World Model) --- */
+.estado-pred {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 6px 10px;
+  font-size: 11px;
+  font-family: var(--mono);
+  align-items: center;
+}
+.estado-pred .cab {
+  color: var(--texto-tenue);
+  font-family: var(--fuente);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 10px;
+}
+.estado-pred .real {
+  color: var(--texto-suave);
+  text-align: right;
+}
+.estado-pred .pred {
+  color: var(--acento);
+  text-align: right;
+}
+
+.descripcion-algo {
+  font-size: 12px;
+  color: var(--texto-suave);
+  line-height: 1.55;
+}
+.descripcion-algo .meta-algo {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.descripcion-algo .meta-algo .badge {
+  font-size: 10px;
+}

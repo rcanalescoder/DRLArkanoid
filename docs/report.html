@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Arkanoid DRL Learning Lab — Cuaderno de divulgación</title>
+<style>
+  :root{
+    --ink:#11181f; --slate:#41464f; --muted:#8a909b; --line:#e7e9ef;
+    --blue:#2563eb; --blue-soft:#eff4fe; --violet:#7c3aed; --violet-soft:#f4effe;
+    --pink:#db2777; --pink-soft:#fdeef6; --green:#0c9f6e; --green-soft:#e9fbf4;
+    --amber:#d97706; --amber-soft:#fef3e6; --cyan:#0891b2; --cyan-soft:#e7f7fb;
+  }
+  @page{ size:A4; margin:14mm 0; }
+  @page cover{ margin:0; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{ font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); font-size:10.5pt; line-height:1.55; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .pad{ padding:0 18mm; }
+  .mono{ font-family:"SFMono-Regular",Menlo,Consolas,monospace; }
+  h1,h2,h3,h4{ margin:0; letter-spacing:-0.3px; }
+  p{ margin:0 0 8px; }
+  small{ color:var(--muted); }
+
+  /* portada */
+  .cover{ page:cover; height:297mm; display:flex; flex-direction:column; justify-content:center;
+    color:#fff; padding:0 22mm; position:relative; overflow:hidden;
+    background:linear-gradient(135deg,#2563eb 0%,#7c3aed 45%,#db2777 100%); }
+  .cover .kicker{ font-size:12pt; letter-spacing:3px; text-transform:uppercase; opacity:.85; font-weight:600; }
+  .cover h1{ font-size:46pt; line-height:1.02; margin:14px 0 0; font-weight:700; }
+  .cover .sub{ font-size:15pt; opacity:.92; margin-top:18px; max-width:150mm; font-weight:400; }
+  .cover .chips{ margin-top:34px; display:flex; gap:10px; flex-wrap:wrap; }
+  .cover .chip{ background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.28);
+    padding:8px 16px; border-radius:999px; font-size:11pt; font-weight:600; }
+  .cover .credits{ margin-top:30px; display:flex; flex-direction:column; gap:6px; }
+  .cover .cr{ display:flex; align-items:baseline; gap:14px; font-size:11.5pt; }
+  .cover .cr .lbl{ min-width:34mm; font-size:8.5pt; letter-spacing:2px; text-transform:uppercase; opacity:.72; font-weight:700; }
+  .cover .cr .val{ font-weight:600; }
+  .cover .foot{ position:absolute; bottom:20mm; left:22mm; right:22mm; font-size:10pt; opacity:.85;
+    display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,.25); padding-top:12px; }
+
+  /* secciones y bandas de cabecera */
+  .section{ page-break-before:always; }
+  .band{ color:#fff; padding:16px 18mm; margin-bottom:14px; }
+  .band .n{ font-size:11pt; font-weight:700; opacity:.8; letter-spacing:2px; }
+  .band h2{ font-size:25pt; margin-top:2px; }
+  .band .tag{ font-size:10.5pt; opacity:.92; margin-top:4px; }
+  .b-blue{ background:linear-gradient(120deg,#2563eb,#3b82f6); }
+  .b-violet{ background:linear-gradient(120deg,#7c3aed,#a855f7); }
+  .b-pink{ background:linear-gradient(120deg,#db2777,#ec4899); }
+  .b-cyan{ background:linear-gradient(120deg,#0891b2,#06b6d4); }
+  .b-ink{ background:linear-gradient(120deg,#1f2937,#374151); }
+  .b-green{ background:linear-gradient(120deg,#0c9f6e,#10b981); }
+
+  h3.sub{ font-size:13.5pt; margin:18px 0 6px; color:var(--ink); display:flex; align-items:center; gap:8px; }
+  h3.sub::before{ content:""; width:5px; height:18px; border-radius:3px; background:var(--accent,#2563eb); display:inline-block; }
+
+  .card{ border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:8px 0; background:#fff; }
+  .tint{ border:none; border-left:4px solid var(--accent,#2563eb); border-radius:10px; padding:12px 16px; margin:10px 0; background:var(--accent-soft,#eff4fe); }
+  .tint .t{ font-weight:700; color:var(--accent,#2563eb); margin-bottom:3px; font-size:11pt; }
+
+  .defs{ display:grid; grid-template-columns:30mm 1fr; gap:6px 14px; margin:6px 0; }
+  .defs dt{ font-weight:700; color:var(--accent,#2563eb); font-family:"SFMono-Regular",Menlo,monospace; font-size:9.5pt; }
+  .defs dd{ margin:0; color:var(--slate); }
+
+  table.params{ width:100%; border-collapse:collapse; margin:8px 0; font-size:9.8pt; }
+  table.params th{ text-align:left; background:#f6f7f9; color:var(--muted); text-transform:uppercase; font-size:8pt; letter-spacing:.4px; padding:7px 10px; border-bottom:1px solid var(--line); }
+  table.params td{ padding:7px 10px; border-bottom:1px solid #f1f2f5; color:var(--slate); vertical-align:top; }
+  table.params td.k{ font-family:"SFMono-Regular",Menlo,monospace; color:var(--ink); font-weight:600; white-space:nowrap; }
+
+  figure{ margin:12px 0; }
+  figure img{ width:100%; border:1px solid var(--line); border-radius:12px; box-shadow:0 10px 26px -14px rgba(17,24,39,.45); display:block; }
+  figcaption{ font-size:9pt; color:var(--muted); margin-top:6px; text-align:center; }
+  .imgrow{ display:flex; gap:10px; } .imgrow figure{ flex:1; margin:12px 0; min-width:0; }
+
+  .pm{ display:flex; gap:12px; margin:12px 0; }
+  .pm .box{ flex:1; border-radius:12px; padding:13px 15px; }
+  .pm .prob{ background:#fdeef0; border:1px solid #f6d2d8; }
+  .pm .mejo{ background:#e9fbf4; border:1px solid #c7eede; }
+  .pm .h{ font-weight:700; font-size:10.5pt; margin-bottom:5px; display:flex; align-items:center; gap:6px; }
+  .pm .prob .h{ color:#c0344d; } .pm .mejo .h{ color:#0a6b4e; }
+
+  .bars{ margin:10px 0; }
+  .bars .row{ display:grid; grid-template-columns:30mm 1fr 22mm; align-items:center; gap:10px; margin:7px 0; }
+  .bars .name{ font-weight:600; font-size:10pt; }
+  .bars .track{ background:#eef0f4; border-radius:6px; height:18px; overflow:hidden; }
+  .bars .fill{ height:100%; border-radius:6px; }
+  .bars .val{ font-family:"SFMono-Regular",Menlo,monospace; font-size:9.5pt; text-align:right; color:var(--ink); font-weight:600; }
+  .legend{ font-size:8.5pt; color:var(--muted); margin-top:2px; }
+
+  .note{ background:#fff8ec; border:1px solid #f6e2bd; border-radius:10px; padding:10px 14px; font-size:9.8pt; color:#7a5408; margin:10px 0; }
+  .formula{ font-family:"SFMono-Regular",Menlo,monospace; background:#f4f5f8; border:1px solid #eaecf1; border-radius:8px; padding:8px 12px; font-size:10pt; color:var(--ink); margin:8px 0; }
+
+  table.compare{ width:100%; border-collapse:collapse; font-size:9.3pt; margin:8px 0; }
+  table.compare th{ background:#f6f7f9; padding:7px 8px; text-align:left; border-bottom:2px solid var(--line); font-size:8.5pt; }
+  table.compare td{ padding:7px 8px; border-bottom:1px solid #f1f2f5; color:var(--slate); }
+  table.compare td:first-child{ font-weight:600; color:var(--ink); }
+
+  .analogy{ display:flex; gap:12px; align-items:flex-start; background:var(--accent-soft,#eff4fe); border:1px solid var(--line); border-radius:12px; padding:13px 16px; margin:10px 0; }
+  .analogy .ic{ font-size:20pt; line-height:1; flex:none; }
+  .analogy .t{ font-weight:700; color:var(--accent,#2563eb); font-size:10.5pt; margin-bottom:2px; }
+  .analogy .bd{ color:var(--slate); }
+
+  .uses{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0; }
+  .use{ border:1px solid var(--line); border-radius:11px; padding:11px 13px; background:#fff; }
+  .use .h{ font-weight:700; font-size:10pt; color:var(--ink); margin-bottom:2px; display:flex; gap:7px; align-items:center; }
+  .use .h .e{ font-size:13pt; }
+  .use p{ margin:0; color:var(--slate); font-size:9.6pt; }
+
+  .pipe{ display:flex; align-items:stretch; gap:0; flex-wrap:wrap; margin:10px 0; }
+  .pipe .stage{ flex:1 1 0; min-width:24mm; border:1px solid var(--line); border-radius:10px; padding:9px 10px; background:#fff; text-align:center; }
+  .pipe .stage .nm{ font-weight:700; font-size:9.3pt; color:var(--accent,#2563eb); }
+  .pipe .stage .dim{ font-family:"SFMono-Regular",Menlo,monospace; font-size:8.4pt; color:var(--slate); margin-top:3px; }
+  .pipe .arrow{ align-self:center; color:var(--muted); font-size:12pt; padding:0 5px; flex:none; }
+
+  .term{ font-weight:700; color:var(--accent,#2563eb); }
+  .lead{ color:var(--slate); font-size:10.2pt; margin:-2px 0 8px; }
+  .takeaway{ background:#f0fdf9; border:1px solid #c7eede; border-left:4px solid #0c9f6e; border-radius:10px; padding:11px 15px; margin:10px 0; }
+  .takeaway .t{ font-weight:700; color:#0a6b4e; font-size:10.5pt; margin-bottom:3px; }
+  .takeaway .bd{ color:#155e4a; }
+
+  h3.sub{ break-after:avoid; page-break-after:avoid; }
+  figure,.pm,.bars,.uses,.analogy,.takeaway,.pipe,table.compare,table.params,.defs{ break-inside:avoid; page-break-inside:avoid; }
+  .code,.tree{ break-inside:avoid; page-break-inside:avoid; }
+
+  .code{ border-radius:11px; overflow:hidden; margin:9px 0; box-shadow:0 9px 24px -15px rgba(17,24,39,.55); }
+  .code .fn{ font-family:"SFMono-Regular",Menlo,monospace; font-size:8.1pt; font-weight:600; color:#fff; background:var(--accent,#2563eb); padding:6px 13px; display:flex; justify-content:space-between; align-items:center; }
+  .code .fn .role{ font-family:-apple-system,"Segoe UI",sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.6px; font-size:6.8pt; opacity:.92; }
+  .code pre{ margin:0; padding:12px 15px; background:#0f172a; color:#dbe4f0; font-family:"SFMono-Regular",Menlo,Consolas,monospace; font-size:8.1pt; line-height:1.54; white-space:pre-wrap; }
+  .code .cm{ color:#7e8da6; font-style:italic; }
+  .codecap{ font-size:8.7pt; color:var(--muted); margin:-1px 0 12px; padding-left:2px; }
+
+  .tree{ background:#0f172a; color:#dbe4f0; border-radius:11px; padding:14px 18px; margin:11px 0; font-family:"SFMono-Regular",Menlo,monospace; font-size:8.6pt; line-height:1.62; white-space:pre-wrap; box-shadow:0 9px 24px -15px rgba(17,24,39,.55); }
+  .tree .dir{ color:#7dd3fc; font-weight:600; }
+  .tree .cm{ color:#7e8da6; }
+  .tree .hot{ color:#fcd34d; font-weight:700; }
+</style>
+</head>
+<body>
+
+<!-- ============================ PORTADA ============================ -->
+<div class="cover">
+  <div class="kicker">Cuaderno de divulgación · Deep Reinforcement Learning</div>
+  <h1>Arkanoid<br/>DRL<br/>Learning Lab</h1>
+  <div class="sub">Cuatro algoritmos de aprendizaje por refuerzo aprendiendo a jugar al Arkanoid en el navegador,
+    con redes neuronales <b>reales</b> sobre TensorFlow.js y aceleración <b>WebGPU</b>. Sin trucos: el agente
+    no conoce las reglas del juego; las descubre jugando.</div>
+  <div class="chips">
+    <span class="chip">DQN</span><span class="chip">PPO</span><span class="chip">SAC</span>
+    <span class="chip">World Model</span><span class="chip">TensorFlow.js</span><span class="chip">WebGPU</span>
+  </div>
+  <div class="credits">
+    <div class="cr"><span class="lbl">Autor</span><span class="val">Roberto Canales Mora</span></div>
+    <div class="cr"><span class="lbl">Licencia</span><span class="val">MIT</span></div>
+    <div class="cr"><span class="lbl">Repositorio</span><span class="val mono">github.com/robertocanalesmora/arkanoid-drl-learning-lab</span></div>
+  </div>
+  <div class="foot"><span>Un laboratorio para entender el RL profundo, de dentro afuera.</span><span>Roberto Canales Mora · con Claude Chat / Code</span></div>
+</div>
+
+<!-- ============================ INTRODUCCIÓN ============================ -->
+<section class="section">
+  <div class="band b-ink"><div class="n">INTRODUCCIÓN</div><h2>De un ladrillo a una política</h2>
+    <div class="tag">Qué es esto, quiénes son los protagonistas y cómo está pensado para aprenderse.</div></div>
+  <div class="pad" style="--accent:#374151;--accent-soft:#f3f4f6">
+    <p class="lead">El <b>aprendizaje por refuerzo</b> (RL, <i>Reinforcement Learning</i>) es la rama de la IA en la que un
+      <span class="term">agente</span> aprende a base de <b>premios y castigos</b>: prueba acciones, observa la
+      recompensa y ajusta su comportamiento para acumular el máximo premio a largo plazo. Aquí lo vemos sobre un
+      Arkanoid simplificado, donde el agente solo puede mover una pala a izquierda/derecha o dejarla quieta, y debe
+      aprender a devolver la pelota y romper ladrillos <b>sin que nadie le explique las reglas</b>.</p>
+
+    <h3 class="sub">Los protagonistas, en una frase</h3>
+    <dl class="defs">
+      <dt>Entorno</dt><dd>El juego de Arkanoid: recibe una acción, avanza la física un paso y devuelve una recompensa.</dd>
+      <dt>Estado</dt><dd>Lo que el agente "ve" en cada instante: 6 números (posición y velocidad de la pelota, posición de la pala…).</dd>
+      <dt>Acción</dt><dd>Una de 3: mover la pala a la izquierda, mantener, o a la derecha.</dd>
+      <dt>Recompensa</dt><dd>El número que premia (romper un ladrillo: +1) o castiga (perder la pelota: −1) cada paso.</dd>
+      <dt>Agente</dt><dd>La red (o redes) neuronal que decide qué acción tomar y que aprende de la experiencia.</dd>
+      <dt>Política</dt><dd>La estrategia del agente: la función que, dado un estado, dice qué acción conviene.</dd>
+    </dl>
+
+    <h3 class="sub">El hilo conductor: construir → entrenar → medir → mejorar</h3>
+    <p>Cada algoritmo de este cuaderno se ha tratado igual: se <b>construye</b>, se <b>entrena de verdad</b>, se
+      <b>leen sus métricas</b> (recompensa, pérdida, exploración, throughput) y, si no aprende, se <b>ajusta</b>
+      (hiperparámetros, arquitectura, regla de actualización) hasta que mejora de forma medible. Esa misma disciplina
+      —proponer, entrenar, medir, quedarse con lo que funciona— es la que aplicamos con agentes de IA para afinar el sistema.</p>
+
+    <div class="note"><b>Todas las cifras de este cuaderno son reales</b>, medidas ejecutando el propio laboratorio
+      (en el navegador con WebGPU y en Node con CPU). Las capturas son de la aplicación funcionando; las curvas, de
+      entrenamientos reales. Nada está inventado ni maquillado.</div>
+
+    <h3 class="sub">Lo que vas a poder seguir</h3>
+    <div class="uses">
+      <div class="use"><div class="h"><span class="e">🎮</span>Cómo arranca y se ejecuta el juego</div><p>La simulación de paso fijo, el estado que ve el agente y cómo se reinicia un episodio.</p></div>
+      <div class="use"><div class="h"><span class="e">🕹️</span>Cómo enganchamos los controles</div><p>El agente sustituye al jugador: su red decide las 3 acciones para cientos de partidas a la vez.</p></div>
+      <div class="use"><div class="h"><span class="e">🗃️</span>Cómo se guardan los datos</div><p>La transición (s, a, r, s', done), el replay buffer y el rollout: la memoria del aprendizaje.</p></div>
+      <div class="use"><div class="h"><span class="e">📈</span>Cómo se entrena la red y se actualizan las gráficas</div><p>El paso de gradiente, la red objetivo y el flujo desde el entrenamiento hasta las curvas en pantalla.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ ANATOMÍA (sección extra y extensa) ============================ -->
+<section class="section">
+  <div class="band b-cyan"><div class="n">CÓMO FUNCIONA POR DENTRO</div><h2>Del juego a la red neuronal</h2>
+    <div class="tag">El ciclo de vida completo de una iteración de entrenamiento, paso a paso.</div></div>
+  <div class="pad" style="--accent:#0891b2;--accent-soft:#e7f7fb">
+    <p class="lead">Antes de ver los algoritmos uno a uno, conviene entender la <b>maquinaria común</b> que todos comparten.
+      Si entiendes este ciclo, sabrás trasladar el mismo esqueleto a cualquier otro proyecto de RL: cambia el juego y
+      el algoritmo, pero las piezas (entorno, agente, memoria, bucle, métricas) son siempre las mismas.</p>
+
+    <!-- 1) Arranque y ejecución del juego -->
+    <h3 class="sub">1 · Cómo arranca y se ejecuta el juego</h3>
+    <p>El entorno es una <b>simulación pura</b>: no dibuja nada, solo calcula física. Vive en
+      <span class="mono">entornoArkanoid.js</span>. Al crearse o reiniciarse coloca los 28 ladrillos (4 filas × 7
+      columnas), lanza la pelota con una dirección aleatoria y sitúa la pala. La clave de diseño es que la física es de
+      <span class="term">paso fijo</span>: cada llamada a <span class="mono">paso(accion)</span> avanza <b>exactamente
+      un instante</b> de simulación. La "velocidad" que verás en la interfaz no acelera la física (eso cambiaría la
+      dinámica y rompería el aprendizaje): solo decide cuántos pasos se ejecutan por fotograma.</p>
+    <div class="code" style="--accent:#0891b2"><div class="fn">src/entorno/entornoArkanoid.js<span class="role">el motor del juego</span></div><pre><span class="cm">// Avanza un paso de simulación aplicando la acción del agente.</span>
+paso(accion) {
+  if (this.estaTerminado()) return { recompensa: 0, done: true };
+  this.pasos++;
+  this.recompensaPaso = RECOMPENSAS.PASO;          <span class="cm">// 0 por paso (no penaliza sobrevivir)</span>
+  this._aplicarAccion(accion);                     <span class="cm">// mueve la pala ← · →</span>
+  this._moverPelota();                             <span class="cm">// x += vx ; y += vy  (paso fijo)</span>
+  this._colisionParedes();
+  this._colisionPala();                            <span class="cm">// +0.10 si devuelve la pelota</span>
+  this._colisionLadrillos();                       <span class="cm">// +1.0 por ladrillo roto</span>
+  this._verificarFin();                            <span class="cm">// −1.0 si pierde la pelota; +5.0 si limpia el nivel</span>
+  this._aplicarShaping();                          <span class="cm">// recompensa densa: acercarse a la pelota</span>
+  this.recompensaEpisodio += this.recompensaPaso;
+  return { recompensa: this.recompensaPaso, done: this.estaTerminado() };
+}</pre></div>
+    <div class="codecap">Una sola función concentra toda la regla del juego. Devuelve la <b>recompensa</b> de ese paso y si el episodio ha <b>terminado</b> (done).</div>
+
+    <figure><img src="assets/panel_juego.jpg" /><figcaption>La partida observada: pelota, pala (degradado azul-violeta) y los 28 ladrillos. Abajo, la recompensa del episodio, los ladrillos rotos y los pasos.</figcaption></figure>
+
+    <div class="tint"><div class="t">El estado: lo único que ve el agente</div>El agente no ve píxeles, ve un vector de
+      <b>6 números normalizados</b> a ~[−1, 1]: posición x e y de la pelota, su velocidad (vx, vy), la posición de la
+      pala y la diferencia pelota−pala. Normalizar (que todo viva en el mismo rango) es lo que permite que una red
+      pequeña aprenda rápido.</div>
+    <div class="code" style="--accent:#0891b2"><div class="fn">src/entorno/entornoArkanoid.js · obtenerVectorEstado()<span class="role">el estado</span></div><pre>return [
+  p.x * 2 - 1,  p.y * 2 - 1,                       <span class="cm">// posición de la pelota → [-1,1]</span>
+  p.vx / CFG.VELOCIDAD_PELOTA,  p.vy / CFG.VELOCIDAD_PELOTA,  <span class="cm">// velocidad → [-1,1]</span>
+  this.pala.x * 2 - 1,                             <span class="cm">// posición de la pala</span>
+  limitar((p.x - this.pala.x) * 2, -1, 1),         <span class="cm">// distancia horizontal pelota↔pala</span>
+];</pre></div>
+    <div class="codecap">6 features. Pocas, pero suficientes para describir la situación. El reto del agente es mapear estos 6 números a la mejor de 3 acciones.</div>
+
+    <!-- 2) Enganchar los controles -->
+    <h3 class="sub">2 · Cómo enganchamos los controles: el agente "juega"</h3>
+    <p>En un Arkanoid normal, un humano pulsa teclas. Aquí el <b>agente sustituye al jugador</b>: en cada paso, su red
+      recibe el estado y devuelve la acción. Y como queremos aprender deprisa, no jugamos una partida, sino
+      <b>cientos a la vez</b>: el estado de los N entornos se apila en un único tensor <span class="mono">[N × 6]</span>
+      y la red predice las N acciones <b>de una sola pasada</b> por la GPU (inferencia en lote). Esto es lo que hace
+      que WebGPU rente: una llamada grande en vez de N pequeñas.</p>
+    <div class="code" style="--accent:#0891b2"><div class="fn">src/agentes/agenteDQN.js · seleccionarAcciones()<span class="role">el mando del agente</span></div><pre>seleccionarAcciones(estadosFlat, n, { entrenar = true } = {}) {
+  const eps = entrenar ? this.epsilon : 0;         <span class="cm">// ε = probabilidad de explorar al azar</span>
+  const greedy = tf.tidy(() =&gt; {
+    const sT = this._tensorEstados(estadosFlat, n);     <span class="cm">// tensor [N × 6]</span>
+    return this.redPolitica.predict(sT).argMax(1).dataSync(); <span class="cm">// mejor acción de cada entorno</span>
+  });
+  const acciones = new Int32Array(n);
+  for (let i = 0; i &lt; n; i++)                          <span class="cm">// ε-greedy: a veces exploro, casi siempre exploto</span>
+    acciones[i] = Math.random() &lt; eps ? (Math.random()*this.numAcciones)|0 : greedy[i];
+  return acciones;                                  <span class="cm">// N acciones, una por partida</span>
+}</pre></div>
+    <div class="codecap">El agente convierte estados en acciones. <b>ε-greedy</b>: con probabilidad ε actúa al azar (explorar), si no elige la mejor acción conocida (explotar).</div>
+
+    <div class="imgrow">
+      <figure><img src="assets/panel_algoritmo.jpg" /><figcaption>Eliges qué cerebro pilota: DQN, PPO, SAC o World Model. Cambiarlo recrea el agente desde cero.</figcaption></figure>
+      <figure><img src="assets/panel_controles.jpg" /><figcaption>Los mandos: velocidad (lotes/frame), nº de entornos de entrenamiento y de observación, y el reward shaping.</figcaption></figure>
+    </div>
+
+    <!-- 3) Los dos mundos -->
+    <h3 class="sub">3 · Dos mundos: entrenar rápido y observar bonito</h3>
+    <p>Si atáramos el aprendizaje a lo que se dibuja, estaríamos limitados a 8 ó 15 partidas. Por eso hay
+      <b>dos pools de entornos</b> separados (<span class="mono">gestorEntornos.js</span>):</p>
+    <div class="pipe">
+      <div class="stage"><div class="nm">Pool headless</div><div class="dim">50–2000 envs · sin dibujar · generan los datos</div></div>
+      <div class="arrow">+</div>
+      <div class="stage"><div class="nm">Pool visual</div><div class="dim">8–15 envs · se dibujan · misma política</div></div>
+    </div>
+    <p>El pool <b>headless</b> (sin canvas) corre cientos de partidas para alimentar a la red. El pool <b>visual</b>
+      ejecuta la <b>misma política</b> solo para que tú veas cómo juega. Es una ventana de observación, no el motor.</p>
+    <figure><img src="assets/rejilla_entornos.jpg" /><figcaption>La rejilla de entornos visuales: muchas partidas en paralelo con la misma política. Puedes pinchar una para verla grande arriba.</figcaption></figure>
+
+    <!-- 4) Guardar los datos -->
+    <h3 class="sub">4 · Cómo se guardan los datos para el entrenamiento</h3>
+    <p>La unidad de experiencia es la <span class="term">transición</span>: <span class="mono">(s, a, r, s', done)</span>
+      — "estaba en el estado s, hice la acción a, gané r, acabé en s', y el episodio terminó (o no)". Cada paso de cada
+      entorno produce una. El gestor las empaqueta en <b>arrays planos</b> (muy eficientes para crear tensores) y se las
+      pasa al agente para que las guarde.</p>
+    <figure><img src="assets/transicion.jpg" /><figcaption>La tira de transición muestra en vivo el (s → a → r → s' → done) del entorno observado: el ladrillo de información con el que se aprende.</figcaption></figure>
+    <p>¿Dónde se guardan? Depende de la familia del algoritmo:</p>
+    <div class="pm">
+      <div class="box mejo" style="background:#eff4fe;border-color:#cfe0fb"><div class="h" style="color:#1d4ed8">🗃️ Off-policy → Replay buffer</div>
+        DQN, SAC y World Model guardan <b>100.000</b> transiciones en una memoria circular y entrenan muestreando
+        lotes aleatorios. Reutilizan cada experiencia muchas veces y rompen la correlación temporal.</div>
+      <div class="box mejo" style="background:#f4effe;border-color:#e2d2fb"><div class="h" style="color:#6d28d9">📜 On-policy → Rollout buffer</div>
+        PPO acumula un <b>rollout</b> (256 pasos × N entornos), calcula las ventajas con GAE, entrena unas pocas
+        épocas y <b>descarta</b> los datos: solo valen mientras la política no cambie.</div>
+    </div>
+    <div class="code" style="--accent:#0891b2"><div class="fn">src/datos/replayBuffer.js · agregarLote()<span class="role">la memoria</span></div><pre><span class="cm">// Inserta un lote de transiciones en formato plano (buffer circular).</span>
+agregarLote(lote) {
+  const n = lote.recompensas.length;
+  for (let i = 0; i &lt; n; i++) {
+    const baseDst = this.pos * this.dim, baseSrc = i * this.dim;
+    for (let k = 0; k &lt; this.dim; k++) {
+      this.s[baseDst + k]  = lote.estados[baseSrc + k];      <span class="cm">// estado s</span>
+      this.s2[baseDst + k] = lote.siguientes[baseSrc + k];   <span class="cm">// estado siguiente s'</span>
+    }
+    this.a[this.pos] = lote.acciones[i];          <span class="cm">// acción a</span>
+    this.r[this.pos] = lote.recompensas[i];       <span class="cm">// recompensa r</span>
+    this.done[this.pos] = lote.terminados[i];     <span class="cm">// done</span>
+    this.pos = (this.pos + 1) % this.capacidad;   <span class="cm">// circular: pisa lo más viejo</span>
+    if (this.tam &lt; this.capacidad) this.tam++;
+  }
+}</pre></div>
+    <div class="codecap">La experiencia se guarda en columnas (s, a, r, s', done) para poder muestrear lotes y convertirlos en tensores sin copias caras.</div>
+
+    <!-- 5) El bucle -->
+    <h3 class="sub">5 · El bucle de entrenamiento (la pieza que lo une todo)</h3>
+    <p>El <span class="mono">orquestador.js</span> no sabe de algoritmos ni de pantallas: solo repite un ciclo. Esta es
+      <b>una iteración</b> (un "lote"): se observan los estados, el agente decide, el juego avanza, se guarda la
+      experiencia y el agente entrena. Es el corazón que late decenas de veces por segundo.</p>
+    <div class="code" style="--accent:#0891b2"><div class="fn">src/entrenamiento/orquestador.js · ejecutarLote()<span class="role">el bucle</span></div><pre>async ejecutarLote() {
+  const n = gestor.numHeadless;
+  const estados  = gestor.obtenerEstadosEntrenamiento();          <span class="cm">// 1· observar los N estados</span>
+  const acciones = this.agente.seleccionarAcciones(estados, n);   <span class="cm">// 2· la red decide N acciones</span>
+  const resultado = gestor.aplicarAcciones(acciones);             <span class="cm">// 3· el juego avanza N pasos</span>
+  this.agente.almacenarExperiencia(resultado);                    <span class="cm">// 4· guardar (s,a,r,s',done)</span>
+  this.metricas.registrarEpisodios(resultado.episodios);          <span class="cm">// 5· anotar episodios terminados</span>
+  const metrica = await this.agente.entrenar();                   <span class="cm">// 6· UN paso de aprendizaje</span>
+  this.pasoGlobal += n;
+  <span class="cm">// 7· cada 250 pasos: registrar una traza y avisar a la UID por el bus de eventos</span>
+}</pre></div>
+    <div class="codecap">Siempre los mismos 7 gestos. Cambiar de algoritmo solo cambia qué hace <span class="mono">entrenar()</span> por dentro; el bucle es idéntico.</div>
+
+    <!-- 6) Cómo se entrena la red -->
+    <h3 class="sub">6 · Cómo se entrena la red neuronal (el paso de gradiente)</h3>
+    <p>Entrenar una red es ajustar sus <b>pesos</b> para que se equivoque menos. En RL no tenemos "respuestas
+      correctas": construimos un <span class="term">objetivo</span> a partir de la recompensa y de lo que la propia red
+      cree que vale el futuro (ecuación de Bellman), y empujamos la predicción hacia ese objetivo. El truco para que no
+      diverja es usar una <span class="term">red objetivo</span>: una copia que se mueve despacio y nos da un blanco
+      estable al que apuntar.</p>
+    <div class="formula">objetivo = r + γ · (1 − done) · Q⁻(s', a*)      <span style="color:#8a909b">// γ=0.99; Q⁻ = red objetivo; a* = mejor acción</span></div>
+    <div class="code" style="--accent:#0891b2"><div class="fn">src/agentes/agenteDQN.js · entrenar()<span class="role">el aprendizaje</span></div><pre><span class="cm">// El objetivo TD se calcula SIN gradiente (es el "blanco" estable).</span>
+const objetivo = tf.tidy(() =&gt; {
+  const aStar = this.redPolitica.predict(s2T).argMax(1);   <span class="cm">// Double DQN: la red online elige a*</span>
+  const qSig  = this.redObjetivo.predict(s2T)...sum(1);    <span class="cm">// la red objetivo la evalúa</span>
+  return rT.add(qSig.mul(gamma).mul(noTerm));              <span class="cm">// r + γ·(1-done)·Q'(s',a*)</span>
+});
+<span class="cm">// Un paso de descenso de gradiente: acerca Q(s,a) al objetivo (pérdida Huber).</span>
+const lossT = this.optimizador.minimize(() =&gt; {
+  const qa = this.redPolitica.predict(sT).mul(aOneHot).sum(1);
+  return tf.losses.huberLoss(objetivo, qa);
+}, true, this._varsPolitica);
+<span class="cm">// La red objetivo sigue a la online MUY despacio (Polyak): estabilidad.</span>
+actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">// τ = 0.01</span></pre></div>
+    <div class="codecap">Bellman + red objetivo + pérdida Huber + actualización suave. Cada algoritmo cambia esta receta, pero la idea —empujar la predicción hacia un objetivo— se mantiene.</div>
+    <div class="note"><b>Higiene de memoria (TensorFlow.js).</b> Cada operación crea tensores en la GPU. Si no se liberan,
+      la memoria crece sin parar. Todo el laboratorio usa <span class="mono">tf.tidy</span> y un gestor de tensores; el
+      resultado es un recuento <b>plano</b> de tensores durante todo el entrenamiento (verificado: 26 en DQN, 76 en SAC…).</div>
+
+    <!-- 7) Las gráficas -->
+    <h3 class="sub">7 · Cómo se van actualizando las gráficas</h3>
+    <p>El orquestador no toca la pantalla: emite <b>trazas</b> por un <span class="term">bus de eventos</span>. La UI está
+      suscrita y, cuando llega una traza nueva (cada 250 pasos), refresca las tarjetas de métricas y <b>redibuja las
+      cuatro curvas</b> en sus <span class="mono">&lt;canvas&gt;</span>. Así el motor y la interfaz quedan desacoplados:
+      podrías entrenar sin pantalla (lo hacemos en Node) o cambiar la UI sin tocar el algoritmo.</p>
+    <div class="pipe">
+      <div class="stage"><div class="nm">Orquestador</div><div class="dim">registra traza</div></div>
+      <div class="arrow">→</div>
+      <div class="stage"><div class="nm">Bus de eventos</div><div class="dim">METRICAS_ACTUALIZADAS</div></div>
+      <div class="arrow">→</div>
+      <div class="stage"><div class="nm">Panel + Curvas</div><div class="dim">redibujan en canvas</div></div>
+    </div>
+    <p>Así se ve la diferencia entre el arranque (sin datos) y tras unos segundos de entrenamiento real:</p>
+    <div class="imgrow">
+      <figure><img src="assets/curvas_vacias.jpg" /><figcaption><b>Antes:</b> recién arrancado, las curvas están vacías (aún no hay episodios ni gradientes).</figcaption></figure>
+      <figure><img src="assets/curvas_dqn.jpg" /><figcaption><b>Después:</b> la recompensa sube (verde), la pérdida se asienta (rojo), el buffer se llena (azul) y ε decae (ámbar).</figcaption></figure>
+    </div>
+    <figure><img src="assets/flujo_datos.jpg" /><figcaption>El propio laboratorio dibuja su flujo de datos, y se adapta al algoritmo (aquí, off-policy con replay buffer).</figcaption></figure>
+
+    <div class="takeaway"><div class="t">En una frase</div><div class="bd">Observar estados → la red decide acciones → el juego avanza y produce recompensas →
+      se guardan transiciones → un paso de gradiente acerca la predicción a un objetivo de Bellman → se emite una traza
+      que refresca las gráficas. Repite miles de veces por minuto. <b>Eso es entrenar un agente.</b></div></div>
+  </div>
+</section>
+
+<!-- ============================ DQN ============================ -->
+<section class="section">
+  <div class="band b-blue"><div class="n">ALGORITMO 01 · BASADO EN VALOR</div><h2>DQN — Deep Q-Network</h2>
+    <div class="tag">Aprende cuánto vale cada acción y elige la de mayor valor.</div></div>
+  <div class="pad" style="--accent:#2563eb;--accent-soft:#eff4fe">
+
+    <h3 class="sub">¿Qué es DQN?</h3>
+    <p>DQN aprende una función <span class="term">Q(s,a)</span>: dado un estado, estima la <b>recompensa futura total</b>
+      que cabe esperar si tomamos cada acción y luego seguimos jugando bien. Con esa tabla de valores, actuar es trivial:
+      elige la acción de mayor Q. Lo "deep" es que esa función Q no es una tabla, sino una <b>red neuronal</b>, capaz de
+      generalizar a estados que nunca vio exactamente.</p>
+    <div class="analogy"><div class="ic">🎯</div><div class="bd"><div class="t">Una analogía</div>
+      Como aprender a jugar a los dardos: cada tirada te da una puntuación (recompensa) y, con la práctica, intuyes
+      cuánto "vale" apuntar a cada zona. DQN hace eso con números: estima el valor de cada movimiento y se queda con el mejor.</div></div>
+
+    <h3 class="sub">¿Para qué sirve? (en el mundo real)</h3>
+    <div class="uses">
+      <div class="use"><div class="h"><span class="e">🕹️</span>Videojuegos de Atari</div><p>DQN fue el primer algoritmo que aprendió a jugar decenas de juegos de Atari a nivel humano solo a partir de píxeles.</p></div>
+      <div class="use"><div class="h"><span class="e">🏭</span>Control discreto</div><p>Decisiones del tipo "encender/apagar/mantener": climatización, gestión de colas, semáforos.</p></div>
+      <div class="use"><div class="h"><span class="e">🛒</span>Recomendación</div><p>Elegir el siguiente contenido a mostrar para maximizar el interés a largo plazo.</p></div>
+      <div class="use"><div class="h"><span class="e">🔋</span>Energía</div><p>Decidir cuándo cargar/descargar una batería según precio y demanda.</p></div>
+    </div>
+
+    <h3 class="sub">Cómo funciona (su estructura)</h3>
+    <p>La red es un <b>perceptrón multicapa</b> (MLP): toma los 6 números del estado, pasa por dos capas ocultas de 128
+      neuronas con activación ReLU, y produce <b>3 salidas</b>, una por acción (el valor Q de cada una).</p>
+    <div class="pipe">
+      <div class="stage"><div class="nm">Estado</div><div class="dim">6</div></div>
+      <div class="arrow">→</div>
+      <div class="stage"><div class="nm">Capa ReLU</div><div class="dim">128</div></div>
+      <div class="arrow">→</div>
+      <div class="stage"><div class="nm">Capa ReLU</div><div class="dim">128</div></div>
+      <div class="arrow">→</div>
+      <div class="stage"><div class="nm">Q(s, ·)</div><div class="dim">3</div></div>
+    </div>
+    <div class="formula">Q(s,a) ← r + γ · max&#8202;ₐ' Q(s', a')      <span style="color:#8a909b">// ecuación de Bellman</span></div>
+    <div class="tint"><div class="t">La idea clave: Bellman + estabilizadores</div>El valor de ahora se define en términos del valor del futuro.
+      Para que ese "perseguirse a sí mismo" no diverja añadimos tres mejoras clásicas: <b>Double DQN</b> (separa quién
+      elige y quién evalúa la acción), <b>pérdida Huber</b> (menos sensible a errores grandes) y <b>red objetivo</b>
+      con actualización suave.</div>
+
+    <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
+    <p><b>El entorno.</b> Arkanoid: el agente observa 6 números, dispone de 3 acciones y recibe +1 por ladrillo, +0.1 por
+      devolver la pelota y −1 por perderla. <b>El objetivo:</b> maximizar la recompensa acumulada por episodio.</p>
+    <table class="params">
+      <tr><th>Ajuste</th><th>Valor</th><th>Qué es y qué efecto tiene</th></tr>
+      <tr><td class="k">learning_rate</td><td>8e-4</td><td>El tamaño de cada paso de aprendizaje. Grande = rápido pero inestable; pequeño = lento pero estable.</td></tr>
+      <tr><td class="k">gamma (γ)</td><td>0.99</td><td>Cuánto importan las recompensas futuras frente a las inmediatas (0 = cortoplacista, →1 = previsor).</td></tr>
+      <tr><td class="k">epsilon (ε)</td><td>1.0 → 0.05</td><td>Probabilidad de explorar al azar; decae a lo largo de 25.000 pasos hacia 0.05 (casi siempre explotar).</td></tr>
+      <tr><td class="k">replay buffer</td><td>100.000</td><td>Cuántas experiencias recordamos para muestrear lotes aleatorios.</td></tr>
+      <tr><td class="k">batch_size</td><td>128</td><td>Cuántas transiciones se usan en cada paso de gradiente.</td></tr>
+      <tr><td class="k">tau (τ)</td><td>0.01</td><td>Velocidad a la que la red objetivo sigue a la principal (1% por paso): estabilidad.</td></tr>
+    </table>
+
+    <h3 class="sub">La interfaz</h3>
+    <figure><img src="assets/app_dqn.jpg" /><figcaption>DQN entrenando: a la derecha, el inspector muestra los 3 valores Q (la acción greedy, en verde). Las curvas confirman que aprende: recompensa al alza, ε decayendo.</figcaption></figure>
+    <figure><img src="assets/inspector_dqn.jpg" /><figcaption>Inspector de DQN: Q(s,a) de cada acción, el ε actual, el TD-error medio y el llenado del buffer.</figcaption></figure>
+
+    <h3 class="sub">Resultados y la mejora con agentes</h3>
+    <p>En una ejecución real en el navegador (WebGPU), la recompensa media de los últimos 100 episodios subió de
+      <b>~0.0 a ~0.94</b> en cuestión de segundos, con un throughput de <b>~24.000 experiencias/s</b>. El agente aprende
+      con claridad a <b>seguir y devolver la pelota</b>; limpiar los 28 ladrillos (tasa de éxito &gt; 0) exige
+      entrenamientos largos.</p>
+    <figure><img src="assets/curvas_dqn.jpg" /><figcaption>Curvas reales de DQN: recompensa·100 (verde) al alza, pérdida Huber (rojo) que se asienta, buffer (azul) llenándose y ε (ámbar) decayendo.</figcaption></figure>
+    <div class="pm">
+      <div class="box prob"><div class="h">⚠ El problema</div>Un DQN "de libro" <b>sobreestima</b> los valores Q (siempre coge el máximo, que arrastra el ruido) y la recompensa oscila o se desploma tras un buen pico.</div>
+      <div class="box mejo"><div class="h">✔ La mejora encontrada</div><b>Double DQN</b> (la red online elige la acción y la objetivo la evalúa) + <b>Huber</b> + <b>soft update</b>. Resultado: aprendizaje más estable y sin fugas de memoria (26 tensores constantes).</div>
+    </div>
+
+    <h3 class="sub">Conclusiones</h3>
+    <div class="takeaway"><div class="t">En una frase</div><div class="bd">DQN es <b>off-policy</b> y <b>basado en valor</b>: aprende Q(s,a) reutilizando un
+      <span class="term">replay buffer</span>, explora con <span class="term">ε-greedy</span> y se estabiliza con una
+      <span class="term">red objetivo</span>. Es el cimiento del RL profundo y el mejor punto de partida.</div></div>
+  </div>
+</section>
+
+<!-- ============================ PPO ============================ -->
+<section class="section">
+  <div class="band b-violet"><div class="n">ALGORITMO 02 · ACTOR-CRÍTICO</div><h2>PPO — Proximal Policy Optimization</h2>
+    <div class="tag">Optimiza la política directamente, pero con pasos prudentes.</div></div>
+  <div class="pad" style="--accent:#7c3aed;--accent-soft:#f4effe">
+
+    <h3 class="sub">¿Qué es PPO?</h3>
+    <p>En lugar de estimar el valor de cada acción, PPO ajusta <b>directamente la política</b> <span class="term">π(a|s)</span>:
+      una red que da la <b>probabilidad</b> de cada acción. Una segunda red, la <span class="term">crítica</span>, estima
+      el valor V(s) del estado y sirve para juzgar si una acción fue mejor o peor de lo esperado (la <b>ventaja</b>). PPO
+      es hoy el caballo de batalla del RL: estable y robusto.</p>
+    <div class="analogy"><div class="ic">🧗</div><div class="bd"><div class="t">Una analogía</div>
+      Como mejorar tu técnica de escalada poco a poco: si cambias tu estilo de golpe, te caes. PPO da <b>pasos pequeños y
+      controlados</b> sobre la política para no estropear lo ya aprendido.</div></div>
+
+    <h3 class="sub">¿Para qué sirve? (en el mundo real)</h3>
+    <div class="uses">
+      <div class="use"><div class="h"><span class="e">🤖</span>Robótica y control</div><p>Acciones continuas o discretas en robots, brazos y locomoción; es el algoritmo por defecto en muchas suites.</p></div>
+      <div class="use"><div class="h"><span class="e">💬</span>RLHF en LLMs</div><p>PPO se usó para alinear modelos de lenguaje con preferencias humanas (la "P" de ChatGPT entrenado con RLHF).</p></div>
+      <div class="use"><div class="h"><span class="e">🎮</span>Juegos complejos</div><p>Dota 2 (OpenAI Five) y muchos entornos de simulación se entrenaron con PPO a gran escala.</p></div>
+      <div class="use"><div class="h"><span class="e">🏗️</span>Optimización de procesos</div><p>Control de sistemas donde la estabilidad del entrenamiento es crítica.</p></div>
+    </div>
+
+    <h3 class="sub">Cómo funciona (su estructura)</h3>
+    <p>Dos redes MLP independientes: el <b>actor</b> (6 → 128 → 128 → 3 logits → softmax = probabilidades) y la
+      <b>crítica</b> (6 → 128 → 128 → 1 = valor del estado).</p>
+    <div class="pipe">
+      <div class="stage"><div class="nm">Estado</div><div class="dim">6</div></div>
+      <div class="arrow">→</div>
+      <div class="stage"><div class="nm">Actor</div><div class="dim">128·128 → 3 (π)</div></div>
+      <div class="arrow">+</div>
+      <div class="stage"><div class="nm">Crítica</div><div class="dim">128·128 → 1 (V)</div></div>
+    </div>
+    <div class="formula">L = E[ min( ρ·A , clip(ρ, 1−ε, 1+ε)·A ) ]    <span style="color:#8a909b">// ρ = π_nueva / π_vieja ; A = ventaja</span></div>
+    <div class="tint"><div class="t">La idea clave: el recorte (clip)</div>PPO mide cuánto cambia la política (ratio ρ) y <b>recorta</b> ese cambio a
+      [1−ε, 1+ε] (con ε=0.2, a [0.8, 1.2]). Así nunca da un paso tan grande que arruine la política. Las ventajas se
+      estiman con <span class="term">GAE</span> (combina errores TD de varios pasos) para reducir la varianza.</div>
+
+    <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
+    <p>Mismo entorno Arkanoid. PPO es <b>on-policy</b>: recoge un rollout, lo exprime en varias épocas y lo tira.</p>
+    <table class="params">
+      <tr><th>Ajuste</th><th>Valor</th><th>Qué es y qué efecto tiene</th></tr>
+      <tr><td class="k">longitud_rollout</td><td>256</td><td>Pasos por entorno que se recogen antes de cada actualización.</td></tr>
+      <tr><td class="k">épocas</td><td>4</td><td>Cuántas veces se reaprovecha cada rollout antes de descartarlo.</td></tr>
+      <tr><td class="k">clip ε</td><td>0.2</td><td>Cuánto se permite cambiar la política por actualización (el "freno").</td></tr>
+      <tr><td class="k">GAE λ</td><td>0.95</td><td>Equilibrio sesgo/varianza al estimar la ventaja (0 = solo 1 paso; →1 = muchos pasos).</td></tr>
+      <tr><td class="k">coef_entropía</td><td>0.01</td><td>Premia mantener algo de aleatoriedad en la política (exploración).</td></tr>
+      <tr><td class="k">max_norma_grad</td><td>0.5</td><td>Recorta el gradiente para que ningún paso sea desmesurado.</td></tr>
+    </table>
+
+    <h3 class="sub">La interfaz</h3>
+    <figure><img src="assets/app_ppo.jpg" /><figcaption>PPO entrenando: el inspector muestra π(a|s) como barras de probabilidad, el valor V(s) y la entropía. Las curvas se adaptan (entropía en vez de ε).</figcaption></figure>
+    <figure><img src="assets/inspector_ppo.jpg" /><figcaption>Inspector de PPO: probabilidades de cada acción, valor estimado del estado y entropía de la política.</figcaption></figure>
+
+    <h3 class="sub">Resultados y la mejora con agentes</h3>
+    <p>PPO aprende de forma muy <b>estable</b> (curva monótona). En ejecución real, la recompensa pasó de ~0.1 a
+      <b>~0.99</b> en el navegador, y en una corrida más larga en CPU alcanzó <b>~4.08</b> (ya rompe varios ladrillos por
+      episodio). La entropía se mantiene alta al principio y baja despacio según la política se afila.</p>
+    <figure><img src="assets/curvas_ppo.jpg" /><figcaption>Curvas reales de PPO. La gráfica de "datos" muestra los ladrillos rotos de media; la de exploración, la entropía de la política.</figcaption></figure>
+    <div class="pm">
+      <div class="box prob"><div class="h">⚠ El problema</div>Optimizar la política sin freno provoca pasos enormes que <b>destrozan</b> lo aprendido: la recompensa colapsa de golpe.</div>
+      <div class="box mejo"><div class="h">✔ La mejora encontrada</div>El <b>objetivo recortado</b> + <b>normalizar las ventajas</b> + <b>recorte de gradiente</b>. Resultado: la curva más estable de los cuatro, sin caídas bruscas.</div>
+    </div>
+
+    <h3 class="sub">Conclusiones</h3>
+    <div class="takeaway"><div class="t">En una frase</div><div class="bd">PPO es <b>on-policy</b> y <b>actor-crítico</b>: mejora la política a pasitos
+      <span class="term">recortados</span>, usa la <span class="term">ventaja</span> (GAE) para saber qué acciones
+      reforzar y premia la <span class="term">entropía</span> para no dejar de explorar. Estable y de uso general.</div></div>
+  </div>
+</section>
+
+<!-- ============================ SAC ============================ -->
+<section class="section">
+  <div class="band b-pink"><div class="n">ALGORITMO 03 · MÁXIMA ENTROPÍA</div><h2>SAC — Soft Actor-Critic (discreto)</h2>
+    <div class="tag">Maximiza recompensa Y aleatoriedad, y se autorregula.</div></div>
+  <div class="pad" style="--accent:#db2777;--accent-soft:#fdeef6">
+
+    <h3 class="sub">¿Qué es SAC?</h3>
+    <p>SAC es actor-crítico <b>off-policy</b> con una idea extra: no solo maximiza la recompensa, también la
+      <span class="term">entropía</span> de la política (cuán aleatoria es). Esto mantiene la exploración viva y evita
+      que el agente se "cierre" demasiado pronto en una sola estrategia. Usa <b>dos críticos</b> y un coeficiente de
+      temperatura <span class="term">α</span> que <b>se ajusta solo</b>.</p>
+    <div class="analogy"><div class="ic">🎲</div><div class="bd"><div class="t">Una analogía</div>
+      Como un chef que ya tiene un plato que funciona pero sigue probando variaciones por si alguna es mejor: SAC se
+      reserva, a propósito, una dosis de "probar cosas nuevas" mientras le compense.</div></div>
+
+    <h3 class="sub">¿Para qué sirve? (en el mundo real)</h3>
+    <div class="uses">
+      <div class="use"><div class="h"><span class="e">🦾</span>Robótica continua</div><p>Es uno de los mejores algoritmos para control de robots reales por su eficiencia de muestra y robustez.</p></div>
+      <div class="use"><div class="h"><span class="e">🚗</span>Conducción y navegación</div><p>Entornos donde explorar de forma segura y constante es clave.</p></div>
+      <div class="use"><div class="h"><span class="e">⚙️</span>Control fino</div><p>Tareas con muchas soluciones parecidas, donde mantener variedad ayuda a no estancarse.</p></div>
+      <div class="use"><div class="h"><span class="e">🔬</span>Investigación</div><p>Banco de pruebas habitual para estudiar exploración y estabilidad.</p></div>
+    </div>
+
+    <h3 class="sub">Cómo funciona (su estructura)</h3>
+    <p>Un actor (política) y <b>dos críticos</b> Q (más sus dos redes objetivo). Trabajar con el <b>mínimo</b> de los dos
+      críticos evita la sobreestimación de valores.</p>
+    <div class="pipe">
+      <div class="stage"><div class="nm">Actor</div><div class="dim">→ π(a|s) · 3</div></div>
+      <div class="arrow">+</div>
+      <div class="stage"><div class="nm">Crítico Q1</div><div class="dim">→ 3</div></div>
+      <div class="arrow">+</div>
+      <div class="stage"><div class="nm">Crítico Q2</div><div class="dim">→ 3</div></div>
+      <div class="arrow">+</div>
+      <div class="stage"><div class="nm">Temperatura α</div><div class="dim">auto</div></div>
+    </div>
+    <div class="formula">y = r + γ · Σₐ π(a|s')·[ min(Q1', Q2') − α·log π(a|s') ]   <span style="color:#8a909b">// objetivo del crítico</span></div>
+    <div class="tint"><div class="t">La idea clave: temperatura automática</div>α pondera cuánta entropía exigimos. En vez de fijarlo a mano, SAC lo
+      <b>aprende</b> para alcanzar una entropía objetivo (aquí, 0.55·log 3). Si la política explora poco, α sube; si
+      explora demasiado, baja. En nuestras ejecuciones, α bajó de 0.20 a <b>~0.165</b> sola.</div>
+
+    <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
+    <table class="params">
+      <tr><th>Ajuste</th><th>Valor</th><th>Qué es y qué efecto tiene</th></tr>
+      <tr><td class="k">lr_actor / crítico / α</td><td>6e-4 / 8e-4 / 6e-4</td><td>Tres ritmos de aprendizaje, uno por red. El crítico aprende algo más rápido.</td></tr>
+      <tr><td class="k">tau (τ)</td><td>0.01</td><td>Velocidad de las dos redes objetivo (soft update).</td></tr>
+      <tr><td class="k">entropía objetivo</td><td>0.55·log 3</td><td>Cuánta aleatoriedad queremos mantener; gobierna hacia dónde empuja α.</td></tr>
+      <tr><td class="k">batch / buffer</td><td>128 / 100.000</td><td>Es off-policy: reutiliza experiencias de un replay buffer.</td></tr>
+    </table>
+
+    <h3 class="sub">La interfaz</h3>
+    <figure><img src="assets/app_sac.jpg" /><figcaption>SAC entrenando: el inspector muestra la política, la temperatura α y la entropía. La curva de "exploración" sigue a α en vez de a ε.</figcaption></figure>
+    <figure><img src="assets/inspector_sac.jpg" /><figcaption>Inspector de SAC: π(a|s), temperatura α (auto-ajustada), entropía y el min(Q1,Q2) por acción.</figcaption></figure>
+
+    <h3 class="sub">Resultados y la mejora con agentes</h3>
+    <p>SAC aprende y la temperatura se estabiliza sola. En el navegador, la recompensa subió de ~0.0 a <b>~0.99</b>, con
+      α descendiendo de 0.20 a ~0.165 y la entropía manteniéndose alta (exploración sana). Sin fugas: 76 tensores
+      constantes durante todo el entrenamiento.</p>
+    <figure><img src="assets/curvas_sac.jpg" /><figcaption>Curvas reales de SAC. La gráfica de exploración muestra la temperatura α descendiendo poco a poco.</figcaption></figure>
+    <div class="pm">
+      <div class="box prob"><div class="h">⚠ El problema</div>SAC discreto puede <b>diverger</b> (los Q se disparan) o quedarse demasiado aleatorio/demasiado rígido si α está mal puesto a mano.</div>
+      <div class="box mejo"><div class="h">✔ La mejora encontrada</div><b>Doble crítico</b> con mínimo (anti-sobreestimación) + <b>α automática</b> (no hay que afinarla). Resultado: aprendizaje estable y exploración auto-regulada.</div>
+    </div>
+
+    <h3 class="sub">Conclusiones</h3>
+    <div class="takeaway"><div class="t">En una frase</div><div class="bd">SAC es <b>off-policy</b> y de <span class="term">máxima entropía</span>: usa
+      <span class="term">dos críticos</span> para no sobreestimar y una <span class="term">temperatura α automática</span>
+      para mantener la exploración justa. Muy eficiente en datos y robusto.</div></div>
+  </div>
+</section>
+
+<!-- ============================ WORLD MODEL ============================ -->
+<section class="section">
+  <div class="band b-cyan"><div class="n">ALGORITMO 04 · MODEL-BASED</div><h2>World Model — Dyna-Q</h2>
+    <div class="tag">Aprende un modelo del juego y entrena "imaginando".</div></div>
+  <div class="pad" style="--accent:#0891b2;--accent-soft:#e7f7fb">
+
+    <h3 class="sub">¿Qué es un World Model?</h3>
+    <p>Los tres anteriores son <b>model-free</b>: aprenden qué hacer sin entender el entorno. Un World Model es
+      <b>model-based</b>: aprende un <span class="term">modelo de la dinámica</span> —una red que predice, dado (s, a),
+      cuál será el siguiente estado s', la recompensa r y si termina— y lo usa para generar experiencia
+      <b>imaginada</b> con la que entrenar (Dyna-Q). Así exprime cada paso real muchas veces.</p>
+    <div class="analogy"><div class="ic">🧠</div><div class="bd"><div class="t">Una analogía</div>
+      Como un ajedrecista que, además de jugar, <b>imagina jugadas en su cabeza</b> para practicar sin mover ficha.
+      El World Model "sueña" partidas con su modelo del mundo y aprende también de esos sueños.</div></div>
+
+    <h3 class="sub">¿Para qué sirve? (en el mundo real)</h3>
+    <div class="uses">
+      <div class="use"><div class="h"><span class="e">🏎️</span>Cuando los datos son caros</div><p>Robots reales o procesos donde cada paso cuesta tiempo/dinero: imaginar multiplica los datos disponibles.</p></div>
+      <div class="use"><div class="h"><span class="e">🌍</span>Planificación</div><p>Modelos del mundo (MuZero, Dreamer) que planifican mirando hacia delante con su propio simulador aprendido.</p></div>
+      <div class="use"><div class="h"><span class="e">🔋</span>Eficiencia de muestra</div><p>Aprender buenas políticas con muchos menos episodios reales.</p></div>
+      <div class="use"><div class="h"><span class="e">🧪</span>Simulación aprendida</div><p>Sustituir un simulador caro por una red rápida que lo aproxima.</p></div>
+    </div>
+
+    <h3 class="sub">Cómo funciona (su estructura)</h3>
+    <p>Dos piezas: un <b>Q-net</b> (como DQN) que decide, y un <b>modelo de dinámica</b> (6+3 entradas → 200 → 200 →
+      Δs, r, done) que predice el futuro. El modelo predice el <b>incremento</b> Δs (más estable que s' directo): s' = s + Δs.</p>
+    <div class="pipe">
+      <div class="stage"><div class="nm">(s, a)</div><div class="dim">6 + 3</div></div>
+      <div class="arrow">→</div>
+      <div class="stage"><div class="nm">Modelo</div><div class="dim">200·200</div></div>
+      <div class="arrow">→</div>
+      <div class="stage"><div class="nm">Δs, r, done</div><div class="dim">→ s' = s+Δs</div></div>
+      <div class="arrow">→</div>
+      <div class="stage"><div class="nm">Q-net</div><div class="dim">entrena con lo imaginado</div></div>
+    </div>
+    <div class="formula">real → entrena modelo y Q ;   imaginado → 5 actualizaciones Q extra por paso real (planning)</div>
+    <div class="tint"><div class="t">La idea clave: planning con datos imaginados</div>Por cada paso real hacemos <b>5</b> actualizaciones del Q-net
+      con transiciones que <b>genera el modelo</b>, partiendo de estados muestreados del buffer. Si el modelo es bueno,
+      es casi gratis multiplicar el aprendizaje.</div>
+
+    <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
+    <table class="params">
+      <tr><th>Ajuste</th><th>Valor</th><th>Qué es y qué efecto tiene</th></tr>
+      <tr><td class="k">capas del modelo</td><td>200·200</td><td>El modelo de dinámica es algo más grande: tiene que aprender la física.</td></tr>
+      <tr><td class="k">pasos_planning</td><td>5</td><td>Actualizaciones del Q-net con datos imaginados por cada paso real.</td></tr>
+      <tr><td class="k">arranque_modelo</td><td>1.000</td><td>Pasos reales antes de empezar a entrenar el modelo (necesita datos primero).</td></tr>
+      <tr><td class="k">lr_modelo</td><td>1e-3</td><td>Ritmo de aprendizaje del modelo de dinámica (supervisado).</td></tr>
+    </table>
+
+    <h3 class="sub">La interfaz</h3>
+    <figure><img src="assets/app_worldmodel.jpg" /><figcaption>World Model entrenando: las métricas se adaptan (aparecen "Error modelo" y "Planning"). El inspector compara el estado real con el predicho por el modelo.</figcaption></figure>
+    <figure><img src="assets/inspector_worldmodel.jpg" /><figcaption>Inspector del World Model: Q-values del Dyna-Q y la tabla real → predicho componente a componente. Aquí el error RMSE del modelo es 0.11.</figcaption></figure>
+
+    <h3 class="sub">Resultados y la mejora con agentes</h3>
+    <p>El modelo aprende a predecir la física con un error <b>RMSE ~0.066</b> sobre estados normalizados (muy bajo: las
+      predicciones siguen de cerca a la realidad, como se ve en el inspector). La recompensa subió de ~0.0 a <b>~0.71</b>
+      en el navegador. Sin fugas: ~46 tensores constantes.</p>
+    <figure><img src="assets/curvas_worldmodel.jpg" /><figcaption>Curvas reales del World Model. La gráfica de "datos" muestra el error del modelo (RMSE) bajando: el modelo mejora su predicción del juego.</figcaption></figure>
+    <div class="pm">
+      <div class="box prob"><div class="h">⚠ El problema</div>El <b>model bias</b>: si el modelo se equivoca, las imaginaciones largas acumulan error y el agente aprende de un mundo falso.</div>
+      <div class="box mejo"><div class="h">✔ La mejora encontrada</div>Predecir el <b>incremento Δs</b> (más estable) e imaginar a <b>corto plazo</b> (1 paso, reiniciando trayectorias terminadas). Resultado: modelo fiable (RMSE bajo) y política que mejora con datos imaginados.</div>
+    </div>
+
+    <h3 class="sub">Conclusiones</h3>
+    <div class="takeaway"><div class="t">En una frase</div><div class="bd">El World Model es <b>model-based</b>: aprende un
+      <span class="term">modelo de dinámica</span> y lo usa para <span class="term">imaginar</span> experiencia (Dyna-Q),
+      ganando eficiencia de muestra. El precio a vigilar es el <span class="term">model bias</span>.</div></div>
+  </div>
+</section>
+
+<!-- ============================ COMPARADOR ============================ -->
+<section class="section">
+  <div class="band b-ink"><div class="n">COMPARADOR</div><h2>Los cuatro, cara a cara</h2>
+    <div class="tag">Misma tarea, mismo entorno, cuatro filosofías distintas.</div></div>
+  <div class="pad" style="--accent:#374151;--accent-soft:#f3f4f6">
+    <table class="compare">
+      <tr><th>Algoritmo</th><th>Familia</th><th>Política</th><th>Qué aprende</th><th>Exploración</th><th>Señal propia</th><th>Reward real*</th></tr>
+      <tr><td>DQN</td><td>Model-free · valor</td><td>off-policy</td><td>Q(s,a)</td><td>ε-greedy</td><td>TD-error, ε</td><td>0 → 0.94</td></tr>
+      <tr><td>PPO</td><td>Model-free · actor-crítico</td><td>on-policy</td><td>π(a|s) + V(s)</td><td>entropía</td><td>entropía, ventaja</td><td>0.1 → 0.99 (4.08 en CPU)</td></tr>
+      <tr><td>SAC</td><td>Model-free · actor-crítico</td><td>off-policy</td><td>π + 2·Q</td><td>máx. entropía (α)</td><td>temperatura α</td><td>0 → 0.99</td></tr>
+      <tr><td>World Model</td><td>Model-based</td><td>off-policy</td><td>dinámica + Q</td><td>ε-greedy</td><td>error del modelo</td><td>0 → 0.71</td></tr>
+    </table>
+    <p class="legend">* Recompensa media de los últimos 100 episodios, medida en ejecuciones reales (navegador con WebGPU; el dato de PPO en CPU es de una corrida más larga). El throughput observado fue de ~24.000 exp/s en WebGPU frente a ~5.600 exp/s en CPU.</p>
+    <div class="takeaway"><div class="t">Qué llevarse</div><div class="bd">No hay un "mejor" universal: <b>DQN</b> es el cimiento más simple;
+      <b>PPO</b> es el más estable y de uso general; <b>SAC</b> es el más eficiente en datos y explora solo; el
+      <b>World Model</b> es el más ambicioso (aprende el juego) y el más delicado. Entender los cuatro es entender el mapa del RL profundo.</div></div>
+  </div>
+</section>
+
+<!-- ============================ DESCÁRGALO ============================ -->
+<section class="section">
+  <div class="band b-green"><div class="n">PRUÉBALO</div><h2>Descárgalo y entrénalo tú</h2>
+    <div class="tag">Todo corre en local; el entrenamiento, en tu navegador con WebGPU.</div></div>
+  <div class="pad" style="--accent:#0c9f6e;--accent-soft:#e9fbf4">
+    <div class="tint"><div class="t">Repositorio</div><span class="mono">github.com/robertocanalesmora/arkanoid-drl-learning-lab</span></div>
+    <h3 class="sub">1 · Clona e instala</h3>
+    <div class="code" style="--accent:#0c9f6e"><div class="fn">terminal<span class="role">instalación</span></div><pre>git clone «URL-del-repo» &amp;&amp; cd DRLArkanoid
+npm install          <span class="cm"># vite + @tensorflow/tfjs + backend WebGPU</span></pre></div>
+    <h3 class="sub">2 · Arranca el laboratorio</h3>
+    <div class="code" style="--accent:#0c9f6e"><div class="fn">terminal<span class="role">arrancar</span></div><pre>npm run dev          <span class="cm"># abre http://localhost:5173 y pulsa ▶ Entrenar</span>
+./arrancar.sh        <span class="cm"># alternativa: arranca y, si ya estaba, rearranca</span></pre></div>
+    <h3 class="sub">3 · Verifica o entrena por consola (sin navegador)</h3>
+    <div class="code" style="--accent:#0c9f6e"><div class="fn">terminal<span class="role">verificación</span></div><pre>npm run verificar    <span class="cm"># entrena los 4 algoritmos (CPU) y reporta si aprenden</span>
+node scripts/entrenar.mjs dqn --pasos 40000 --envs 128   <span class="cm"># entrena uno y muestra trazas</span></pre></div>
+    <div class="note">Requiere Node ≥ 18 y un navegador con WebGPU (Chrome/Edge/Safari recientes). Si no hay WebGPU,
+      el laboratorio cae automáticamente a WebGL y, en último caso, a CPU.</div>
+  </div>
+</section>
+
+<!-- ============================ ORGANIZACIÓN DEL CÓDIGO ============================ -->
+<section class="section">
+  <div class="band b-ink"><div class="n">BAJO EL CAPÓ</div><h2>Cómo está organizado el código</h2>
+    <div class="tag">Dónde vive cada pieza del laboratorio.</div></div>
+  <div class="pad" style="--accent:#374151;--accent-soft:#f3f4f6">
+    <div class="tree">src/
+├── <span class="dir">nucleo/</span>            <span class="cm"># infraestructura común</span>
+│   ├── constantes.js       <span class="cm"># entorno, recompensas, hiperparámetros</span>
+│   ├── busEventos.js       <span class="cm"># pub/sub: desacopla motor y UI</span>
+│   ├── gestorTensores.js   <span class="cm"># tf.tidy, soft update, paso de gradiente</span>
+│   └── trazas.js           <span class="cm"># logging estructurado de métricas</span>
+├── <span class="dir">entorno/</span>
+│   ├── entornoArkanoid.js  <span class="cm"># el juego (física de paso fijo)</span>
+│   └── gestorEntornos.js   <span class="cm"># pools headless + visual</span>
+├── <span class="hot">agentes/</span>           <span class="cm"># ←★ AQUÍ VIVEN LAS REDES Y LOS ALGORITMOS</span>
+│   ├── <span class="hot">agenteDQN.js</span>        <span class="cm"># Double DQN</span>
+│   ├── <span class="hot">agentePPO.js</span>        <span class="cm"># actor-crítico + GAE + clip</span>
+│   ├── <span class="hot">agenteSAC.js</span>        <span class="cm"># 2 críticos + α automática</span>
+│   ├── <span class="hot">agenteWorldModel.js</span> <span class="cm"># modelo de dinámica + Dyna-Q</span>
+│   └── redes/constructorRedes.js  <span class="cm"># fábrica de MLPs</span>
+├── <span class="dir">datos/</span>
+│   ├── replayBuffer.js     <span class="cm"># off-policy (DQN, SAC, WM)</span>
+│   ├── replayPrioritario.js<span class="cm"># PER con sum-tree</span>
+│   └── rolloutBuffer.js    <span class="cm"># on-policy (PPO) + GAE</span>
+├── <span class="hot">entrenamiento/</span>     <span class="cm"># ←★ EL BUCLE DE ENTRENAMIENTO</span>
+│   ├── <span class="hot">orquestador.js</span>      <span class="cm"># el ciclo, sin DOM</span>
+│   └── metricas.js         <span class="cm"># recolector de métricas reales</span>
+├── <span class="dir">ui/</span>               <span class="cm"># interfaz (paneles, curvas, inspectores)</span>
+└── main.js                 <span class="cm"># arranque + detección de backend</span></div>
+    <dl class="defs">
+      <dt>Las redes</dt><dd><span class="mono">agentes/*.js</span> + <span class="mono">agentes/redes/constructorRedes.js</span></dd>
+      <dt>El entrenamiento</dt><dd><span class="mono">entrenamiento/orquestador.js</span> (el ciclo) y el método <span class="mono">entrenar()</span> de cada agente (la regla de actualización).</dd>
+      <dt>El juego</dt><dd><span class="mono">entorno/entornoArkanoid.js</span> (física) y <span class="mono">gestorEntornos.js</span> (los dos pools).</dd>
+      <dt>La memoria</dt><dd><span class="mono">datos/replayBuffer.js</span> (off-policy) y <span class="mono">datos/rolloutBuffer.js</span> (on-policy).</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- ============================ CÓDIGO CLAVE ============================ -->
+<section class="section">
+  <div class="band b-blue"><div class="n">EL CÓDIGO CLAVE</div><h2>Algoritmo a algoritmo</h2>
+    <div class="tag">Fragmentos reales: la red, el entrenamiento y un extra de cada uno.</div></div>
+  <div class="pad" style="--accent:#2563eb;--accent-soft:#eff4fe">
+
+    <h3 class="sub">La fábrica de redes (común a todos)</h3>
+    <div class="code" style="--accent:#2563eb"><div class="fn">src/agentes/redes/constructorRedes.js · crearMLP()<span class="role">la red</span></div><pre>const modelo = tf.sequential({ name: nombre });
+capasOcultas.forEach((unidades, i) =&gt; {
+  modelo.add(tf.layers.dense({
+    units: unidades, activation: "relu",
+    inputShape: i === 0 ? [dimEntrada] : undefined,
+    kernelInitializer: "heNormal",      <span class="cm">// buena inicialización para ReLU</span>
+  }));
+});
+modelo.add(tf.layers.dense({ units: dimSalida, activation: activacionSalida }));</pre></div>
+    <div class="codecap">Un MLP parametrizable. DQN/WM lo usan con 3 salidas (Q); PPO/SAC para el actor (3 logits) y la crítica (1 valor).</div>
+
+    <h3 class="sub">PPO · el objetivo recortado</h3>
+    <div class="code" style="--accent:#7c3aed"><div class="fn">src/agentes/agentePPO.js · entrenar() (minibatch)<span class="role">el entrenamiento</span></div><pre>const ratio = logpA.sub(logpViejoMb).exp();          <span class="cm">// ρ = π_nueva / π_vieja</span>
+const surr1 = ratio.mul(advMb);
+const surr2 = ratio.clipByValue(1 - eps, 1 + eps).mul(advMb);  <span class="cm">// recorte</span>
+const lossPol = surr1.minimum(surr2).mean().mul(-1);  <span class="cm">// objetivo recortado</span>
+const entropia = probs.mul(logp).sum(1).mean().mul(-1);
+const lossVal = valor.sub(retMb).square().mean();     <span class="cm">// crítica: MSE contra el retorno</span>
+return lossPol.add(lossVal.mul(coefValor)).sub(entropia.mul(coefEntropia));</pre></div>
+    <div class="codecap">El corazón de PPO: tomar el mínimo entre el objetivo normal y el recortado evita pasos demasiado grandes.</div>
+
+    <h3 class="sub">SAC · la temperatura α que se aprende sola</h3>
+    <div class="code" style="--accent:#db2777"><div class="fn">src/agentes/agenteSAC.js · entrenar() (paso de α)<span class="role">un extra</span></div><pre><span class="cm">// α se ajusta para acercar la entropía de la política a la entropía objetivo.</span>
+const lossAlphaT = pasoGradiente(this.optAlpha, () =&gt; {
+  const term = this.logAlpha.mul(-1).mul(logpC.add(this.targetEntropy));
+  return probsC.mul(term).sum(1).mean();
+}, [this.logAlpha]);</pre></div>
+    <div class="codecap">α no es un hiperparámetro fijo: es una variable entrenable. Esto le quita al usuario el trabajo de afinarla.</div>
+
+    <h3 class="sub">World Model · entrenar el modelo de dinámica</h3>
+    <div class="code" style="--accent:#0891b2"><div class="fn">src/agentes/agenteWorldModel.js · _entrenarModelo()<span class="role">un extra</span></div><pre>const lossT = pasoGradiente(this.optModelo, () =&gt; {
+  const out = this.modelo.predict(entrada);            <span class="cm">// entrada = [s ⊕ one-hot(a)]</span>
+  const dsPred   = out.slice([0, 0], [B, this.dimEstado]);   <span class="cm">// Δs predicho</span>
+  const rPred    = out.slice([0, this.dimEstado], [B, 1]);   <span class="cm">// r predicha</span>
+  const donePred = out.slice([0, this.dimEstado + 1], [B, 1]);
+  return tf.losses.meanSquaredError(dsObjetivo, dsPred)      <span class="cm">// aprender la física…</span>
+    .add(tf.losses.meanSquaredError(rT, rPred))              <span class="cm">// …la recompensa…</span>
+    .add(tf.losses.sigmoidCrossEntropy(doneT, donePred).mul(0.5));  <span class="cm">// …y el fin de episodio</span>
+}, this._varsModelo);</pre></div>
+    <div class="codecap">El modelo se entrena de forma <b>supervisada</b>: predecir (Δs, r, done) a partir de (s, a). Con él, el agente "imagina".</div>
+  </div>
+</section>
+
+<!-- ============================ LICENCIA ============================ -->
+<section class="section">
+  <div class="band b-ink"><div class="n">LICENCIA Y AUTORÍA</div><h2>Licencia MIT</h2>
+    <div class="tag">Úsalo, modifícalo y compártelo libremente.</div></div>
+  <div class="pad" style="--accent:#374151;--accent-soft:#f3f4f6">
+    <dl class="defs">
+      <dt>Autor</dt><dd>Roberto Canales Mora · con Claude Chat / Code</dd>
+      <dt>Licencia</dt><dd>MIT</dd>
+      <dt>Repositorio</dt><dd class="mono">github.com/robertocanalesmora/arkanoid-drl-learning-lab</dd>
+      <dt>Entorno</dt><dd>Vite + TensorFlow.js (WebGPU / WebGL / CPU). Probado en macOS (Apple Silicon M4).</dd>
+    </dl>
+    <div class="code" style="--accent:#374151"><div class="fn">LICENSE<span class="role">texto completo</span></div><pre>Licencia MIT
+
+Copyright (c) 2026 Roberto Canales Mora
+
+Por la presente se concede permiso, sin cargo, a cualquier persona que obtenga una copia
+de este software y de los archivos de documentación asociados (el "Software"), para utilizar
+el Software sin restricción, incluyendo sin limitación los derechos a usar, copiar, modificar,
+fusionar, publicar, distribuir, sublicenciar y/o vender copias del Software, y a permitir a
+las personas a las que se les proporcione el Software a hacer lo mismo, sujeto a las
+siguientes condiciones:
+
+El aviso de copyright anterior y este aviso de permiso se incluirán en todas las copias o
+partes sustanciales del Software.
+
+EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA,
+INCLUYENDO PERO NO LIMITADO A GARANTÍAS DE COMERCIALIZACIÓN, IDONEIDAD PARA UN PROPÓSITO
+PARTICULAR Y NO INFRACCIÓN. EN NINGÚN CASO LOS AUTORES O PROPIETARIOS DE LOS DERECHOS DE
+AUTOR SERÁN RESPONSABLES DE NINGUNA RECLAMACIÓN, DAÑOS U OTRAS RESPONSABILIDADES, YA SEA
+EN UNA ACCIÓN DE CONTRATO, AGRAVIO O DE OTRO MODO, QUE SURJA DE, FUERA DE O EN CONEXIÓN
+CON EL SOFTWARE O EL USO U OTROS NEGOCIOS EN EL SOFTWARE.</pre></div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🧠 Arkanoid DRL Learning Lab</title>
+  </head>
+  <body>
+    <div class="app">
+      <!-- ===================== CABECERA ===================== -->
+      <header class="cabecera">
+        <div class="titulo">
+          <span style="font-size: 26px">🧠</span>
+          <div>
+            <h1>Arkanoid <span style="color: var(--acento)">DRL</span> Learning Lab</h1>
+            <div class="sub">Deep Reinforcement Learning real · DQN · PPO · SAC · World Model</div>
+          </div>
+        </div>
+        <div class="cabecera-controles">
+          <span class="badge" id="badgeBackend"><span class="punto"></span>backend…</span>
+          <span class="badge" id="badgeEstado"><span class="punto"></span>en pausa</span>
+          <button class="btn fantasma" id="btnPaso" title="Avanza un único lote de entrenamiento">⏭ Paso</button>
+          <button class="btn fantasma" id="btnReiniciar" title="Reinicia el agente y los entornos">↻ Reiniciar</button>
+          <button class="btn primario" id="btnEntrenar" title="Inicia o pausa el entrenamiento continuo">▶ Entrenar</button>
+        </div>
+      </header>
+
+      <!-- ===================== FILA PRINCIPAL ===================== -->
+      <section class="principal">
+        <!-- Juego (izquierda) -->
+        <div class="panel panel-juego">
+          <div class="cabecera-juego">
+            <div class="seccion-titulo" style="margin: 0">🎮 Partida observada · <span id="envSeleccionado" class="mono" style="color: var(--acento)">env 0</span></div>
+            <span class="badge" id="badgeJugando"><span class="punto"></span>jugando</span>
+          </div>
+          <canvas id="canvasJuego" class="canvas-principal" width="380" height="520"></canvas>
+          <div class="juego-stats">
+            <span>Recompensa episodio: <b id="statReward">0.00</b></span>
+            <span>Ladrillos: <b id="statLadrillos">0</b>/28</span>
+            <span>Pasos: <b id="statPasos">0</b></span>
+          </div>
+        </div>
+
+        <!-- Métricas + inspector + curvas (derecha) -->
+        <div class="col-derecha">
+          <div class="fila-metricas-inspector">
+            <div class="panel">
+              <div class="seccion-titulo">📊 Métricas clave</div>
+              <div class="metricas-grid" id="metricasGrid"></div>
+            </div>
+            <div class="panel inspector" id="inspector">
+              <div class="titulo-insp">🔬 Inspector</div>
+              <div class="subtitulo">Selecciona un algoritmo</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="seccion-titulo">📈 Curvas de entrenamiento</div>
+            <div class="curvas-grid">
+              <div class="curva">
+                <div class="cabecera-curva">
+                  <span>Recompensa / Éxito</span>
+                  <span class="leyenda"><span><i style="background: var(--reward)"></i>reward·100</span><span><i style="background: var(--acento-2)"></i>éxito·100</span></span>
+                </div>
+                <canvas id="curvaReward"></canvas>
+              </div>
+              <div class="curva">
+                <div class="cabecera-curva">
+                  <span id="tituloCurvaLoss">Pérdida</span>
+                  <span class="leyenda"><span><i style="background: var(--loss)"></i><span id="legLoss">loss</span></span></span>
+                </div>
+                <canvas id="curvaLoss"></canvas>
+              </div>
+              <div class="curva">
+                <div class="cabecera-curva">
+                  <span id="tituloCurvaBuffer">Buffer / Datos</span>
+                  <span class="leyenda"><span><i style="background: var(--buffer)"></i><span id="legBuffer">buffer</span></span></span>
+                </div>
+                <canvas id="curvaBuffer"></canvas>
+              </div>
+              <div class="curva">
+                <div class="cabecera-curva">
+                  <span id="tituloCurvaExplora">Exploración</span>
+                  <span class="leyenda"><span><i style="background: var(--explora)"></i><span id="legExplora">ε</span></span></span>
+                </div>
+                <canvas id="curvaExplora"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== TRANSICIÓN ACTUAL ===================== -->
+      <section class="panel compacto tira-transicion">
+        <div class="transicion" id="transicion"></div>
+      </section>
+
+      <!-- ===================== CONTROLES ===================== -->
+      <section class="fila-controles">
+        <div class="panel">
+          <div class="seccion-titulo">🧩 Algoritmo</div>
+          <div class="chips" id="chipsAlgoritmos"></div>
+          <p class="descripcion-algo" id="descAlgoritmo" style="margin-top: 12px"></p>
+        </div>
+        <div class="panel">
+          <div class="seccion-titulo">⚙️ Control de ejecución</div>
+          <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 4px">
+            <div class="control-slider">
+              <div class="etiqueta"><span>Velocidad (lotes/frame) <span class="ayuda">?<span class="tip"><b>Velocidad de simulación.</b> Cuántos lotes de entrenamiento se ejecutan por frame de animación. No altera la física (que es de paso fijo): solo acelera cuántos pasos ocurren por segundo.</span></span></span><span class="valor" id="valVelocidad">4×</span></div>
+              <input type="range" id="sliderVelocidad" min="1" max="30" value="4" />
+            </div>
+            <div class="control-slider">
+              <div class="etiqueta"><span>Entornos de entrenamiento (headless) <span class="ayuda">?<span class="tip"><b>Pool headless.</b> Entornos sin render que generan las experiencias para entrenar. Más entornos = más datos por segundo y gradientes más estables. Se ejecutan en batch en la GPU.</span></span></span><span class="valor" id="valHeadless">256</span></div>
+              <input type="range" id="sliderHeadless" min="50" max="2000" step="50" value="256" />
+            </div>
+            <div class="control-slider">
+              <div class="etiqueta"><span>Entornos visuales <span class="ayuda">?<span class="tip"><b>Pool visual.</b> Pocos entornos que sí se dibujan, ejecutando la misma política del agente. Son una ventana de observación; no generan la mayoría de los datos de entrenamiento.</span></span></span><span class="valor" id="valVisuales">8</span></div>
+              <input type="range" id="sliderVisuales" min="1" max="15" value="8" />
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="toggleShaping" checked />
+              <span>Reward shaping potencial <span class="ayuda">?<span class="tip"><b>Φ(s) = −|pelota.x − pala.x|.</b> Recompensa densa y telescópica que premia acercar la pala a la pelota. No cambia la política óptima (Ng et al. 1999) pero acelera mucho el aprendizaje. Cambiarlo reinicia el agente.</span></span></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== ENTORNOS VISUALES ===================== -->
+      <section class="panel seccion-entornos">
+        <div class="seccion-titulo">🪟 Vista de entornos (misma política, partidas en paralelo)</div>
+        <div class="rejilla-entornos" id="rejillaEntornos"></div>
+      </section>
+
+      <!-- ===================== PEDAGÓGICO ===================== -->
+      <section class="fila-pedagogica">
+        <div class="panel">
+          <div class="seccion-titulo">📚 Conceptos de DRL <span class="suave" style="text-transform: none; letter-spacing: 0">— qué usa <span id="conceptoAlgo" style="color: var(--acento)">este algoritmo</span></span></div>
+          <div class="tabla-conceptos" id="tablaConceptos"></div>
+        </div>
+        <div class="panel">
+          <div class="seccion-titulo">🔄 Flujo de datos</div>
+          <div class="flujo">
+            <div class="flujo-pasos" id="flujoDatos"></div>
+            <p class="suave" style="font-size: 12px" id="flujoDescripcion"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="seccion-titulo">🎓 Las cuatro familias en este laboratorio</div>
+        <div class="variantes" id="variantes"></div>
+      </section>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

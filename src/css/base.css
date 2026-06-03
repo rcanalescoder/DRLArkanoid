@@ -1,0 +1,81 @@
+/* ============================================================================
+   base.css — variables, reset y tipografía
+   ============================================================================ */
+
+:root {
+  /* Paleta oscura */
+  --fondo: #0a0e16;
+  --fondo-panel: #121826;
+  --fondo-panel-2: #1a2234;
+  --fondo-elevado: #222c42;
+  --borde: #2a3550;
+  --borde-suave: #1e2740;
+
+  --texto: #e6ecf5;
+  --texto-suave: #9fb0c8;
+  --texto-tenue: #647190;
+
+  --acento: #4ea3ff; /* azul */
+  --acento-2: #8b6dff; /* violeta */
+  --exito: #3ddc97; /* verde */
+  --alerta: #ffb454; /* ámbar */
+  --error: #ff6b81; /* rojo */
+  --reward: #3ddc97;
+  --loss: #ff6b81;
+  --explora: #ffb454;
+  --buffer: #4ea3ff;
+
+  --radio: 12px;
+  --radio-s: 8px;
+  --sombra: 0 6px 24px rgba(0, 0, 0, 0.35);
+  --fuente: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  background: radial-gradient(1200px 700px at 70% -10%, #15203a 0%, var(--fondo) 60%);
+  color: var(--texto);
+  font-family: var(--fuente);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--acento);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--borde);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.tenue {
+  color: var(--texto-tenue);
+}
+.suave {
+  color: var(--texto-suave);
+}

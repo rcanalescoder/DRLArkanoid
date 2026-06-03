@@ -1,0 +1,120 @@
+/* ============================================================================
+   juego.css — canvas del juego, rejilla de entornos visuales, transición
+   ============================================================================ */
+
+.panel-juego {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.panel-juego .cabecera-juego {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.canvas-principal {
+  width: 100%;
+  border-radius: var(--radio-s);
+  background: #060912;
+  border: 1px solid var(--borde-suave);
+  display: block;
+  aspect-ratio: 380 / 520;
+}
+.juego-stats {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--texto-suave);
+  flex-wrap: wrap;
+}
+.juego-stats b {
+  color: var(--texto);
+  font-family: var(--mono);
+}
+
+/* --- Rejilla de entornos visuales --- */
+.rejilla-entornos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+}
+.mini-env {
+  background: #060912;
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio-s);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.mini-env:hover {
+  border-color: var(--acento);
+}
+.mini-env.seleccionado {
+  border-color: var(--acento);
+  box-shadow: 0 0 0 1px var(--acento);
+}
+.mini-env canvas {
+  width: 100%;
+  display: block;
+  aspect-ratio: 3 / 4;
+}
+.mini-env .etiqueta {
+  position: absolute;
+  top: 4px;
+  left: 5px;
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--texto-tenue);
+  background: rgba(6, 9, 18, 0.7);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+.mini-env .reward {
+  position: absolute;
+  bottom: 4px;
+  right: 5px;
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--reward);
+  background: rgba(6, 9, 18, 0.7);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* --- Tira de transición --- */
+.transicion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+.transicion .paso-t {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--fondo-elevado);
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio-s);
+  padding: 7px 12px;
+  font-family: var(--mono);
+}
+.transicion .paso-t .k {
+  color: var(--texto-tenue);
+  font-size: 11px;
+}
+.transicion .paso-t .v {
+  color: var(--texto);
+}
+.transicion .flecha {
+  color: var(--texto-tenue);
+}
+.transicion .paso-t.reward .v {
+  color: var(--reward);
+}
+.transicion .paso-t.accion .v {
+  color: var(--acento);
+  font-size: 16px;
+}
