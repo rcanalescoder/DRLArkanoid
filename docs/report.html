@@ -479,9 +479,9 @@
   <div class="band b-cyan"><div class="n">CÓMO FUNCIONA POR DENTRO</div><h2>Del juego a la red neuronal</h2>
     <div class="tag">El ciclo de vida completo de una iteración de entrenamiento, paso a paso.</div></div>
   <div class="pad" style="--accent:#0891b2;--accent-soft:#e7f7fb">
-    <p class="lead">Antes de ver los algoritmos uno a uno, conviene entender la <b>maquinaria común</b> que todos comparten.
-      Si entiendes este ciclo, sabrás trasladar el mismo esqueleto a cualquier otro proyecto de RL: cambia el juego y
-      el algoritmo, pero las piezas (entorno, agente, memoria, bucle, métricas) son siempre las mismas.</p>
+    <p class="lead">Los cuatro algoritmos comparten la misma <b>maquinaria</b>. Este es el ciclo que se repite en cada paso de
+      entrenamiento; el mismo esqueleto sirve para cualquier proyecto de aprendizaje por refuerzo: cambia el juego y el
+      algoritmo, pero las piezas (entorno, agente, memoria, bucle, métricas) son siempre las mismas.</p>
 
     <!-- 1) Arranque y ejecución del juego -->
     <h3 class="sub">1 · Cómo arranca y se ejecuta el juego</h3>
@@ -489,7 +489,7 @@
       <span class="mono">entornoArkanoid.js</span>. Al crearse o reiniciarse coloca los 28 ladrillos (4 filas × 7
       columnas), lanza la pelota con una dirección aleatoria y sitúa la pala. La clave de diseño es que la física es de
       <span class="term">paso fijo</span>: cada llamada a <span class="mono">paso(accion)</span> avanza <b>exactamente
-      un instante</b> de simulación. La "velocidad" que verás en la interfaz no acelera la física (eso cambiaría la
+      un instante</b> de simulación. El control de velocidad no acelera la física (eso cambiaría la
       dinámica y rompería el aprendizaje): solo decide cuántos pasos se ejecutan por fotograma.</p>
     <div class="code" style="--accent:#0891b2"><div class="fn">src/entorno/entornoArkanoid.js<span class="role">el motor del juego</span></div><pre><span class="cm">// Avanza un paso de simulación aplicando la acción del agente.</span>
 paso(accion) {
@@ -619,7 +619,10 @@ agregarLote(lote) {
       cree que vale el futuro (ecuación de Bellman), y empujamos la predicción hacia ese objetivo. El truco para que no
       diverja es usar una <span class="term">red objetivo</span>: una copia que se mueve despacio y nos da un blanco
       estable al que apuntar.</p>
-    <div class="formula">objetivo = r + γ · (1 − done) · Q⁻(s', a*)      <span style="color:#8a909b">// γ=0.99; Q⁻ = red objetivo; a* = mejor acción</span></div>
+    <div class="curiosos"><div class="t">🔬 Para curiosos: el objetivo</div><div class="bd">
+      <span class="mono">objetivo = r + γ·(1−done)·Q⁻(s', a*)</span>. Es la recompensa de ahora más el valor (descontado
+      por γ=0.99) que la red objetivo Q⁻ asigna a la mejor acción del estado siguiente. Si el episodio termina (done), el
+      término del futuro desaparece.</div></div>
     <div class="code" style="--accent:#0891b2"><div class="fn">src/agentes/agenteDQN.js · entrenar()<span class="role">el aprendizaje</span></div><pre><span class="cm">// El objetivo TD se calcula SIN gradiente (es el "blanco" estable).</span>
 const objetivo = tf.tidy(() =&gt; {
   const aStar = this.redPolitica.predict(s2T).argMax(1);   <span class="cm">// Double DQN: la red online elige a*</span>
@@ -702,7 +705,9 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <div class="arrow">→</div>
       <div class="stage"><div class="nm">Q(s, ·)</div><div class="dim">3</div></div>
     </div>
-    <div class="formula">Q(s,a) ← r + γ · max&#8202;ₐ' Q(s', a')      <span style="color:#8a909b">// ecuación de Bellman</span></div>
+    <div class="curiosos"><div class="t">🔬 Para curiosos: la ecuación de Bellman</div><div class="bd">
+      <span class="mono">Q(s,a) ← r + γ·maxₐ' Q(s', a')</span>. El valor de una acción se acerca a la recompensa inmediata
+      más el mejor valor posible del estado siguiente.</div></div>
     <div class="tint"><div class="t">La idea clave: Bellman + estabilizadores</div>El valor de ahora se define en términos del valor del futuro.
       Para que ese "perseguirse a sí mismo" no diverja añadimos tres mejoras clásicas: <b>Double DQN</b> (separa quién
       elige y quién evalúa la acción), <b>pérdida Huber</b> (menos sensible a errores grandes) y <b>red objetivo</b>
@@ -734,7 +739,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <figure><img src="assets/app_dqn.jpg" /><figcaption>DQN entrenando: a la derecha, el inspector muestra los 3 valores Q (la acción greedy, en verde). Las curvas confirman que aprende: recompensa al alza, ε decayendo.</figcaption></figure>
     <figure><img src="assets/inspector_dqn.jpg" /><figcaption>Inspector de DQN: Q(s,a) de cada acción, el ε actual, el TD-error medio y el llenado del buffer.</figcaption></figure>
 
-    <h3 class="sub">Resultados y la mejora con agentes</h3>
+    <h3 class="sub">Resultados</h3>
     <p>En una ejecución real en el navegador (WebGPU), la recompensa media de los últimos 100 episodios subió de
       <b>~0.0 a ~0.94</b> en cuestión de segundos, con un throughput de <b>~24.000 experiencias/s</b>. El agente aprende
       con claridad a <b>seguir y devolver la pelota</b>; limpiar los 28 ladrillos (tasa de éxito &gt; 0) exige
@@ -786,7 +791,9 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <div class="stage"><div class="nm">Crítica</div><div class="dim">128·128 → 1 (V)</div></div>
     </div>
     <figure><img src="assets/dg_actorcritico.svg" /><figcaption>Estructura actor-crítico: el actor propone acciones (probabilidades) y el crítico estima el valor del estado; con ambos se calcula la ventaja.</figcaption></figure>
-    <div class="formula">L = E[ min( ρ·A , clip(ρ, 1−ε, 1+ε)·A ) ]    <span style="color:#8a909b">// ρ = π_nueva / π_vieja ; A = ventaja</span></div>
+    <div class="curiosos"><div class="t">🔬 Para curiosos: el objetivo recortado</div><div class="bd">
+      <span class="mono">L = E[ min( ρ·A , clip(ρ, 1−ε, 1+ε)·A ) ]</span>, donde ρ es el cociente entre la política nueva y la
+      vieja y A es la ventaja. El recorte impide que ρ se aleje de 1 más de ε (con ε=0.2, fuera de [0.8, 1.2]).</div></div>
     <div class="tint"><div class="t">La idea clave: el recorte (clip)</div>PPO mide cuánto cambia la política (ratio ρ) y <b>recorta</b> ese cambio a
       [1−ε, 1+ε] (con ε=0.2, a [0.8, 1.2]). Así nunca da un paso tan grande que arruine la política. Las ventajas se
       estiman con <span class="term">GAE</span> (combina errores TD de varios pasos) para reducir la varianza.</div>
@@ -816,7 +823,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <figure><img src="assets/app_ppo.jpg" /><figcaption>PPO entrenando: el inspector muestra π(a|s) como barras de probabilidad, el valor V(s) y la entropía. Las curvas se adaptan (entropía en vez de ε).</figcaption></figure>
     <figure><img src="assets/inspector_ppo.jpg" /><figcaption>Inspector de PPO: probabilidades de cada acción, valor estimado del estado y entropía de la política.</figcaption></figure>
 
-    <h3 class="sub">Resultados y la mejora con agentes</h3>
+    <h3 class="sub">Resultados</h3>
     <p>PPO aprende de forma muy <b>estable</b> (curva monótona). En ejecución real, la recompensa pasó de ~0.1 a
       <b>~0.99</b> en el navegador, y en una corrida más larga en CPU alcanzó <b>~4.08</b> (ya rompe varios ladrillos por
       episodio). La entropía se mantiene alta al principio y baja despacio según la política se afila.</p>
@@ -869,7 +876,9 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <div class="stage"><div class="nm">Temperatura α</div><div class="dim">auto</div></div>
     </div>
     <figure><img src="assets/dg_sac.svg" /><figcaption>SAC: un actor estocástico, dos críticos (se usa el menor para no sobreestimar) y una temperatura α que ajusta sola cuánta exploración mantener.</figcaption></figure>
-    <div class="formula">y = r + γ · Σₐ π(a|s')·[ min(Q1', Q2') − α·log π(a|s') ]   <span style="color:#8a909b">// objetivo del crítico</span></div>
+    <div class="curiosos"><div class="t">🔬 Para curiosos: el objetivo del crítico</div><div class="bd">
+      <span class="mono">y = r + γ·Σₐ π(a|s')·[ min(Q1', Q2') − α·log π(a|s') ]</span>. Usa el menor de los dos críticos (para no
+      sobreestimar) y resta <span class="mono">α·log π</span>, el término que premia la variedad (entropía).</div></div>
     <div class="tint"><div class="t">La idea clave: temperatura automática</div>α pondera cuánta entropía exigimos. En vez de fijarlo a mano, SAC lo
       <b>aprende</b> para alcanzar una entropía objetivo (aquí, 0.55·log 3). Si la política explora poco, α sube; si
       explora demasiado, baja. En nuestras ejecuciones, α bajó de 0.20 a <b>~0.165</b> sola.</div>
@@ -895,7 +904,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <figure><img src="assets/app_sac.jpg" /><figcaption>SAC entrenando: el inspector muestra la política, la temperatura α y la entropía. La curva de "exploración" sigue a α en vez de a ε.</figcaption></figure>
     <figure><img src="assets/inspector_sac.jpg" /><figcaption>Inspector de SAC: π(a|s), temperatura α (auto-ajustada), entropía y el min(Q1,Q2) por acción.</figcaption></figure>
 
-    <h3 class="sub">Resultados y la mejora con agentes</h3>
+    <h3 class="sub">Resultados</h3>
     <p>SAC aprende y la temperatura se estabiliza sola. En el navegador, la recompensa subió de ~0.0 a <b>~0.99</b>, con
       α descendiendo de 0.20 a ~0.165 y la entropía manteniéndose alta (exploración sana). Sin fugas: 76 tensores
       constantes durante todo el entrenamiento.</p>
@@ -948,7 +957,8 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <div class="stage"><div class="nm">Q-net</div><div class="dim">entrena con lo imaginado</div></div>
     </div>
     <figure><img src="assets/dg_dyna.svg" /><figcaption>Dyna-Q: la experiencia real entrena el modelo y el Q-net; además el modelo “imagina” experiencias extra que también entrenan el Q-net (5 por cada paso real).</figcaption></figure>
-    <div class="formula">real → entrena modelo y Q ;   imaginado → 5 actualizaciones Q extra por paso real (planning)</div>
+    <div class="note">Por cada paso real: se entrena el modelo de dinámica y el Q-net con datos reales; y, además, se hacen
+      <b>5 actualizaciones</b> del Q-net con transiciones imaginadas por el modelo (planning).</div>
     <div class="tint"><div class="t">La idea clave: planning con datos imaginados</div>Por cada paso real hacemos <b>5</b> actualizaciones del Q-net
       con transiciones que <b>genera el modelo</b>, partiendo de estados muestreados del buffer. Si el modelo es bueno,
       es casi gratis multiplicar el aprendizaje.</div>
@@ -974,7 +984,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <figure><img src="assets/app_worldmodel.jpg" /><figcaption>World Model entrenando: las métricas se adaptan (aparecen "Error modelo" y "Planning"). El inspector compara el estado real con el predicho por el modelo.</figcaption></figure>
     <figure><img src="assets/inspector_worldmodel.jpg" /><figcaption>Inspector del World Model: Q-values del Dyna-Q y la tabla real → predicho componente a componente. Aquí el error RMSE del modelo es 0.11.</figcaption></figure>
 
-    <h3 class="sub">Resultados y la mejora con agentes</h3>
+    <h3 class="sub">Resultados</h3>
     <p>El modelo aprende a predecir la física con un error <b>RMSE ~0.066</b> sobre estados normalizados (muy bajo: las
       predicciones siguen de cerca a la realidad, como se ve en el inspector). La recompensa subió de ~0.0 a <b>~0.71</b>
       en el navegador. Sin fugas: ~46 tensores constantes.</p>
@@ -1049,16 +1059,14 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
 <!-- ============================ PARA SEGUIR APRENDIENDO ============================ -->
 <section class="section">
   <div class="band b-violet"><div class="n">SIGUIENTE PASO</div><h2>Para seguir aprendiendo</h2>
-    <div class="tag">Si esta guía te ha picado la curiosidad, por aquí se sigue.</div></div>
+    <div class="tag">Lecturas y experimentos para profundizar.</div></div>
   <div class="pad" style="--accent:#7c3aed;--accent-soft:#f4effe">
-    <h3 class="sub">El mapa que has recorrido</h3>
-    <p>Has pasado de “qué es una recompensa” a entender cuatro algoritmos modernos. La progresión natural fue:
-      <b>valor</b> (DQN) → <b>política</b> (PPO) → <b>política + entropía</b> (SAC) → <b>modelo del mundo</b> (World Model).
-      Esa misma escalera es la del campo entero.</p>
+    <p>La progresión de este laboratorio —<b>valor</b> (DQN) → <b>política</b> (PPO) → <b>política + entropía</b> (SAC) →
+      <b>modelo del mundo</b> (World Model)— es la misma escalera que recorre el campo del aprendizaje por refuerzo.</p>
     <h3 class="sub">Lecturas recomendadas</h3>
     <div class="reflist">
       <div class="r"><b>Sutton &amp; Barto — <i>Reinforcement Learning: An Introduction</i></b>. El libro de referencia, gratuito online. Empieza por los capítulos de MDP, Bellman y Q-learning: reconocerás todo lo de “Fundamentos”.</div>
-      <div class="r"><b>OpenAI Spinning Up in Deep RL</b>. Tutorial práctico con implementaciones limpias de PPO, SAC y más. Ideal tras esta guía.</div>
+      <div class="r"><b>OpenAI Spinning Up in Deep RL</b>. Tutorial práctico con implementaciones limpias de PPO, SAC y más.</div>
       <div class="r"><b>Mnih et al. (2015) — <i>Human-level control through deep RL</i></b>. El paper original de DQN (Atari): replay buffer + red objetivo.</div>
       <div class="r"><b>Schulman et al. (2017) — <i>Proximal Policy Optimization</i></b>. El objetivo recortado que viste en PPO.</div>
       <div class="r"><b>Haarnoja et al. (2018) — <i>Soft Actor-Critic</i></b>. Máxima entropía y temperatura automática (SAC).</div>
