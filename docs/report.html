@@ -153,6 +153,24 @@
   /* "de qué va y por qué te importa" al abrir una sección */
   .porque{ font-size:11pt; color:var(--slate); background:var(--accent-soft,#eff4fe); border-radius:10px; padding:11px 15px; margin:0 0 12px; }
   .porque b{ color:var(--accent,#2563eb); }
+  /* captura de app a pantalla completa partida en dos (efecto continuo) */
+  .appshot{ border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:0 12px 30px -16px rgba(17,24,39,.45); margin:12px 0 4px; }
+  .appshot img{ display:block; width:100%; }
+  /* tabla comparativa de algoritmos en cajitas */
+  .algocajas{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0; }
+  .algocaja{ border:1px solid var(--line); border-radius:11px; padding:11px 14px; background:#fff; }
+  .algocaja .ti{ font-weight:700; font-size:11pt; display:flex; align-items:center; gap:7px; }
+  .algocaja .fa{ font-size:8.2pt; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; margin:2px 0 5px; }
+  .algocaja p{ margin:0; font-size:9.6pt; color:var(--slate); }
+  /* bloque interpretación (qué pasó / qué funcionó / qué mejorar) */
+  .interp{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:10px 0; }
+  .interp .col{ border-radius:11px; padding:11px 13px; font-size:9.5pt; }
+  .interp .obs{ background:#eef4ff; border:1px solid #cfe0fb; }
+  .interp .ok{ background:#e9fbf4; border:1px solid #c7eede; }
+  .interp .mejora{ background:#fef3e6; border:1px solid #f6dcb3; }
+  .interp .h{ font-weight:700; font-size:9.5pt; margin-bottom:4px; display:flex; gap:6px; align-items:center; }
+  .interp .obs .h{ color:#1d4ed8; } .interp .ok .h{ color:#0a7f57; } .interp .mejora .h{ color:#b45309; }
+  .interp ul{ margin:0; padding-left:15px; } .interp li{ margin:2px 0; color:var(--slate); }
 
   h3.sub{ break-after:avoid; page-break-after:avoid; }
   figure,.pm,.bars,.uses,.analogy,.takeaway,.pipe,table.compare,table.params,.defs{ break-inside:avoid; page-break-inside:avoid; }
@@ -242,6 +260,15 @@
       recompensa y ajusta su comportamiento para acumular el máximo premio a largo plazo. Aquí lo vemos sobre un
       Arkanoid simplificado, donde el agente solo puede mover una pala a izquierda/derecha o dejarla quieta, y debe
       aprender a devolver la pelota y romper ladrillos <b>sin que nadie le explique las reglas</b>.</p>
+
+    <p>Así se ve el laboratorio completo en marcha: arriba, el juego y las decisiones del agente en tiempo real;
+      debajo, las curvas y paneles que cuentan si está aprendiendo. A lo largo de estas páginas iremos abriendo cada
+      una de estas piezas.</p>
+    <div class="appshot">
+      <img src="assets/app_intro_1.jpg" alt="Parte superior del laboratorio: juego en marcha, controles y métricas." />
+      <img src="assets/app_intro_2.jpg" alt="Parte inferior del laboratorio: curvas de entrenamiento e inspector del agente." />
+    </div>
+    <figcaption style="text-align:center;margin:0 0 8px;">El laboratorio al completo (una sola pantalla, partida en dos para que quepa): juego e información de aprendizaje.</figcaption>
 
     <h3 class="sub">¿En qué se diferencia de otras IAs?</h3>
     <p>Hay tres grandes formas de que una máquina aprenda. En el <b>aprendizaje supervisado</b> le damos ejemplos con la
@@ -467,6 +494,21 @@
       En vez de copiar la red entera de golpe, la objetivo copia <b>un poquito</b> de la actual en cada paso:
       <span class="mono">θ⁻ ← τ·θ + (1−τ)·θ⁻</span> con <span class="mono">τ = 0.01</span> (un 1% por paso). Se llama
       <i>soft update</i> o promedio de Polyak. El resultado: un blanco que cambia despacio y no marea al entrenamiento.</div></div>
+
+    <h3 class="sub">La tercera pieza: el buffer de experiencia</h3>
+    <p>Las dos redes deciden y se corrigen, pero ¿de dónde salen los ejemplos con los que se corrigen? De una tercera
+      pieza igual de importante: el <b>buffer de experiencia</b> (en inglés, <i>replay buffer</i>), una <b>libreta gigante
+      donde el agente apunta cada jugada</b> que vive: el estado en que estaba, la acción que hizo, la recompensa que
+      ganó y el estado al que pasó. En vez de aprender solo de la última jugada y olvidarla, guarda <b>100.000</b> y, en
+      cada paso de entrenamiento, saca un <b>puñado al azar</b> para repasar.</p>
+    <div class="analogy"><div class="ic">📒</div><div class="bd"><div class="t">Por qué importa repasar lo viejo</div>
+      Si solo estudiaras lo último que te pasó, te obsesionarías con ello y olvidarías el resto. Mezclar jugadas
+      antiguas y recientes (muestreo aleatorio) <b>rompe esa obsesión</b> y hace que la red aprenda de forma estable. Es
+      la diferencia entre empollar de memoria el último examen y repasar todo el temario.</div></div>
+    <p class="note" style="background:#eff4fe;border-color:#cfe0fb;color:#1d4ed8">No todos los algoritmos usan esta
+      libreta. Los que reaprovechan datos viejos (DQN, SAC, World Model) sí; PPO, en cambio, usa lo recién jugado y lo
+      tira. Veremos esa diferencia —<i>off-policy</i> frente a <i>on-policy</i>— en la anatomía.</p>
+
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">El RL es un bucle agente–entorno guiado por recompensas; el agente aprende
       una <span class="term">política</span> apoyándose en estimaciones de <span class="term">valor</span>, una red neuronal
       que <span class="term">aproxima</span> esas funciones, y trucos de estabilidad como la <span class="term">red
@@ -482,6 +524,28 @@
     <p class="lead">Los cuatro algoritmos comparten la misma <b>maquinaria</b>. Este es el ciclo que se repite en cada paso de
       entrenamiento; el mismo esqueleto sirve para cualquier proyecto de aprendizaje por refuerzo: cambia el juego y el
       algoritmo, pero las piezas (entorno, agente, memoria, bucle, métricas) son siempre las mismas.</p>
+
+    <h3 class="sub">Los cuatro inquilinos de esta maquinaria</h3>
+    <p>En este laboratorio conviven <b>cuatro algoritmos</b> distintos. Todos usan el mismo esqueleto que verás en esta
+      sección; se diferencian en <b>qué aprenden</b> y en <b>cómo guardan la experiencia</b>. Esta es la vista de pájaro
+      antes de entrar al detalle de cada uno:</p>
+    <div class="algocajas">
+      <div class="algocaja"><div class="ti">🎯 DQN</div><div class="fa">Basado en valor · off-policy</div>
+        <p>Aprende <b>cuánto vale cada acción</b> en cada situación (un número por acción) y elige la de mayor valor.
+        Guarda la experiencia en un <b>almacén grande</b> y la reutiliza muchas veces. Eficiente y sobrio.</p></div>
+      <div class="algocaja"><div class="ti">🎭 PPO</div><div class="fa">Actor-crítico · on-policy</div>
+        <p>Aprende <b>directamente la estrategia</b>: con qué probabilidad conviene cada acción. Usa los datos recién
+        jugados y los descarta. Es el más <b>robusto y predecible</b> de afinar.</p></div>
+      <div class="algocaja"><div class="ti">🌡️ SAC</div><div class="fa">Máxima entropía · off-policy</div>
+        <p>Como PPO aprende una estrategia, pero además se premia por <b>mantener variedad</b> en sus decisiones. Eso le
+        hace <b>explorar muy bien</b> y no encasillarse pronto.</p></div>
+      <div class="algocaja"><div class="ti">🔮 World Model</div><div class="fa">Basado en modelo · Dyna-Q</div>
+        <p>Primero aprende un <b>simulador del propio juego</b> y luego entrena también <b>imaginando</b> partidas dentro
+        de él. Así exprime al máximo cada dato real. El más ambicioso.</p></div>
+    </div>
+    <p class="note" style="background:#e7f7fb;border-color:#bfe6f0;color:#0e6478">Esta tabla es solo el "quién es quién".
+      Cada algoritmo tiene después su propio capítulo con su red, su función de pérdida, sus parámetros y sus resultados;
+      y al final, una <b>tabla comparativa</b> de los cuatro cara a cara.</p>
 
     <!-- 1) Arranque y ejecución del juego -->
     <h3 class="sub">1 · Cómo arranca y se ejecuta el juego</h3>
@@ -509,6 +573,45 @@ paso(accion) {
     <div class="codecap">Una sola función concentra toda la regla del juego. Devuelve la <b>recompensa</b> de ese paso y si el episodio ha <b>terminado</b> (done).</div>
 
     <figure><img src="assets/panel_juego.jpg" /><figcaption>La partida observada: pelota, pala (degradado azul-violeta) y los 28 ladrillos. Abajo, la recompensa del episodio, los ladrillos rotos y los pasos.</figcaption></figure>
+
+    <h3 class="sub">El episodio: una partida con principio y fin</h3>
+    <p>La unidad natural del aprendizaje por refuerzo es el <b>episodio</b>: <b>una partida completa</b>, desde que se
+      saca la pelota hasta que esa partida acaba. Un episodio termina siempre de una de <b>tres maneras</b>:</p>
+    <div class="interp">
+      <div class="col ok"><div class="h">🏆 Victoria</div>El agente rompe los <b>28 ladrillos</b>. Recibe el premio
+        grande (+5) y la partida acaba con éxito.</div>
+      <div class="col obs"><div class="h">💔 Pelota perdida</div>La pelota se escapa por abajo porque la pala no
+        llegó. Castigo (−1) y fin de la partida.</div>
+      <div class="col mejora"><div class="h">⏱️ Tiempo agotado</div>Pasan <b>600 pasos</b> sin ganar ni perder. Se
+        corta la partida para no quedarse atascada eternamente.</div>
+    </div>
+    <p>En cuanto un episodio termina, ese entorno <b>se reinicia solo</b> y empieza otro inmediatamente: el agente nunca
+      para de jugar. La <b>recompensa del episodio</b> es la suma de las recompensas de todos sus pasos, y es justo lo
+      que el agente intenta maximizar. Por eso la métrica estrella es la <b>recompensa media de los últimos 100
+      episodios</b>: una sola partida es ruidosa (hay suerte), pero el promedio de 100 cuenta la verdad de si está
+      mejorando.</p>
+    <div class="curiosos"><div class="t">🔬 Para curiosos: el límite de pasos</div><div class="bd">El tope está en
+      <span class="mono">MAX_PASOS_EPISODIO = 600</span>. Sin él, un agente que aprendiera solo a "no perder" (devolver
+      la pelota sin romper ladrillos) podría alargar una partida indefinidamente y bloquear el entrenamiento. El corte
+      por tiempo es un final <b>neutro</b>: ni premio ni castigo extra, solo "se acabó el tiempo".</div></div>
+
+    <h3 class="sub">Dos maneras de que el agente "vea" el juego</h3>
+    <p>Para que una IA juegue hay <b>dos caminos</b>, y elegir bien marca la diferencia entre entrenar en horas o en
+      semanas:</p>
+    <div class="algocajas">
+      <div class="algocaja" style="background:#fdeef0;border-color:#f6c9cf"><div class="ti">📺 Leer la pantalla</div>
+        <div class="fa">Como un humano · difícil</div>
+        <p>Darle los <b>píxeles</b> de la imagen y que aprenda a interpretarlos. Es lo más general (sirve para cualquier
+        juego) pero carísimo: la red debe <b>primero</b> entender qué es una pelota mirando miles de imágenes, y
+        <b>luego</b> aprender a jugar. Necesita redes enormes y millones de partidas.</p></div>
+      <div class="algocaja" style="background:#e9fbf4;border-color:#c7eede"><div class="ti">🎚️ Leer el estado interno</div>
+        <div class="fa">Nuestro atajo · eficiente</div>
+        <p>Aprovechar que <b>nosotros programamos el juego</b> y conocemos sus variables. En vez de píxeles, le pasamos
+        un puñado de <b>números que ya resumen la situación</b>. La red se ahorra "ver" y se concentra en decidir.
+        Aprende muchísimo más rápido con redes pequeñas.</p></div>
+    </div>
+    <p>Hemos elegido el <b>segundo camino</b>: como el juego es nuestro, reducimos toda la pantalla a <b>6 variables</b>.
+      Es el mismo principio que usar el marcador y la posición en vez de una foto del campo.</p>
 
     <div class="tint"><div class="t">El estado: lo único que ve el agente</div>El agente no ve píxeles, ve un vector de
       <b>6 números normalizados</b> a ~[−1, 1]: posición x e y de la pelota, su velocidad (vx, vy), la posición de la
@@ -612,6 +715,20 @@ agregarLote(lote) {
 }</pre></div>
     <div class="codecap">Siempre los mismos 7 gestos. Cambiar de algoritmo solo cambia qué hace <span class="mono">entrenar()</span> por dentro; el bucle es idéntico.</div>
 
+    <p>Tres preguntas que aclaran cómo es realmente el entrenamiento:</p>
+    <div class="pm">
+      <div class="box mejo" style="background:#eff4fe;border-color:#cfe0fb"><div class="h" style="color:#1d4ed8">¿Una partida o muchas?</div>
+        <b>Muchas a la vez.</b> No jugamos una partida entera y luego aprendemos: en cada iteración avanzamos
+        <b>un paso en cada uno de los cientos de entornos</b> en paralelo. Así, de un solo "latido" salen cientos de
+        experiencias nuevas.</div>
+      <div class="box mejo" style="background:#e9fbf4;border-color:#c7eede"><div class="h" style="color:#0a7f57">¿Cuándo aprende?</div>
+        <b>Sin parar.</b> Después de cada paso colectivo, el agente hace <b>un</b> ajuste de la red. Jugar y aprender se
+        intercalan continuamente, decenas de veces por segundo, no en fases separadas.</div>
+      <div class="box mejo" style="background:#fef3e6;border-color:#f6dcb3"><div class="h" style="color:#b45309">¿Cuándo paramos?</div>
+        <b>Cuando tú quieras.</b> No hay un número mágico de partidas: el límite es el <b>tiempo</b> (o las iteraciones)
+        que le dediques. Se entrena hasta que la curva de recompensa se aplana y deja de mejorar.</div>
+    </div>
+
     <!-- 6) Cómo se entrena la red -->
     <h3 class="sub">6 · Cómo se entrena la red neuronal (el paso de gradiente)</h3>
     <p>Entrenar una red es ajustar sus <b>pesos</b> para que se equivoque menos. En RL no tenemos "respuestas
@@ -659,6 +776,27 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <figure><img src="assets/curvas_vacias.jpg" /><figcaption><b>Antes:</b> recién arrancado, las curvas están vacías (aún no hay episodios ni gradientes).</figcaption></figure>
       <figure><img src="assets/curvas_dqn.jpg" /><figcaption><b>Después:</b> la recompensa sube (verde), la pérdida se asienta (rojo), el buffer se llena (azul) y ε decae (ámbar).</figcaption></figure>
     </div>
+    <h3 class="sub">Qué cuenta cada curva</h3>
+    <p>El panel dibuja <b>cuatro curvas</b>. Las <b>dos primeras son iguales en los cuatro algoritmos</b>; las otras dos
+      cambian porque miden el mecanismo propio de cada uno.</p>
+    <div class="pm">
+      <div class="box mejo" style="background:#e9fbf4;border-color:#c7eede"><div class="h" style="color:#0a7f57">🟢 Recompensa (todos)</div>
+        La métrica reina: recompensa media de los últimos 100 episodios. <b>Si sube, aprende.</b> Es la única curva que
+        de verdad dice si el agente mejora. La leemos en los cuatro modelos.</div>
+      <div class="box mejo" style="background:#fdeef0;border-color:#f6c9cf"><div class="h" style="color:#b91c1c">🔴 Pérdida (todos)</div>
+        El error de la red al ajustarse. <b>Ojo:</b> en RL el objetivo se mueve mientras aprendes, así que <b>no tiene
+        que bajar siempre</b> como en otros campos. Lo que vigilamos es que <b>no se dispare</b> (eso sí sería mala
+        señal).</div>
+    </div>
+    <p>Y estas son las <b>dos curvas propias</b> de cada algoritmo (las explicamos en detalle en su capítulo):</p>
+    <table class="compare">
+      <tr><th>Modelo</th><th>Tercera curva</th><th>Cuarta curva</th></tr>
+      <tr><td><b>DQN</b></td><td><b>Buffer</b>: cómo se llena la memoria (0 → 100.000).</td><td><b>ε</b>: el azar baja poco a poco; explora menos según aprende.</td></tr>
+      <tr><td><b>PPO</b></td><td><b>Pérdida del crítico</b>: cómo de bien estima el valor de cada situación.</td><td><b>Entropía</b>: cuánta variedad mantiene; baja despacio al decidirse.</td></tr>
+      <tr><td><b>SAC</b></td><td><b>Temperatura α</b>: cuánto se premia a sí mismo por explorar (se autorregula).</td><td><b>Entropía</b>: la variedad de sus decisiones.</td></tr>
+      <tr><td><b>World Model</b></td><td><b>Error del modelo</b>: cuánto falla su simulador interno (baja = predice mejor).</td><td><b>ε</b>: el azar de exploración, igual que en DQN.</td></tr>
+    </table>
+
     <figure><img src="assets/flujo_datos.jpg" /><figcaption>El propio laboratorio dibuja su flujo de datos, y se adapta al algoritmo (aquí, off-policy con replay buffer).</figcaption></figure>
 
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">Observar estados → la red decide acciones → el juego avanza y produce recompensas →
@@ -722,6 +860,36 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       </ol>
     </div>
 
+    <h3 class="sub">Tres estabilizadores para que DQN no se rompa</h3>
+    <p>Un DQN "ingenuo" tiende a desbocarse, porque persigue un objetivo que él mismo va moviendo. Tres mejoras clásicas
+      lo domestican, y las tres están activas en este laboratorio:</p>
+    <div class="interp">
+      <div class="col obs"><div class="h">① Double DQN</div>Un solo Q se autoengaña: como siempre se queda con el
+        <b>máximo</b>, hereda el ruido del valor más optimista y acaba <b>sobreestimando</b>. La solución: la red
+        <b>actual elige</b> cuál es la mejor acción del futuro y la red <b>objetivo le pone nota</b>. Dos opiniones
+        distintas frenan el optimismo ciego.</div>
+      <div class="col ok"><div class="h">② Pérdida Huber</div>En vez de penalizar el error <b>al cuadrado</b> (que
+        agranda los fallos grandes), Huber es <b>suave con los errores grandes</b>. Así, un objetivo disparatado por
+        ruido ya no zarandea a la red. El detalle, justo debajo.</div>
+      <div class="col mejora"><div class="h">③ Red objetivo (soft update)</div>El blanco lo fija una <b>copia lenta</b>
+        de la red que solo se actualiza un <b>1% por paso</b> (τ = 0.01). Sin ella, perseguiríamos nuestra propia
+        sombra y el entrenamiento divergería.</div>
+    </div>
+
+    <h3 class="sub">La función de pérdida: ¿qué error minimizamos?</h3>
+    <p>Entrenar la red consiste en <b>acortar la distancia</b> entre lo que predice (<span class="mono">Q(s,a)</span>) y
+      el objetivo de Bellman. Pero "distancia" se puede medir de varias formas, y elegir bien evita muchos disgustos:</p>
+    <table class="compare">
+      <tr><th>Opción</th><th>Cómo mide el error</th><th>Por qué la elegimos o no</th></tr>
+      <tr><td><b>MSE</b> (cuadrático)</td><td>Eleva el error al cuadrado.</td><td>Un objetivo ruidoso —y los hay— genera un error enorme que <b>domina el ajuste</b> y desestabiliza. Descartada.</td></tr>
+      <tr><td><b>MAE</b> (absoluto)</td><td>El valor absoluto del error.</td><td>Robusto, pero su empuje es constante: cerca del acierto <b>no afina</b>. Descartada.</td></tr>
+      <tr><td><b>Huber</b> ✓ (la nuestra)</td><td>Cuadrático cerca de 0, lineal lejos.</td><td>Lo mejor de ambas: <b>afina de cerca</b> como MSE y <b>no se desboca</b> con errores grandes como MAE.</td></tr>
+    </table>
+    <div class="curiosos"><div class="t">🔬 Para curiosos: Huber en una línea</div><div class="bd">Para un error
+      <span class="mono">δ = objetivo − Q(s,a)</span>: si <span class="mono">|δ| ≤ 1</span> usa <span class="mono">½·δ²</span>
+      (cuadrático, afina); si <span class="mono">|δ| &gt; 1</span> usa <span class="mono">|δ| − ½</span> (lineal, no
+      explota). En el código es <span class="mono">tf.losses.huberLoss</span>.</div></div>
+
     <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
     <p><b>El entorno.</b> Arkanoid: el agente observa 6 números, dispone de 3 acciones y recibe +1 por ladrillo, +0.1 por
       devolver la pelota y −1 por perderla. <b>El objetivo:</b> maximizar la recompensa acumulada por episodio.</p>
@@ -735,22 +903,63 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <tr><td class="k">tau (τ)</td><td>0.01</td><td>Velocidad a la que la red objetivo sigue a la principal (1% por paso): estabilidad.</td></tr>
     </table>
 
+    <h3 class="sub">¿Por qué estos parámetros? (búsqueda en rejilla)</h3>
+    <p>Los dos ajustes más delicados de DQN son el <b>ritmo de aprendizaje</b> (learning rate) y <b>cuánto pesa el
+      futuro</b> (γ). Para no elegirlos a ojo, barrimos una rejilla de 3×3 combinaciones; cada una entrenó 45.000 pasos y
+      medimos la recompensa final alcanzada:</p>
+    <table class="params">
+      <tr><th>learning rate</th><th>γ = 0.97</th><th>γ = 0.99</th><th>γ = 0.995</th></tr>
+      <tr><td class="k">3e-4 · lento</td><td>1.44</td><td>1.53</td><td>1.80</td></tr>
+      <tr><td class="k">8e-4 · el nuestro</td><td>1.88</td><td style="background:#e9fbf4;font-weight:700">2.41</td><td>1.62</td></tr>
+      <tr><td class="k">1.5e-3 · rápido</td><td>2.62</td><td>1.26</td><td>2.23</td></tr>
+    </table>
+    <p>El ritmo rápido (1.5e-3) logra el <b>pico más alto</b> (2.62)… pero también el <b>peor resultado</b> de toda la
+      rejilla (1.26): es el más inestable, con una varianza enorme entre corridas. El lento (3e-4) aprende de forma
+      consistente pero <b>se queda corto</b> (máximo 1.80). Nuestro valor (8e-4 con γ = 0.99) alcanza <b>2.41</b>: el
+      mejor resultado de la zona estable, sin las caídas bruscas del rápido. De ahí que sea el valor por defecto:
+      <b>rendimiento alto y baja varianza</b>.</p>
+    <p class="note">Cada celda es <b>una sola</b> corrida de 45.000 pasos, así que conviene leer estos números como
+      <b>tendencias</b>, no como medias exactas: el RL es ruidoso (la fila del 1.5e-3 lo grita). Aun así, el patrón —el
+      ritmo intermedio es el más fiable— es claro.</p>
+
     <h3 class="sub">La interfaz</h3>
     <figure><img src="assets/app_dqn.jpg" /><figcaption>DQN entrenando: a la derecha, el inspector muestra los 3 valores Q (la acción greedy, en verde). Las curvas confirman que aprende: recompensa al alza, ε decayendo.</figcaption></figure>
     <figure><img src="assets/inspector_dqn.jpg" /><figcaption>Inspector de DQN: Q(s,a) de cada acción, el ε actual, el TD-error medio y el llenado del buffer.</figcaption></figure>
 
     <h3 class="sub">Resultados</h3>
-    <p>En una ejecución real en el navegador (WebGPU), la recompensa media de los últimos 100 episodios subió de
-      <b>~0.0 a ~0.94</b> en cuestión de segundos, con un throughput de <b>~24.000 experiencias/s</b>. El agente aprende
-      con claridad a <b>seguir y devolver la pelota</b>; limpiar los 28 ladrillos (tasa de éxito &gt; 0) exige
-      entrenamientos largos.</p>
+    <p>En una ejecución real en el navegador (WebGPU), la recompensa media de los últimos 100 episodios sube de
+      <b>~0.0 a ~0.9</b> en cuestión de segundos, con un ritmo de <b>~24.000 experiencias/s</b>. Con entrenamientos más
+      largos (los 45.000 pasos de la rejilla anterior) la media <b>supera el 2</b>. El agente aprende con claridad a
+      <b>seguir y devolver la pelota</b>; limpiar los 28 ladrillos (tasa de éxito &gt; 0) exige entrenamientos largos.</p>
     <figure><img src="assets/curvas_dqn.jpg" /><figcaption>Curvas reales de DQN: recompensa·100 (verde) al alza, pérdida Huber (rojo) que se asienta, buffer (azul) llenándose y ε (ámbar) decayendo.</figcaption></figure>
     <div class="pm">
       <div class="box prob"><div class="h">⚠ El problema</div>Un DQN "de libro" <b>sobreestima</b> los valores Q (siempre coge el máximo, que arrastra el ruido) y la recompensa oscila o se desploma tras un buen pico.</div>
       <div class="box mejo"><div class="h">✔ La mejora encontrada</div><b>Double DQN</b> (la red online elige la acción y la objetivo la evalúa) + <b>Huber</b> + <b>soft update</b>. Resultado: aprendizaje más estable y sin fugas de memoria (26 tensores constantes).</div>
     </div>
 
+    <h3 class="sub">Interpretación: qué pasó al entrenar</h3>
+    <div class="interp">
+      <div class="col obs"><div class="h">📊 Qué observamos</div><ul>
+        <li>La recompensa sube rápido de ~0 a ~0.9 y luego asciende más despacio.</li>
+        <li>Al decaer ε y explotar más, la curva se vuelve <b>más estable</b>.</li>
+        <li>La tasa de éxito (limpiar los 28 ladrillos) apenas despega en runs cortas.</li>
+      </ul></div>
+      <div class="col ok"><div class="h">✓ Qué funcionó</div><ul>
+        <li>Aprende sin dudar a <b>seguir y devolver</b> la pelota.</li>
+        <li>Double DQN + Huber + soft update: <b>cero divergencias</b>.</li>
+        <li>Memoria <b>plana</b> (26 tensores) de principio a fin.</li>
+      </ul></div>
+      <div class="col mejora"><div class="h">↗ Qué mejoraríamos</div><ul>
+        <li>Romper los últimos ladrillos pide <b>exploración más lista</b> que el puro azar → ahí brillará SAC.</li>
+        <li>Probar <b>repaso priorizado</b> (revisar más las jugadas sorprendentes).</li>
+        <li>Entrenar más pasos: 45k se queda corto para subir la tasa de éxito.</li>
+      </ul></div>
+    </div>
+
     <h3 class="sub">Conclusiones</h3>
+    <p>DQN es el <b>primero</b> de los cuatro y hará de <b>línea de base</b>: los siguientes algoritmos los compararemos
+      contra él. Su gran virtud es la <b>eficiencia con los datos</b> (reutiliza cada experiencia muchas veces) a cambio
+      de necesitar varios estabilizadores para no romperse.</p>
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">DQN es <b>off-policy</b> y <b>basado en valor</b>: aprende Q(s,a) reutilizando un
       <span class="term">replay buffer</span>, explora con <span class="term">ε-greedy</span> y se estabiliza con una
       <span class="term">red objetivo</span>. Es el cimiento del RL profundo y el mejor punto de partida.</div></div>
@@ -763,11 +972,23 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <div class="tag">Optimiza la política directamente, pero con pasos prudentes.</div></div>
   <div class="pad" style="--accent:#7c3aed;--accent-soft:#f4effe">
 
+    <h3 class="sub">Primero: ¿qué es una "política"?</h3>
+    <p>Una <b>política</b> es, sencillamente, la <b>estrategia</b> del agente: su "instinto" de qué hacer en cada
+      situación. En la práctica es una función que, dado un estado, <b>reparte probabilidades</b> entre las acciones:
+      "en esta posición, 60% moverme a la derecha, 30% quedarme quieto, 10% a la izquierda". Jugar es consultar ese
+      instinto y dejarse llevar (a veces probando lo menos probable, para explorar). Esa estrategia se denomina política,
+      <span class="mono">π(a|s)</span>.</p>
+    <div class="palabra"><span class="w">Política</span> La estrategia del agente: qué probabilidad asigna a cada acción
+      en cada situación. Aprender, para PPO, es <b>reajustar esas probabilidades</b> para ganar más recompensa.</div>
+
     <h3 class="sub">¿Qué es PPO?</h3>
-    <p>En lugar de estimar el valor de cada acción, PPO ajusta <b>directamente la política</b> <span class="term">π(a|s)</span>:
-      una red que da la <b>probabilidad</b> de cada acción. Una segunda red, la <span class="term">crítica</span>, estima
-      el valor V(s) del estado y sirve para juzgar si una acción fue mejor o peor de lo esperado (la <b>ventaja</b>). PPO
-      es hoy el caballo de batalla del RL: estable y robusto.</p>
+    <p>DQN aprendía <b>cuánto vale</b> cada acción y deducía la jugada a partir de esos valores. PPO va <b>directo al
+      grano</b>: ajusta la <b>estrategia misma</b>, subiendo la probabilidad de las acciones que salieron bien y bajando
+      la de las que salieron mal. Para saber qué fue "bien" o "mal" se apoya en una <b>segunda red</b>, la
+      <span class="term">crítica</span>, que estima cómo de buena era la situación (su <b>valor</b>); al comparar lo que
+      de verdad ocurrió con lo que la crítica esperaba se obtiene la <span class="term">ventaja</span>: cuánto mejor (o
+      peor) salió la acción de lo previsto. PPO es hoy el <b>caballo de batalla</b> del RL: estable, robusto y fácil de
+      afinar.</p>
     <div class="analogy"><div class="ic">🧗</div><div class="bd"><div class="t">Una analogía</div>
       Como mejorar tu técnica de escalada poco a poco: si cambias tu estilo de golpe, te caes. PPO da <b>pasos pequeños y
       controlados</b> sobre la política para no estropear lo ya aprendido.</div></div>
@@ -807,6 +1028,23 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       </ol>
     </div>
 
+    <h3 class="sub">La función de pérdida: por qué el recorte</h3>
+    <p>La idea de "subir la probabilidad de lo que salió bien" tiene una trampa: si te pasas, <b>destrozas</b> la política
+      de un solo paso. Había tres formas de evitarlo, y elegimos la tercera:</p>
+    <table class="compare">
+      <tr><th>Opción</th><th>Qué hace</th><th>Por qué la elegimos o no</th></tr>
+      <tr><td><b>Gradiente "a pelo"</b><br>(REINFORCE)</td><td>Empuja cada acción según su ventaja, sin freno.</td><td>Un lote afortunado provoca un <b>paso gigante</b> que arruina lo aprendido. Demasiado inestable.</td></tr>
+      <tr><td><b>TRPO</b></td><td>Limita el cambio con una restricción matemática <b>exacta</b>.</td><td>Funciona, pero es <b>caro y enrevesado</b> de implementar (optimización con restricciones).</td></tr>
+      <tr><td><b>PPO-clip</b> ✓ (la nuestra)</td><td><b>Recorta</b> el ratio para que el paso nunca sea grande.</td><td>Una aproximación <b>barata y simple</b> a TRPO: casi todo el beneficio, una fracción del coste.</td></tr>
+    </table>
+    <p>Esa pérdida del actor no va sola. La pérdida total que minimiza PPO <b>suma tres términos</b>: el objetivo
+      recortado (mejora la política con freno), el error de la <b>crítica</b> (que aprenda a estimar bien el valor) y un
+      premio a la <b>entropía</b> (para no dejar de explorar).</p>
+    <div class="curiosos"><div class="t">🔬 Para curiosos: los tres términos</div><div class="bd">
+      <span class="mono">L = L_clip − c₁·(V − retorno)² + c₂·entropía</span>. El primero es el objetivo recortado; el
+      segundo, el error cuadrático de la crítica (con <span class="mono">c₁ = coef_valor = 0.5</span>); el tercero premia
+      la variedad (con <span class="mono">c₂ = coef_entropía = 0.01</span>). Se restan/suman para optimizar todo a la vez.</div></div>
+
     <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
     <p>Mismo entorno Arkanoid. PPO es <b>on-policy</b>: recoge un rollout, lo exprime en varias épocas y lo tira.</p>
     <table class="params">
@@ -832,6 +1070,36 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <div class="box prob"><div class="h">⚠ El problema</div>Optimizar la política sin freno provoca pasos enormes que <b>destrozan</b> lo aprendido: la recompensa colapsa de golpe.</div>
       <div class="box mejo"><div class="h">✔ La mejora encontrada</div>El <b>objetivo recortado</b> + <b>normalizar las ventajas</b> + <b>recorte de gradiente</b>. Resultado: la curva más estable de los cuatro, sin caídas bruscas.</div>
     </div>
+
+    <h3 class="sub">Interpretación: qué pasó al entrenar</h3>
+    <div class="interp">
+      <div class="col obs"><div class="h">📊 Qué observamos</div><ul>
+        <li>Curva <b>monótona</b>: sube sin las caídas bruscas de DQN.</li>
+        <li>Reward ~0.99 en el navegador; ~4.08 en una corrida larga en CPU.</li>
+        <li>La entropía arranca alta y <b>baja despacio</b> al afilarse la política.</li>
+      </ul></div>
+      <div class="col ok"><div class="h">✓ Qué funcionó</div><ul>
+        <li>El <b>recorte</b> evita el colapso: es el más estable de los cuatro.</li>
+        <li>Llega a romper <b>varios ladrillos</b> por episodio.</li>
+        <li>Apenas necesita afinado: funciona "a la primera".</li>
+      </ul></div>
+      <div class="col mejora"><div class="h">↗ Qué mejoraríamos</div><ul>
+        <li>Al ser <b>on-policy</b> tira lo jugado: necesita <b>más experiencias</b> que DQN para lo mismo.</li>
+        <li>Probar <b>rollouts más largos</b> y bajar el ritmo de aprendizaje al final.</li>
+      </ul></div>
+    </div>
+
+    <h3 class="sub">Comparación con el modelo anterior (DQN)</h3>
+    <table class="compare">
+      <tr><th>Eje</th><th>DQN (01)</th><th>PPO (02)</th></tr>
+      <tr><td>Qué aprende</td><td>El <b>valor</b> de cada acción.</td><td>La <b>estrategia</b> (probabilidades) directamente.</td></tr>
+      <tr><td>Memoria</td><td>Replay buffer (reutiliza lo viejo).</td><td>Rollout: usa y <b>tira</b>.</td></tr>
+      <tr><td>Estabilidad</td><td>Buena, pero con picos y caídas.</td><td><b>La mejor</b>: curva suave.</td></tr>
+      <tr><td>Eficiencia en datos</td><td><b>Alta</b> (off-policy).</td><td>Menor (on-policy).</td></tr>
+      <tr><td>Afinado</td><td>Sensible (varios estabilizadores).</td><td><b>Fácil</b>, robusto.</td></tr>
+    </table>
+    <p>En resumen: DQN exprime más cada dato, pero PPO es <b>más estable y más fácil de manejar</b>. Si DQN era el cimiento,
+      PPO es la opción "sin sustos".</p>
 
     <h3 class="sub">Conclusiones</h3>
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">PPO es <b>on-policy</b> y <b>actor-crítico</b>: mejora la política a pasitos
@@ -891,6 +1159,21 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       </ol>
     </div>
 
+    <h3 class="sub">La función de pérdida: tres a la vez (y por qué dos críticos)</h3>
+    <p>SAC no minimiza una pérdida, sino <b>tres a la vez</b>, una por cada cosa que aprende: los <b>críticos</b>
+      (que estimen bien el valor), el <b>actor</b> (que mejore la estrategia buscando recompensa <i>y</i> variedad) y la
+      <b>temperatura α</b> (que se autoajuste). La decisión de diseño más importante es usar <b>dos</b> críticos en vez
+      de uno:</p>
+    <table class="compare">
+      <tr><th>Opción</th><th>Qué hace</th><th>Por qué la elegimos o no</th></tr>
+      <tr><td><b>Un crítico</b></td><td>Una sola red estima el valor.</td><td>Tiende a <b>sobreestimar</b>: se cree los valores optimistas y los realimenta. Inestable.</td></tr>
+      <tr><td><b>Dos críticos, usar el mínimo</b> ✓</td><td>Dos redes; se confía en la <b>más pesimista</b>.</td><td>Pesimista a propósito: no se traga los valores inflados. Es lo que da estabilidad a SAC.</td></tr>
+    </table>
+    <div class="curiosos"><div class="t">🔬 Para curiosos: las tres pérdidas</div><div class="bd">
+      <b>Crítico:</b> acercar cada Q al objetivo <span class="mono">y</span> de arriba (con el min de los dos).
+      <b>Actor:</b> maximizar <span class="mono">Σ π·[min(Q1,Q2) − α·log π]</span> (recompensa esperada + variedad).
+      <b>α:</b> ajustar la temperatura para acercar la entropía a su objetivo. Tres optimizadores, un solo agente.</div></div>
+
     <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
     <table class="params">
       <tr><th>Ajuste</th><th>Valor</th><th>Qué es y qué efecto tiene</th></tr>
@@ -913,6 +1196,37 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <div class="box prob"><div class="h">⚠ El problema</div>SAC discreto puede <b>diverger</b> (los Q se disparan) o quedarse demasiado aleatorio/demasiado rígido si α está mal puesto a mano.</div>
       <div class="box mejo"><div class="h">✔ La mejora encontrada</div><b>Doble crítico</b> con mínimo (anti-sobreestimación) + <b>α automática</b> (no hay que afinarla). Resultado: aprendizaje estable y exploración auto-regulada.</div>
     </div>
+
+    <h3 class="sub">Interpretación: qué pasó al entrenar</h3>
+    <div class="interp">
+      <div class="col obs"><div class="h">📊 Qué observamos</div><ul>
+        <li>La recompensa sube a ~0.99 y la <b>temperatura α baja sola</b> de 0.20 a ~0.165.</li>
+        <li>La entropía se mantiene <b>alta</b>: explora sano, no se encasilla.</li>
+        <li>Memoria plana: 76 tensores constantes (más que DQN: tiene más redes).</li>
+      </ul></div>
+      <div class="col ok"><div class="h">✓ Qué funcionó</div><ul>
+        <li>El <b>doble crítico</b> evitó que los valores se dispararan.</li>
+        <li>La <b>α automática</b> ahorró el ajuste más delicado a mano.</li>
+        <li>Exploración constante sin perder estabilidad.</li>
+      </ul></div>
+      <div class="col mejora"><div class="h">↗ Qué mejoraríamos</div><ul>
+        <li>Es el <b>más pesado</b>: actor + 2 críticos + 2 objetivos. Más cómputo por paso.</li>
+        <li>Ajustar la <b>entropía objetivo</b> (0.55·log 3) según la fase del entrenamiento.</li>
+        <li>Runs más largas para traducir su buena exploración en romper más ladrillos.</li>
+      </ul></div>
+    </div>
+
+    <h3 class="sub">Comparación con el modelo anterior (PPO)</h3>
+    <table class="compare">
+      <tr><th>Eje</th><th>PPO (02)</th><th>SAC (03)</th></tr>
+      <tr><td>Familia</td><td>Actor-crítico on-policy.</td><td>Actor-crítico <b>off-policy</b>.</td></tr>
+      <tr><td>Cómo explora</td><td>Premio fijo a la entropía.</td><td>Premio a la entropía con <b>α que se autorregula</b>.</td></tr>
+      <tr><td>Memoria</td><td>Rollout (usa y tira).</td><td>Replay buffer (<b>reutiliza</b>).</td></tr>
+      <tr><td>Coste por paso</td><td>Bajo (2 redes).</td><td><b>Alto</b> (5 redes).</td></tr>
+      <tr><td>Eficiencia en datos</td><td>Menor.</td><td><b>Alta</b>.</td></tr>
+    </table>
+    <p>SAC es como un PPO que <b>no tira la experiencia</b> y que <b>gestiona la exploración por sí mismo</b>: aprende con
+      menos partidas a cambio de más cálculo por paso. Donde PPO es sencillo y estable, SAC es eficiente y curioso.</p>
 
     <h3 class="sub">Conclusiones</h3>
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">SAC es <b>off-policy</b> y de <span class="term">máxima entropía</span>: usa
@@ -971,6 +1285,23 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       </ol>
     </div>
 
+    <h3 class="sub">La función de pérdida: dos aprendizajes, dos pérdidas</h3>
+    <p>El World Model aprende <b>dos cosas distintas</b> a la vez, así que tiene <b>dos pérdidas</b>:</p>
+    <div class="pm">
+      <div class="box mejo" style="background:#e7f7fb;border-color:#bfe6f0"><div class="h" style="color:#0e6478">① El modelo de dinámica (supervisado)</div>
+        Aprende a <b>predecir la física</b>: dado (s, a), acertar el siguiente estado, la recompensa y si termina. Es un
+        problema supervisado clásico: minimizar el <b>error entre lo predicho y lo real</b> (regresión).</div>
+      <div class="box mejo" style="background:#eff4fe;border-color:#cfe0fb"><div class="h" style="color:#1d4ed8">② El Q-net (igual que DQN)</div>
+        Decide las acciones y se entrena <b>exactamente como DQN</b>: objetivo de Bellman + Huber + red objetivo. La
+        novedad no es cómo aprende, sino <b>con qué datos</b>: reales <i>e</i> imaginados.</div>
+    </div>
+    <p>La decisión de diseño clave está en <b>qué predice el modelo</b>:</p>
+    <table class="compare">
+      <tr><th>Opción</th><th>Qué predice</th><th>Por qué la elegimos o no</th></tr>
+      <tr><td><b>Estado siguiente</b> (s')</td><td>La posición absoluta de todo.</td><td>Más difícil: cualquier desvío en cada número se nota mucho. Descartada.</td></tr>
+      <tr><td><b>Incremento</b> (Δs) ✓</td><td>Solo <b>cuánto cambia</b>: s' = s + Δs.</td><td>Más fácil y estable: los cambios por paso son pequeños y suaves. Elegida.</td></tr>
+    </table>
+
     <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
     <table class="params">
       <tr><th>Ajuste</th><th>Valor</th><th>Qué es y qué efecto tiene</th></tr>
@@ -994,6 +1325,39 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <div class="box mejo"><div class="h">✔ La mejora encontrada</div>Predecir el <b>incremento Δs</b> (más estable) e imaginar a <b>corto plazo</b> (1 paso, reiniciando trayectorias terminadas). Resultado: modelo fiable (RMSE bajo) y política que mejora con datos imaginados.</div>
     </div>
 
+    <h3 class="sub">Interpretación: qué pasó al entrenar</h3>
+    <div class="interp">
+      <div class="col obs"><div class="h">📊 Qué observamos</div><ul>
+        <li>El modelo predice la física con un error <b>RMSE ~0.066</b> (muy bajo).</li>
+        <li>La recompensa sube a ~0.71: por debajo de DQN, PPO y SAC.</li>
+        <li>Memoria plana (~46 tensores) pese a tener dos redes que entrenar.</li>
+      </ul></div>
+      <div class="col ok"><div class="h">✓ Qué funcionó</div><ul>
+        <li>Predecir <b>Δs</b> e imaginar <b>a 1 paso</b>: el modelo se mantiene honesto.</li>
+        <li>Los datos imaginados <b>aceleran</b> el aprendizaje del Q-net.</li>
+        <li>Es la mayor <b>eficiencia de muestra</b> de los cuatro.</li>
+      </ul></div>
+      <div class="col mejora"><div class="h">↗ Qué mejoraríamos</div><ul>
+        <li>El <b>model bias</b> pone techo: imaginar de más enseña un mundo falso.</li>
+        <li>Probar un <b>conjunto de modelos</b> y medir su incertidumbre para imaginar más sin riesgo.</li>
+        <li>Alargar el horizonte imaginado solo cuando el modelo sea muy fiable.</li>
+      </ul></div>
+    </div>
+
+    <h3 class="sub">Comparación con el modelo del que parte (DQN)</h3>
+    <p>El World Model es, en el fondo, <b>un DQN con un simulador encima</b>: decide con un Q-net idéntico; lo que cambia
+      es <b>de dónde saca la experiencia</b>.</p>
+    <table class="compare">
+      <tr><th>Eje</th><th>DQN (01)</th><th>World Model (04)</th></tr>
+      <tr><td>Tipo</td><td>Model-free.</td><td><b>Model-based</b> (Dyna-Q).</td></tr>
+      <tr><td>De dónde aprende</td><td>Solo experiencia real.</td><td>Real <b>+ imaginada</b> (5× por paso).</td></tr>
+      <tr><td>Eficiencia en datos</td><td>Alta.</td><td><b>La más alta</b>… si el modelo acierta.</td></tr>
+      <tr><td>Su riesgo propio</td><td>Sobreestimar Q.</td><td><b>Model bias</b>: imaginar un mundo falso.</td></tr>
+      <tr><td>Resultado aquí</td><td>~0.9 (corto).</td><td>~0.71: frenado por el model bias.</td></tr>
+    </table>
+    <p>La promesa del World Model es <b>aprender con menos partidas reales</b>; el peaje es que su simulador tiene que ser
+      bueno. Aquí lo es (RMSE bajo), pero el techo de recompensa recuerda que <b>imaginar nunca es del todo gratis</b>.</p>
+
     <h3 class="sub">Conclusiones</h3>
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">El World Model es <b>model-based</b>: aprende un
       <span class="term">modelo de dinámica</span> y lo usa para <span class="term">imaginar</span> experiencia (Dyna-Q),
@@ -1008,12 +1372,31 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
   <div class="pad" style="--accent:#374151;--accent-soft:#f3f4f6">
     <table class="compare">
       <tr><th>Algoritmo</th><th>Familia</th><th>Política</th><th>Qué aprende</th><th>Exploración</th><th>Señal propia</th><th>Reward real*</th></tr>
-      <tr><td>DQN</td><td>Model-free · valor</td><td>off-policy</td><td>Q(s,a)</td><td>ε-greedy</td><td>TD-error, ε</td><td>0 → 0.94</td></tr>
+      <tr><td>DQN</td><td>Model-free · valor</td><td>off-policy</td><td>Q(s,a)</td><td>ε-greedy</td><td>TD-error, ε</td><td>0 → 0.9 (&gt;2 largo)</td></tr>
       <tr><td>PPO</td><td>Model-free · actor-crítico</td><td>on-policy</td><td>π(a|s) + V(s)</td><td>entropía</td><td>entropía, ventaja</td><td>0.1 → 0.99 (4.08 en CPU)</td></tr>
       <tr><td>SAC</td><td>Model-free · actor-crítico</td><td>off-policy</td><td>π + 2·Q</td><td>máx. entropía (α)</td><td>temperatura α</td><td>0 → 0.99</td></tr>
       <tr><td>World Model</td><td>Model-based</td><td>off-policy</td><td>dinámica + Q</td><td>ε-greedy</td><td>error del modelo</td><td>0 → 0.71</td></tr>
     </table>
     <p class="legend">* Recompensa media de los últimos 100 episodios, medida en ejecuciones reales (navegador con WebGPU; el dato de PPO en CPU es de una corrida más larga). El throughput observado fue de ~24.000 exp/s en WebGPU frente a ~5.600 exp/s en CPU.</p>
+
+    <h3 class="sub">La misma maquinaria, dimensión a dimensión</h3>
+    <p>Y aquí están los cuatro enfrentados en cada decisión de diseño que hemos ido viendo capítulo a capítulo:</p>
+    <table class="compare">
+      <tr><th>Dimensión</th><th>DQN</th><th>PPO</th><th>SAC</th><th>World Model</th></tr>
+      <tr><td><b>Familia</b></td><td>Valor</td><td>Actor-crítico</td><td>Actor-crítico</td><td>Model-based</td></tr>
+      <tr><td><b>Qué aprende</b></td><td>Valor de cada acción</td><td>Estrategia + valor</td><td>Estrategia + 2 valores</td><td>Física + valor</td></tr>
+      <tr><td><b>Nº de redes</b></td><td>2</td><td>2</td><td><b>5</b></td><td>2</td></tr>
+      <tr><td><b>Función de pérdida</b></td><td>Huber (TD)</td><td>Recortada + V + entropía</td><td>3 pérdidas (min-Q, actor, α)</td><td>Regresión + Huber</td></tr>
+      <tr><td><b>Memoria</b></td><td>Replay buffer</td><td>Rollout (usa y tira)</td><td>Replay buffer</td><td>Replay buffer</td></tr>
+      <tr><td><b>Exploración</b></td><td>ε-greedy</td><td>Entropía fija</td><td>Entropía con α <b>auto</b></td><td>ε-greedy</td></tr>
+      <tr><td><b>Eficiencia en datos</b></td><td>Alta</td><td>Media</td><td>Alta</td><td><b>La más alta</b>*</td></tr>
+      <tr><td><b>Estabilidad</b></td><td>Media-alta</td><td><b>La mejor</b></td><td>Alta</td><td>Según el modelo</td></tr>
+      <tr><td><b>Coste por paso</b></td><td>Bajo</td><td>Bajo</td><td>Alto</td><td>Medio</td></tr>
+      <tr><td><b>Su riesgo propio</b></td><td>Sobreestimar Q</td><td>Pasos grandes</td><td>Cómputo</td><td>Model bias</td></tr>
+      <tr><td><b>Brilla cuando…</b></td><td>Quieres un cimiento simple</td><td>Quieres cero sustos</td><td>Los datos son caros y hay que explorar</td><td>Cada dato real cuesta mucho</td></tr>
+    </table>
+    <p class="legend">* "La más alta" siempre que el modelo aprendido sea fiel; si no, el model bias lo penaliza.</p>
+
     <div class="takeaway"><div class="t">Qué llevarse</div><div class="bd">No hay un "mejor" universal: <b>DQN</b> es el cimiento más simple;
       <b>PPO</b> es el más estable y de uso general; <b>SAC</b> es el más eficiente en datos y explora solo; el
       <b>World Model</b> es el más ambicioso (aprende el juego) y el más delicado. Entender los cuatro es entender el mapa del RL profundo.</div></div>
