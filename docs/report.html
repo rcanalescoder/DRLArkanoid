@@ -119,6 +119,28 @@
   .takeaway .t{ font-weight:700; color:#0a6b4e; font-size:10.5pt; margin-bottom:3px; }
   .takeaway .bd{ color:#155e4a; }
 
+  /* autochequeo "comprueba que lo entiendes" */
+  .check{ background:#fff7ed; border:1px solid #fcd9a8; border-left:4px solid #d97706; border-radius:10px; padding:11px 15px; margin:11px 0; }
+  .check .t{ font-weight:700; color:#b45309; font-size:10.5pt; margin-bottom:5px; display:flex; align-items:center; gap:7px; }
+  .check ul{ margin:3px 0 0 16px; color:var(--slate); }
+  .check li{ margin:3px 0; }
+  /* ejemplo trabajado paso a paso */
+  .ejemplo{ background:#f0f7ff; border:1px solid #cfe0fb; border-radius:11px; padding:12px 16px; margin:11px 0; }
+  .ejemplo .t{ font-weight:700; color:#1d4ed8; font-size:10.8pt; margin-bottom:6px; display:flex; align-items:center; gap:7px; }
+  .ejemplo ol{ margin:4px 0 0 18px; color:var(--slate); }
+  .ejemplo li{ margin:4px 0; }
+  .ejemplo .mono{ color:var(--ink); }
+  /* nivel (chip de dificultad junto a un título de sección) */
+  .nivel{ display:inline-block; font-size:7.6pt; font-weight:700; text-transform:uppercase; letter-spacing:.6px; padding:2px 9px; border-radius:999px; background:var(--accent-soft,#eff4fe); color:var(--accent,#2563eb); margin-left:9px; vertical-align:middle; }
+  /* glosario en dos columnas */
+  .glosario{ column-count:2; column-gap:24px; margin:8px 0; }
+  .glosario .g{ break-inside:avoid; page-break-inside:avoid; margin-bottom:10px; font-size:9.8pt; color:var(--slate); }
+  .glosario .g b{ color:var(--ink); }
+  .glosario .g .term{ color:var(--blue); }
+  /* lista de referencias */
+  .reflist .r{ border-left:3px solid var(--line); padding:5px 13px; margin:8px 0; font-size:9.8pt; color:var(--slate); }
+  .reflist .r b{ color:var(--ink); }
+
   h3.sub{ break-after:avoid; page-break-after:avoid; }
   figure,.pm,.bars,.uses,.analogy,.takeaway,.pipe,table.compare,table.params,.defs{ break-inside:avoid; page-break-inside:avoid; }
   .code,.tree{ break-inside:avoid; page-break-inside:avoid; }
@@ -157,6 +179,39 @@
   <div class="foot"><span>Un laboratorio para entender el RL profundo, de dentro afuera.</span><span>Roberto Canales Mora · con Claude Chat / Code</span></div>
 </div>
 
+<!-- ============================ CÓMO LEER ESTA GUÍA ============================ -->
+<section class="section">
+  <div class="band b-blue"><div class="n">ANTES DE EMPEZAR</div><h2>Cómo leer esta guía</h2>
+    <div class="tag">Una guía de autoestudio pensada para leerse en orden, de cero a los cuatro algoritmos.</div></div>
+  <div class="pad" style="--accent:#2563eb;--accent-soft:#eff4fe">
+    <p class="lead">Este cuaderno es una <b>guía de autoestudio</b>: está pensado para que alguien que empieza en
+      aprendizaje por refuerzo pueda leerlo <b>de principio a fin</b> y entenderlo todo, sin dar nada por sabido. Cada
+      concepto se explica <b>la primera vez que aparece</b> y se reutiliza después. Los términos clave van
+      <span class="term">resaltados así</span> cuando se definen.</p>
+
+    <h3 class="sub">La ruta: de menos a más</h3>
+    <p>Primero los <b>fundamentos</b> (el vocabulario y las ideas que comparten todos los métodos). Luego, cómo está
+      hecho el laboratorio por dentro. Y después los cuatro algoritmos, <b>en orden de dificultad creciente</b>: cada uno
+      reutiliza ideas del anterior.</p>
+    <figure><img src="assets/dg_ruta.svg" /><figcaption>El recorrido del cuaderno. Si lees en orden, cada sección se apoya en lo ya explicado.</figcaption></figure>
+
+    <h3 class="sub">Qué necesitas saber (y qué no)</h3>
+    <div class="uses">
+      <div class="use"><div class="h"><span class="e">✅</span>Ayuda tener…</div><p>Nociones básicas de programación y de qué es una red neuronal (una función con parámetros que se ajustan). Nada avanzado.</p></div>
+      <div class="use"><div class="h"><span class="e">🚫</span>No hace falta…</div><p>Saber matemáticas avanzadas. Las pocas fórmulas que aparecen se explican término a término y siempre con intuición primero.</p></div>
+    </div>
+    <div class="note">A lo largo de la guía verás recuadros <b>“Comprueba que lo entiendes”</b> (preguntas para autoevaluarte)
+      y <b>“Ejemplo paso a paso”</b> (cálculos con números reales). Úsalos: son los que fijan el aprendizaje.</div>
+
+    <h3 class="sub">Cómo está construido lo que vas a leer</h3>
+    <dl class="defs">
+      <dt>Cifras reales</dt><dd>Todas las curvas y números salen de ejecutar este laboratorio de verdad (navegador con WebGPU y Node con CPU). Nada inventado.</dd>
+      <dt>Capturas reales</dt><dd>Las imágenes son de la aplicación funcionando; podrás reproducirlas tú al final (sección “Descárgalo”).</dd>
+      <dt>Diagramas</dt><dd>Cada concepto tiene su esquema para verlo, no solo leerlo.</dd>
+    </dl>
+  </div>
+</section>
+
 <!-- ============================ INTRODUCCIÓN ============================ -->
 <section class="section">
   <div class="band b-ink"><div class="n">INTRODUCCIÓN</div><h2>De un ladrillo a una política</h2>
@@ -167,6 +222,17 @@
       recompensa y ajusta su comportamiento para acumular el máximo premio a largo plazo. Aquí lo vemos sobre un
       Arkanoid simplificado, donde el agente solo puede mover una pala a izquierda/derecha o dejarla quieta, y debe
       aprender a devolver la pelota y romper ladrillos <b>sin que nadie le explique las reglas</b>.</p>
+
+    <h3 class="sub">¿En qué se diferencia de otras IAs?</h3>
+    <p>Hay tres grandes formas de que una máquina aprenda. En el <b>aprendizaje supervisado</b> le damos ejemplos con la
+      respuesta correcta (“esta foto es un gato”). En el <b>no supervisado</b> le damos datos sin etiquetar y busca
+      patrones. El <b>aprendizaje por refuerzo</b> es distinto: <b>nadie le dice la respuesta correcta</b>; el agente
+      <b>actúa</b>, recibe una recompensa y descubre por sí mismo qué conviene hacer. Aprende por <span class="term">ensayo
+      y error</span>, como un ser vivo.</p>
+    <figure><img src="assets/dg_paradigmas.svg" /><figcaption>Las tres familias del aprendizaje automático. El RL aprende interactuando y recibiendo premios/castigos, no de respuestas dadas.</figcaption></figure>
+    <div class="analogy"><div class="ic">🚲</div><div class="bd"><div class="t">Una analogía: aprender a montar en bici</div>
+      Nadie te da “la fórmula” del equilibrio. Pruebas, te tambaleas (castigo), aciertas un tramo (premio) y tu cuerpo
+      ajusta solo lo que funciona. Eso es exactamente el RL: probar, medir el resultado y reforzar lo que sale bien.</div></div>
 
     <h3 class="sub">Los protagonistas, en una frase</h3>
     <dl class="defs">
@@ -250,6 +316,47 @@
       actual y los descarta tras usarlos. Uno <b>off-policy</b> (DQN, SAC, World Model) puede aprender de experiencias viejas
       guardadas en memoria, lo que lo hace más eficiente en datos pero a veces menos estable.</div>
 
+    <!-- Retorno y descuento -->
+    <h3 class="sub">Recompensa, retorno y descuento</h3>
+    <p>Cuidado con una confusión habitual: el agente <b>no</b> maximiza la recompensa de <i>un</i> paso, sino el
+      <span class="term">retorno</span> (G): la suma de <b>todas</b> las recompensas futuras. Pero el futuro lejano es
+      incierto, así que se <span class="term">descuenta</span> con un factor <b>γ</b> (gamma) entre 0 y 1: cada paso que se
+      aleja en el tiempo cuenta un poco menos.</p>
+    <div class="formula">G = r₀ + γ·r₁ + γ²·r₂ + γ³·r₃ + …      <span style="color:#8a909b">// γ=0.99 → previsor; γ→0 → cortoplacista</span></div>
+    <figure><img src="assets/dg_descuento.svg" /><figcaption>El descuento: las recompensas futuras pesan menos (γ^t). Por eso el agente prefiere ganar pronto, pero sin ignorar lo que vendrá.</figcaption></figure>
+
+    <!-- Exploración vs explotación -->
+    <h3 class="sub">Exploración vs explotación, en la práctica</h3>
+    <p>Ya vimos el dilema. ¿Cómo se resuelve en la práctica? La receta más simple (la usan <b>DQN</b> y el <b>World
+      Model</b>) es <span class="term">ε-greedy</span>: con probabilidad ε el agente actúa <b>al azar</b> (explora) y el
+      resto del tiempo elige <b>lo mejor que conoce</b> (explota). ε empieza alto (todo exploración) y <b>decae</b> con el
+      tiempo hacia un valor pequeño. <b>PPO</b> y <b>SAC</b> exploran de otra forma: con una política
+      <b>estocástica</b> (muestrean acciones) y premiando la <b>entropía</b>.</p>
+    <figure><img src="assets/dg_epsilon.svg" /><figcaption>Decaimiento de ε en DQN: de 1.0 (explorar siempre) a 0.05 (explotar casi siempre) a lo largo de 25.000 pasos.</figcaption></figure>
+
+    <!-- Bellman -->
+    <h3 class="sub">La ecuación de Bellman <span class="nivel">la idea central</span></h3>
+    <p>¿Cómo estimamos el valor de algo si depende de todo el futuro? El truco de <span class="term">Bellman</span> es
+      <b>recursivo</b>: el valor de tomar una acción ahora = la recompensa inmediata <b>más</b> el valor (descontado) de lo
+      mejor que pueda hacer después. Así, en vez de mirar infinitos pasos, solo miramos <b>un paso y el valor del
+      siguiente estado</b>. Casi todo el RL basado en valor sale de aquí.</p>
+    <figure><img src="assets/dg_bellman.svg" /><figcaption>La ecuación de Bellman para Q: el valor de (s,a) se define con la recompensa r y el mejor valor del estado siguiente s'.</figcaption></figure>
+    <div class="ejemplo"><div class="t">🧮 Ejemplo paso a paso: calcular un objetivo</div>
+      <ol>
+        <li>El agente rompe un ladrillo: recompensa <span class="mono">r = +1</span>, el episodio no termina (<span class="mono">done = 0</span>).</li>
+        <li>La red objetivo estima que, desde el estado siguiente, la mejor acción vale <span class="mono">Q'(s', a*) = 3.0</span>. Usamos <span class="mono">γ = 0.99</span>.</li>
+        <li>Objetivo = <span class="mono">r + γ·(1−done)·Q'(s',a*) = 1 + 0.99·1·3.0 = <b>3.97</b></span>.</li>
+        <li>Si la red creía que <span class="mono">Q(s,a) = 2.5</span>, el <b>TD-error</b> es <span class="mono">3.97 − 2.5 = 1.47</span>: una sorpresa grande → experiencia muy informativa (¡por eso el replay prioritario la repetiría más!).</li>
+      </ol>
+    </div>
+    <div class="check"><div class="t">🔎 Comprueba que lo entiendes</div>
+      <ul>
+        <li>¿Por qué <span class="mono">Q(s,a)</span> depende de <span class="mono">Q(s',·)</span> y no solo de <span class="mono">r</span>?</li>
+        <li>Si <span class="mono">done = 1</span> (el episodio termina), ¿cuánto aporta el término del futuro?</li>
+        <li>¿Qué significa, en una frase, un TD-error grande?</li>
+      </ul>
+    </div>
+
     <!-- 3) Las recompensas -->
     <h3 class="sub">Las recompensas de este Arkanoid</h3>
     <p>Una recompensa de solo <span class="mono">+1 / −1</span> sería <b>pobre</b>: el agente recibiría señal en muy pocos
@@ -264,6 +371,14 @@
     </table>
     <figure><img src="assets/replay_conceptual.jpg" /><figcaption>Panel "Replay buffer (conceptual)" de la app: las experiencias y su recompensa real. Las más informativas (perder la bola, romper un ladrillo) tienen mayor TD-error y se repiten más con replay prioritario.</figcaption></figure>
 
+    <!-- La neurona -->
+    <h3 class="sub">De la neurona a la red</h3>
+    <p>La pieza básica es la <span class="term">neurona</span>: toma varias entradas, las combina con unos <b>pesos</b>
+      (su importancia), suma un <b>sesgo</b> y pasa el resultado por una <b>activación</b> (aquí <b>ReLU</b>, que deja pasar
+      lo positivo y pone a cero lo negativo). Apilando muchas neuronas en <b>capas</b> obtenemos una red capaz de aprender
+      relaciones complejas.</p>
+    <figure><img src="assets/dg_neurona.svg" /><figcaption>Una neurona: suma ponderada de las entradas (w·x) más un sesgo (b), pasada por una activación no lineal (ReLU).</figcaption></figure>
+
     <!-- 4) La red neuronal -->
     <h3 class="sub" id="red-neuronal">La red neuronal que usamos</h3>
     <p>¿Cómo "aprende" el agente? Mediante una <span class="term">red neuronal</span>: una función con miles de parámetros
@@ -276,6 +391,14 @@
     <div class="tint"><div class="t">Aproximar una función</div>Con pocos estados podríamos guardar Q en una tabla. Pero el estado aquí es
       continuo (infinitas posiciones de la pelota): imposible tabular. La red <b>aproxima</b> esa función y, además,
       <b>generaliza</b> a estados que nunca vio exactamente. Eso es lo "deep" del Deep RL.</div>
+
+    <!-- Descenso de gradiente -->
+    <h3 class="sub">Aprender = descenso de gradiente</h3>
+    <p>¿Cómo se “ajustan” los pesos de la red? Definimos una <span class="term">pérdida</span> (lo equivocada que está la
+      predicción respecto al objetivo) y la bajamos a pasitos: el <span class="term">descenso de gradiente</span> empuja
+      cada peso en la dirección que reduce el error. El tamaño de cada paso es el <b>learning rate</b>. Entrenar es repetir
+      esto millones de veces.</p>
+    <figure><img src="assets/dg_gradiente.svg" /><figcaption>Descenso de gradiente: cada actualización mueve los pesos “colina abajo” en la superficie de pérdida, acercándose al mínimo.</figcaption></figure>
 
     <!-- 5) Red actual vs objetivo -->
     <h3 class="sub">Red actual y red objetivo</h3>
@@ -529,6 +652,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       Para que ese "perseguirse a sí mismo" no diverja añadimos tres mejoras clásicas: <b>Double DQN</b> (separa quién
       elige y quién evalúa la acción), <b>pérdida Huber</b> (menos sensible a errores grandes) y <b>red objetivo</b>
       con actualización suave.</div>
+    <figure><img src="assets/dg_dqn.svg" /><figcaption>El circuito de DQN: la red online elige la acción (ε-greedy); el replay buffer y la red objetivo alimentan la pérdida TD que la entrena.</figcaption></figure>
 
     <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
     <p><b>El entorno.</b> Arkanoid: el agente observa 6 números, dispone de 3 acciones y recibe +1 por ladrillo, +0.1 por
@@ -598,10 +722,12 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <div class="arrow">+</div>
       <div class="stage"><div class="nm">Crítica</div><div class="dim">128·128 → 1 (V)</div></div>
     </div>
+    <figure><img src="assets/dg_actorcritico.svg" /><figcaption>Estructura actor-crítico: el actor propone acciones (probabilidades) y el crítico estima el valor del estado; con ambos se calcula la ventaja.</figcaption></figure>
     <div class="formula">L = E[ min( ρ·A , clip(ρ, 1−ε, 1+ε)·A ) ]    <span style="color:#8a909b">// ρ = π_nueva / π_vieja ; A = ventaja</span></div>
     <div class="tint"><div class="t">La idea clave: el recorte (clip)</div>PPO mide cuánto cambia la política (ratio ρ) y <b>recorta</b> ese cambio a
       [1−ε, 1+ε] (con ε=0.2, a [0.8, 1.2]). Así nunca da un paso tan grande que arruine la política. Las ventajas se
       estiman con <span class="term">GAE</span> (combina errores TD de varios pasos) para reducir la varianza.</div>
+    <figure><img src="assets/dg_ppo_clip.svg" /><figcaption>El recorte en acción: si la nueva política se aleja demasiado de la vieja (ρ fuera de [0.8, 1.2]), el objetivo deja de crecer. Eso frena los cambios bruscos.</figcaption></figure>
 
     <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
     <p>Mismo entorno Arkanoid. PPO es <b>on-policy</b>: recoge un rollout, lo exprime en varias épocas y lo tira.</p>
@@ -671,6 +797,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <div class="arrow">+</div>
       <div class="stage"><div class="nm">Temperatura α</div><div class="dim">auto</div></div>
     </div>
+    <figure><img src="assets/dg_sac.svg" /><figcaption>SAC: un actor estocástico, dos críticos (se usa el menor para no sobreestimar) y una temperatura α que ajusta sola cuánta exploración mantener.</figcaption></figure>
     <div class="formula">y = r + γ · Σₐ π(a|s')·[ min(Q1', Q2') − α·log π(a|s') ]   <span style="color:#8a909b">// objetivo del crítico</span></div>
     <div class="tint"><div class="t">La idea clave: temperatura automática</div>α pondera cuánta entropía exigimos. En vez de fijarlo a mano, SAC lo
       <b>aprende</b> para alcanzar una entropía objetivo (aquí, 0.55·log 3). Si la política explora poco, α sube; si
@@ -741,6 +868,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <div class="arrow">→</div>
       <div class="stage"><div class="nm">Q-net</div><div class="dim">entrena con lo imaginado</div></div>
     </div>
+    <figure><img src="assets/dg_dyna.svg" /><figcaption>Dyna-Q: la experiencia real entrena el modelo y el Q-net; además el modelo “imagina” experiencias extra que también entrenan el Q-net (5 por cada paso real).</figcaption></figure>
     <div class="formula">real → entrena modelo y Q ;   imaginado → 5 actualizaciones Q extra por paso real (planning)</div>
     <div class="tint"><div class="t">La idea clave: planning con datos imaginados</div>Por cada paso real hacemos <b>5</b> actualizaciones del Q-net
       con transiciones que <b>genera el modelo</b>, partiendo de estados muestreados del buffer. Si el modelo es bueno,
@@ -792,6 +920,70 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <div class="takeaway"><div class="t">Qué llevarse</div><div class="bd">No hay un "mejor" universal: <b>DQN</b> es el cimiento más simple;
       <b>PPO</b> es el más estable y de uso general; <b>SAC</b> es el más eficiente en datos y explora solo; el
       <b>World Model</b> es el más ambicioso (aprende el juego) y el más delicado. Entender los cuatro es entender el mapa del RL profundo.</div></div>
+  </div>
+</section>
+
+<!-- ============================ GLOSARIO ============================ -->
+<section class="section">
+  <div class="band b-ink"><div class="n">REFERENCIA RÁPIDA</div><h2>Glosario</h2>
+    <div class="tag">Todos los términos de la guía, en una página, para consultar de un vistazo.</div></div>
+  <div class="pad" style="--accent:#2563eb;--accent-soft:#eff4fe">
+    <div class="glosario">
+      <div class="g"><span class="term">Agente</span> — quien aprende y decide; aquí, la(s) red(es) neuronal(es).</div>
+      <div class="g"><span class="term">Entorno</span> — el mundo con el que interactúa el agente; aquí, el juego de Arkanoid.</div>
+      <div class="g"><span class="term">Estado (s)</span> — lo que el agente observa en un instante (6 números).</div>
+      <div class="g"><span class="term">Acción (a)</span> — lo que puede hacer (← · →, 3 acciones).</div>
+      <div class="g"><span class="term">Recompensa (r)</span> — premio/castigo numérico de cada paso.</div>
+      <div class="g"><span class="term">Retorno (G)</span> — suma de recompensas futuras, descontadas.</div>
+      <div class="g"><span class="term">Descuento (γ)</span> — cuánto pesa el futuro (0.99 = previsor).</div>
+      <div class="g"><span class="term">Política (π)</span> — la estrategia: de un estado a una acción (o probabilidades).</div>
+      <div class="g"><span class="term">Valor V(s)</span> — recompensa futura esperada desde un estado.</div>
+      <div class="g"><span class="term">Q-valor Q(s,a)</span> — recompensa futura esperada de una acción en un estado.</div>
+      <div class="g"><span class="term">Episodio</span> — una partida completa (hasta perder o ganar).</div>
+      <div class="g"><span class="term">Exploración/explotación</span> — probar lo nuevo vs aprovechar lo conocido.</div>
+      <div class="g"><span class="term">ε-greedy</span> — explorar al azar con probabilidad ε (que decae).</div>
+      <div class="g"><span class="term">Replay buffer</span> — memoria de experiencias para muestrear lotes.</div>
+      <div class="g"><span class="term">On-policy / off-policy</span> — aprender solo de la política actual / también de datos viejos.</div>
+      <div class="g"><span class="term">Red objetivo</span> — copia lenta de la red que da un blanco estable.</div>
+      <div class="g"><span class="term">TD-error</span> — diferencia entre lo predicho y el objetivo de Bellman; “sorpresa”.</div>
+      <div class="g"><span class="term">Ventaja A(s,a)</span> — cuánto mejor es una acción que la media: Q − V.</div>
+      <div class="g"><span class="term">GAE</span> — forma de estimar la ventaja con baja varianza.</div>
+      <div class="g"><span class="term">Entropía</span> — cuán aleatoria es la política (más entropía = más exploración).</div>
+      <div class="g"><span class="term">Temperatura α</span> — peso de la entropía en SAC, ajustado solo.</div>
+      <div class="g"><span class="term">Model-free / model-based</span> — sin / con modelo del entorno.</div>
+      <div class="g"><span class="term">Bellman</span> — ecuación recursiva: valor = recompensa + valor del futuro.</div>
+      <div class="g"><span class="term">Gradiente / learning rate</span> — dirección y tamaño del ajuste de los pesos.</div>
+      <div class="g"><span class="term">MLP / ReLU</span> — red de capas densas / activación no lineal max(0, z).</div>
+      <div class="g"><span class="term">Shaping</span> — recompensa densa auxiliar que acelera sin cambiar el óptimo.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PARA SEGUIR APRENDIENDO ============================ -->
+<section class="section">
+  <div class="band b-violet"><div class="n">SIGUIENTE PASO</div><h2>Para seguir aprendiendo</h2>
+    <div class="tag">Si esta guía te ha picado la curiosidad, por aquí se sigue.</div></div>
+  <div class="pad" style="--accent:#7c3aed;--accent-soft:#f4effe">
+    <h3 class="sub">El mapa que has recorrido</h3>
+    <p>Has pasado de “qué es una recompensa” a entender cuatro algoritmos modernos. La progresión natural fue:
+      <b>valor</b> (DQN) → <b>política</b> (PPO) → <b>política + entropía</b> (SAC) → <b>modelo del mundo</b> (World Model).
+      Esa misma escalera es la del campo entero.</p>
+    <h3 class="sub">Lecturas recomendadas</h3>
+    <div class="reflist">
+      <div class="r"><b>Sutton &amp; Barto — <i>Reinforcement Learning: An Introduction</i></b>. El libro de referencia, gratuito online. Empieza por los capítulos de MDP, Bellman y Q-learning: reconocerás todo lo de “Fundamentos”.</div>
+      <div class="r"><b>OpenAI Spinning Up in Deep RL</b>. Tutorial práctico con implementaciones limpias de PPO, SAC y más. Ideal tras esta guía.</div>
+      <div class="r"><b>Mnih et al. (2015) — <i>Human-level control through deep RL</i></b>. El paper original de DQN (Atari): replay buffer + red objetivo.</div>
+      <div class="r"><b>Schulman et al. (2017) — <i>Proximal Policy Optimization</i></b>. El objetivo recortado que viste en PPO.</div>
+      <div class="r"><b>Haarnoja et al. (2018) — <i>Soft Actor-Critic</i></b>. Máxima entropía y temperatura automática (SAC).</div>
+      <div class="r"><b>Sutton (1991) — <i>Dyna</i></b> y <b>Ha &amp; Schmidhuber (2018) — <i>World Models</i></b>. La idea de aprender un modelo e “imaginar”.</div>
+    </div>
+    <h3 class="sub">Experimentos que puedes hacer con este laboratorio</h3>
+    <div class="uses">
+      <div class="use"><div class="h"><span class="e">🔧</span>Toca γ y ε</div><p>Baja γ a 0.8: ¿se vuelve cortoplacista? Acelera el decaimiento de ε: ¿explora menos y se estanca?</p></div>
+      <div class="use"><div class="h"><span class="e">🏗️</span>Cambia la red</div><p>Prueba capas más grandes o más pequeñas en <span class="mono">constantes.js</span> y mira el efecto en la curva.</p></div>
+      <div class="use"><div class="h"><span class="e">🎁</span>Rediseña las recompensas</div><p>Sube el castigo por perder o el premio por romper: observa cómo cambia el comportamiento del agente.</p></div>
+      <div class="use"><div class="h"><span class="e">⚔️</span>Compara algoritmos</div><p>Entrena los cuatro el mismo tiempo y compara recompensa, estabilidad y velocidad.</p></div>
+    </div>
   </div>
 </section>
 
