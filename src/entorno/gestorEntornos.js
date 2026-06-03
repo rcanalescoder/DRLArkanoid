@@ -14,7 +14,7 @@ export class GestorEntornos {
   constructor({
     numHeadless = POOL.HEADLESS_DEFECTO,
     numVisuales = POOL.VISUALES_DEFECTO,
-    shaping = true,
+    shaping = false, // Φ desactivado por defecto (ver plan §2/§5.1: saboteaba el objetivo)
     semilla = null,
   } = {}) {
     this.shaping = shaping;
@@ -99,6 +99,12 @@ export class GestorEntornos {
           ladrillosRotos: env.ladrillosRotosEpisodio,
           ganado: env.estado === "ganado",
           pasos: env.pasos,
+          // Componentes de recompensa + diagnósticos (plan §5.1/§5.7).
+          rBricks: env.rBricks,
+          rSurvival: env.rSurvival,
+          rTerminal: env.rTerminal,
+          rShaping: env.rShaping,
+          primerLadrilloPaso: env.primerLadrilloPaso,
         });
         env.reiniciar();
       }

@@ -132,7 +132,7 @@ export class Comparativa {
   /** Entrena un algoritmo aislado y devuelve sus métricas + curva + eval greedy. */
   async _entrenarYEvaluar(def, pasos, envs, kEval, onProgreso) {
     const algo = def.id;
-    const gestor = new GestorEntornos({ numHeadless: envs, numVisuales: 0, shaping: true });
+    const gestor = new GestorEntornos({ numHeadless: envs, numVisuales: 0, shaping: false });
     const agente = crearAgente(algo);
     const metricas = new RecolectorMetricas();
     const trazas = new SistemaTrazas();
@@ -181,7 +181,7 @@ export class Comparativa {
   /** Corre la política greedy (sin exploración) hasta juntar K episodios. */
   async _evaluarGreedy(agente, algo, kEpisodios) {
     const n = 16;
-    const gestor = new GestorEntornos({ numHeadless: n, numVisuales: 0, shaping: true });
+    const gestor = new GestorEntornos({ numHeadless: n, numVisuales: 0, shaping: false });
     const recompensas = [], exitos = [], ladrillos = [];
     let pasos = 0;
     const maxPasos = 600 * 8; // tope de seguridad

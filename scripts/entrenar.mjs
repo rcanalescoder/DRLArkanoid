@@ -24,11 +24,12 @@ const IMPORTADORES = {
 
 function parseArgs(argv) {
   const algo = argv[2] || "dqn";
-  const opts = { pasos: 200000, envs: null, hp: {} };
+  const opts = { pasos: 200000, envs: null, hp: {}, shaping: false };
   for (let i = 3; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--pasos") opts.pasos = +argv[++i];
     else if (a === "--envs") opts.envs = +argv[++i];
+    else if (a === "--shaping") opts.shaping = true; // activar Φ (demo del saboteador)
     else if (a === "--hp") {
       const [k, v] = argv[++i].split("=");
       opts.hp[k] = isNaN(+v) ? v === "true" ? true : v === "false" ? false : v : +v;
@@ -55,12 +56,12 @@ async function main() {
 
   console.log("════════════════════════════════════════════════════════════");
   console.log(`  Entrenando ${algo.toUpperCase()}  ·  backend=${tf.getBackend()}`);
-  console.log(`  envs=${numHeadless}  pasos=${opts.pasos}`);
+  console.log(`  envs=${numHeadless}  pasos=${opts.pasos}  shaping(Φ)=${opts.shaping ? "ON" : "OFF"}`);
   console.log(`  hp=${JSON.stringify(hp)}`);
   console.log("════════════════════════════════════════════════════════════");
 
   const Clase = await importar();
-  const gestor = new GestorEntornos({ numHeadless, numVisuales: 0, shaping: true });
+  const gestor = new GestorEntornos({ numHeadless, numVisuales: 0, shaping: opts.shaping });
   const agente = new Clase(hp);
   const metricas = new RecolectorMetricas();
   const trazas = new SistemaTrazas();
@@ -68,30 +69,31 @@ async function main() {
 
   const t0 = Date.now();
   const rewards = [];
+  const bricks = [];
   await orq.correr(opts.pasos, (t) => {
     trazas.imprimirResumen(t);
     if (t.metricas.rewardMedio100 != null) rewards.push(t.metricas.rewardMedio100);
+    if (t.metricas.ladrillosRotosMedio != null) bricks.push(t.metricas.ladrillosRotosMedio);
   });
   const dt = (Date.now() - t0) / 1000;
 
-  // --- Resumen de convergencia ---
+  // --- Resumen ---
   const inst = metricas.obtenerInstantanea();
-  // Descartar los ceros iniciales (antes de que termine el primer episodio).
-  const primerNoCero = rewards.findIndex((v) => v !== 0);
-  const r = primerNoCero > 0 ? rewards.slice(primerNoCero) : rewards;
-  const primeros = r.slice(0, Math.max(1, Math.floor(r.length * 0.15)));
-  const ultimos = r.slice(-Math.max(1, Math.floor(r.length * 0.15)));
-  const media = (a) => a.reduce((x, y) => x + y, 0) / a.length;
-  const rInicial = media(primeros);
-  const rFinal = media(ultimos);
+  const media = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
+  const cola = (a) => media(a.slice(-Math.max(1, Math.floor(a.length * 0.15))));
+  const cabeza = (a) => media(a.slice(0, Math.max(1, Math.floor(a.length * 0.15))));
+  const rNoCero = rewards.slice(Math.max(0, rewards.findIndex((v) => v !== 0)));
+  const rInicial = cabeza(rNoCero), rFinal = cola(rNoCero);
+  const bInicial = cabeza(bricks), bFinal = cola(bricks);
 
   console.log("────────────────────────────────────────────────────────────");
-  console.log(`  RESUMEN ${algo.toUpperCase()} (${dt.toFixed(1)}s, ${(opts.pasos / dt).toFixed(0)} exp/s)`);
-  console.log(`  reward inicial≈${rInicial.toFixed(3)}  →  final≈${rFinal.toFixed(3)}  (Δ=${(rFinal - rInicial).toFixed(3)})`);
-  console.log(`  éxito100=${(inst.tasaExito100 * 100).toFixed(1)}%  ladrillosMedio=${inst.ladrillosRotosMedio.toFixed(2)}  episodios=${inst.episodiosTotales}`);
-  console.log(`  tensores finales=${tf.memory().numTensors}  memoria=${(tf.memory().numBytes / 1048576).toFixed(1)}MB`);
-  const veredicto = rFinal > rInicial + 0.2 ? "✅ APRENDE" : rFinal > rInicial ? "🟡 mejora leve" : "❌ no mejora";
-  console.log(`  Veredicto: ${veredicto}`);
+  console.log(`  RESUMEN ${algo.toUpperCase()} (${dt.toFixed(1)}s, ${(opts.pasos / dt).toFixed(0)} exp/s · Φ=${opts.shaping ? "ON" : "OFF"})`);
+  console.log(`  ▶ CABECERA · success_rate=${(inst.successRate * 100).toFixed(1)}%  ·  ladrillos rotos: ${bInicial.toFixed(2)} → ${bFinal.toFixed(2)} / 28  (mediana actual ${inst.bricksCleared.toFixed(2)})`);
+  console.log(`    [diag] reward ${rInicial.toFixed(2)}→${rFinal.toFixed(2)} · reward_no_shaping=${inst.rewardNoShaping.toFixed(2)} · 1er ladrillo≈${inst.timeToFirstBrick != null ? inst.timeToFirstBrick.toFixed(0) : "—"} pasos · steps_alive≈${inst.stepsAlive.toFixed(0)} · episodios=${inst.episodiosTotales}`);
+  console.log(`    tensores=${tf.memory().numTensors}  memoria=${(tf.memory().numBytes / 1048576).toFixed(1)}MB`);
+  const dB = bFinal - bInicial;
+  const veredicto = dB > 0.5 ? "✅ rompe MÁS ladrillos" : dB > 0.05 ? "🟡 sube algo" : dB < -0.3 ? "❌ rompe MENOS" : "➖ sin cambio claro";
+  console.log(`  Veredicto (ladrillos): ${veredicto}  (Δ=${dB.toFixed(2)})`);
   console.log("────────────────────────────────────────────────────────────");
 
   agente.destruir();

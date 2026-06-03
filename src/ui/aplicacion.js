@@ -29,7 +29,7 @@ export class Aplicacion {
     this.velocidad = 4;
     this.corriendo = false;
     this.envSeleccionado = 0;
-    this.shaping = true;
+    this.shaping = false; // Φ OFF por defecto (saboteaba el objetivo; ver plan §2)
     this._ultInspeccion = 0;
     // Hiperparámetros sobreescritos sobre los de por defecto (los aplica el grid
     // search al "usar la mejor combinación"). Se reinician al cambiar de algoritmo.

@@ -36,12 +36,14 @@ export class EntornoArkanoid {
   /**
    * @param {number} id           identificador del entorno
    * @param {object} [opciones]
-   * @param {boolean} [opciones.shaping=true]  activar reward shaping potencial
+   * @param {boolean} [opciones.shaping=false]  activar reward shaping potencial
+   *   Φ=−|bola.x−pala.x|. OFF por defecto: sabotea el objetivo (premia centrar la pala
+   *   → rebote vertical → pelotea en una columna). Se conserva solo para demostrarlo.
    * @param {number}  [opciones.semilla]       semilla del RNG (opcional)
    */
   constructor(id, opciones = {}) {
     this.id = id;
-    this.shaping = opciones.shaping !== false;
+    this.shaping = opciones.shaping === true;
     this._rng = opciones.semilla != null ? crearRng(opciones.semilla + id * 7919) : Math.random;
     this.anchoLadrillo =
       (1 - CFG.MARGEN_LADRILLOS_X * 2 - CFG.ESPACIO_LADRILLOS * (COLUMNAS_LADRILLOS - 1)) /
@@ -86,6 +88,12 @@ export class EntornoArkanoid {
     this.ladrillosRotosEpisodio = 0;
     this.combo = 0; // ladrillos rotos seguidos sin tocar la pala
     this.comboMax = 0;
+    // Componentes de recompensa por separado (diagnóstico, ver plan §5.1/§5.7).
+    this.rBricks = 0; // ROMPER_LADRILLO + combo
+    this.rSurvival = 0; // GOLPEAR_PALA (+0.2 por devolver)
+    this.rTerminal = 0; // COMPLETAR_NIVEL / PERDER_PELOTA
+    this.rShaping = 0; // término Φ (debería ser 0 con shaping OFF)
+    this.primerLadrilloPaso = -1; // paso en que rompe el 1er ladrillo (time_to_first_brick)
     this._distAnterior = Math.abs(this.pelota.x - this.pala.x);
 
     return this.obtenerVectorEstado();
@@ -176,6 +184,7 @@ export class EntornoArkanoid {
       p.y = yPala - p.r - 1e-4;
       this._renormalizarVelocidad();
       this.recompensaPaso += RECOMPENSAS.GOLPEAR_PALA;
+      this.rSurvival += RECOMPENSAS.GOLPEAR_PALA;
       this.combo = 0; // la bola vuelve a la pala: se corta el combo
     }
   }
@@ -221,7 +230,10 @@ export class EntornoArkanoid {
         // (sin tocar la pala) vale más → incentiva colar la bola y reventar varios.
         this.combo++;
         if (this.combo > this.comboMax) this.comboMax = this.combo;
-        this.recompensaPaso += RECOMPENSAS.ROMPER_LADRILLO + RECOMPENSAS.COMBO_BONUS * (this.combo - 1);
+        const rLadrillo = RECOMPENSAS.ROMPER_LADRILLO + RECOMPENSAS.COMBO_BONUS * (this.combo - 1);
+        this.recompensaPaso += rLadrillo;
+        this.rBricks += rLadrillo;
+        if (this.primerLadrilloPaso < 0) this.primerLadrilloPaso = this.pasos;
         break; // un ladrillo por paso
       }
     }
@@ -231,9 +243,11 @@ export class EntornoArkanoid {
     if (this.pelota.y - this.pelota.r > 1) {
       this.estado = "perdido";
       this.recompensaPaso += RECOMPENSAS.PERDER_PELOTA;
+      this.rTerminal += RECOMPENSAS.PERDER_PELOTA;
     } else if (this.ladrillosVivos === 0) {
       this.estado = "ganado";
       this.recompensaPaso += RECOMPENSAS.COMPLETAR_NIVEL;
+      this.rTerminal += RECOMPENSAS.COMPLETAR_NIVEL;
     } else if (this.pasos >= CFG.MAX_PASOS_EPISODIO) {
       this.estado = "timeout"; // se agotó el tiempo: fin del episodio SIN penalización
     }
@@ -245,7 +259,9 @@ export class EntornoArkanoid {
   _aplicarShaping() {
     const distActual = Math.abs(this.pelota.x - this.pala.x);
     if (this.shaping && !this.estaTerminado()) {
-      this.recompensaPaso += RECOMPENSAS.COEF_SHAPING * (this._distAnterior - distActual);
+      const s = RECOMPENSAS.COEF_SHAPING * (this._distAnterior - distActual);
+      this.recompensaPaso += s;
+      this.rShaping += s;
     }
     this._distAnterior = distActual;
   }

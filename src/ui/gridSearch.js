@@ -385,7 +385,7 @@ export class GridSearch {
 
   /** Entrena un agente aislado con un override y devuelve sus métricas. */
   async _correrCombo(algo, override, pasos, envs, onProgreso) {
-    const gestor = new GestorEntornos({ numHeadless: envs, numVisuales: 0, shaping: true });
+    const gestor = new GestorEntornos({ numHeadless: envs, numVisuales: 0, shaping: false });
     const agente = crearAgente(algo, override);
     const metricas = new RecolectorMetricas();
     const trazas = new SistemaTrazas();

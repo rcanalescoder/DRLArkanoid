@@ -16,6 +16,9 @@ export class RecolectorMetricas {
     this._recompensas = []; // ventana deslizante
     this._exitos = [];
     this._ladrillos = [];
+    this._noShaping = []; // recompensa de tarea (ladrillos + terminal), sin ayudas
+    this._primerLadrillo = []; // paso del 1er ladrillo (time_to_first_brick)
+    this._pasosVivo = []; // duración del episodio (steps_alive)
     this.episodiosTotales = 0;
     this.victoriasTotales = 0;
     this.historial = [];
@@ -32,6 +35,10 @@ export class RecolectorMetricas {
       this._empujar(this._recompensas, ep.recompensa);
       this._empujar(this._exitos, ep.ganado ? 1 : 0);
       this._empujar(this._ladrillos, ep.ladrillosRotos);
+      this._empujar(this._noShaping, (ep.rBricks || 0) + (ep.rTerminal || 0));
+      if (ep.primerLadrilloPaso != null && ep.primerLadrilloPaso >= 0)
+        this._empujar(this._primerLadrillo, ep.primerLadrilloPaso);
+      if (ep.pasos != null) this._empujar(this._pasosVivo, ep.pasos);
       this.episodiosTotales++;
       if (ep.ganado) this.victoriasTotales++;
     }
@@ -69,9 +76,16 @@ export class RecolectorMetricas {
   /** Instantánea de métricas agregadas. */
   obtenerInstantanea() {
     return {
+      // Métrica de CABECERA (plan §3): % de episodios que limpian el nivel.
+      successRate: this._media(this._exitos),
+      tasaExito100: this._media(this._exitos), // alias retrocompatible
+      bricksCleared: this._media(this._ladrillos),
+      // Diagnósticos (no son criterio de éxito):
       rewardMedio100: this._media(this._recompensas),
-      tasaExito100: this._media(this._exitos),
-      ladrillosRotosMedio: this._media(this._ladrillos),
+      rewardNoShaping: this._media(this._noShaping), // solo tarea (ladrillos + terminal)
+      timeToFirstBrick: this._primerLadrillo.length ? this._media(this._primerLadrillo) : null,
+      stepsAlive: this._media(this._pasosVivo),
+      ladrillosRotosMedio: this._media(this._ladrillos), // alias retrocompatible
       episodiosTotales: this.episodiosTotales,
       victoriasTotales: this.victoriasTotales,
       experienciasPorSegundo: this.experienciasPorSegundo,

@@ -20,7 +20,7 @@ const SWEEP = {
 };
 
 async function combo(algo, override) {
-  const gestor = new GestorEntornos({ numHeadless: ENVS, numVisuales: 0, shaping: true });
+  const gestor = new GestorEntornos({ numHeadless: ENVS, numVisuales: 0, shaping: false });
   const agente = crearAgente(algo, override);
   const metricas = new RecolectorMetricas();
   const trazas = new SistemaTrazas();
