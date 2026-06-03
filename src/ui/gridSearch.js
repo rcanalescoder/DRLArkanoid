@@ -40,6 +40,11 @@ const SWEEP = {
     { clave: "pasosPlanning", etiqueta: "Pasos de planning (imaginación)", valores: [3, 5, 8] },
     { clave: "gamma", etiqueta: "Descuento γ", valores: [0.97, 0.99, 0.995] },
   ],
+  worldModelRecurrente: [
+    { clave: "tasaAprendizaje", etiqueta: "Ritmo de aprendizaje (Q-net)", valores: [0.0003, 0.0008, 0.0015] },
+    { clave: "longitudSecuencia", etiqueta: "Longitud de secuencia (memoria del LSTM)", valores: [8, 16, 32] },
+    { clave: "unidadesLSTM", etiqueta: "Unidades LSTM (tamaño de la memoria)", valores: [64, 128, 256] },
+  ],
 };
 
 const PASOS_DEFECTO = 8000;

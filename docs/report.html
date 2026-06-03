@@ -897,7 +897,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <tr><th>Ajuste</th><th>Valor</th><th>Qué es y qué efecto tiene</th></tr>
       <tr><td class="k">learning_rate</td><td>8e-4</td><td>El tamaño de cada paso de aprendizaje. Grande = rápido pero inestable; pequeño = lento pero estable.</td></tr>
       <tr><td class="k">gamma (γ)</td><td>0.99</td><td>Cuánto importan las recompensas futuras frente a las inmediatas (0 = cortoplacista, →1 = previsor).</td></tr>
-      <tr><td class="k">epsilon (ε)</td><td>1.0 → 0.05</td><td>Probabilidad de explorar al azar; decae a lo largo de 25.000 pasos hacia 0.05 (casi siempre explotar).</td></tr>
+      <tr><td class="k">epsilon (ε)</td><td>1.0 → 0.05</td><td>Probabilidad de explorar al azar; decae a lo largo de 12.000 pasos hacia 0.05 (casi siempre explotar). Este valor se afinó tras el análisis: ver más abajo.</td></tr>
       <tr><td class="k">replay buffer</td><td>100.000</td><td>Cuántas experiencias recordamos para muestrear lotes aleatorios.</td></tr>
       <tr><td class="k">batch_size</td><td>128</td><td>Cuántas transiciones se usan en cada paso de gradiente.</td></tr>
       <tr><td class="k">tau (τ)</td><td>0.01</td><td>Velocidad a la que la red objetivo sigue a la principal (1% por paso): estabilidad.</td></tr>
@@ -1043,7 +1043,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <div class="curiosos"><div class="t">🔬 Para curiosos: los tres términos</div><div class="bd">
       <span class="mono">L = L_clip − c₁·(V − retorno)² + c₂·entropía</span>. El primero es el objetivo recortado; el
       segundo, el error cuadrático de la crítica (con <span class="mono">c₁ = coef_valor = 0.5</span>); el tercero premia
-      la variedad (con <span class="mono">c₂ = coef_entropía = 0.01</span>). Se restan/suman para optimizar todo a la vez.</div></div>
+      la variedad (con <span class="mono">c₂ = coef_entropía = 0.003</span>). Se restan/suman para optimizar todo a la vez.</div></div>
 
     <h3 class="sub">El experimento: objetivo, entorno y parámetros</h3>
     <p>Mismo entorno Arkanoid. PPO es <b>on-policy</b>: recoge un rollout, lo exprime en varias épocas y lo tira.</p>
@@ -1053,7 +1053,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <tr><td class="k">épocas</td><td>4</td><td>Cuántas veces se reaprovecha cada rollout antes de descartarlo.</td></tr>
       <tr><td class="k">clip ε</td><td>0.2</td><td>Cuánto se permite cambiar la política por actualización (el "freno").</td></tr>
       <tr><td class="k">GAE λ</td><td>0.95</td><td>Equilibrio sesgo/varianza al estimar la ventaja (0 = solo 1 paso; →1 = muchos pasos).</td></tr>
-      <tr><td class="k">coef_entropía</td><td>0.01</td><td>Premia mantener algo de aleatoriedad en la política (exploración).</td></tr>
+      <tr><td class="k">coef_entropía</td><td>0.003</td><td>Premia mantener algo de aleatoriedad en la política. Se bajó de 0.01 a 0.003 tras el análisis (la política no se comprometía): ver más abajo.</td></tr>
       <tr><td class="k">max_norma_grad</td><td>0.5</td><td>Recorta el gradiente para que ningún paso sea desmesurado.</td></tr>
     </table>
 
@@ -1386,6 +1386,26 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       cada instante por separado; el recurrente ve la secuencia y recuerda hacia dónde iban las cosas, como quien conduce
       una carretera que ya ha recorrido antes.</div></div>
 
+    <h3 class="sub">¿Qué es una red recurrente? (de dónde sale la «memoria»)</h3>
+    <p>Conviene parar aquí, porque es la pieza nueva. Las redes que hemos visto hasta ahora funcionan «de un disparo»:
+      entra algo (un estado), sale algo (una acción o un valor), y <b>cada entrada se trata por separado</b>, sin recordar
+      la anterior. Una red <b>recurrente</b> añade una vuelta: parte de lo que calcula se guarda y <b>vuelve a entrar</b>
+      en el paso siguiente. Así, al procesar una secuencia, avanza paso a paso arrastrando un pequeño <b>bloc de notas</b>
+      que actualiza cada vez.</p>
+    <p>Ese bloc de notas es simplemente un <b>vector de números</b> (aquí, 128) que resume «lo que ha pasado hasta ahora».
+      En cada paso, la red mira la entrada actual <i>y</i> ese bloc, decide qué apuntar (lo actualiza) y produce su
+      predicción. Como el bloc viaja de un paso al siguiente, la red puede tener en cuenta cosas ocurridas varios pasos
+      atrás: eso es tener <b>memoria</b>.</p>
+    <div class="palabra"><span class="w">Estado oculto (h) y LSTM.</span> Ese vector-bloc-de-notas que la red arrastra y
+      actualiza en cada paso se denomina <b>estado oculto</b> (se escribe <span class="mono">h</span>). El tipo de red
+      recurrente que usamos, diseñado para recordar tanto lo reciente como lo lejano sin «despistarse» por el camino, se
+      denomina <b>LSTM</b> (de <i>Long Short-Term Memory</i>: memoria a la vez larga y corta).</div>
+    <figure><img src="assets/dg_lstm.svg" /><figcaption>El LSTM «desenrollado»: es la <b>misma</b> red aplicada en cada paso de la secuencia; el estado oculto h (en verde) viaja de un paso al siguiente llevando la memoria de todo lo visto. De cada paso sale la predicción de ese instante.</figcaption></figure>
+    <p>Esto explica dos cosas que veremos enseguida. Primero, por qué necesita <b>secuencias ordenadas</b> para entrenar y
+      no transiciones sueltas barajadas: solo viendo el orden aprende a usar y actualizar su memoria. Segundo, por qué,
+      curiosamente, esta variante <b>prefiere explorar más tiempo</b> que las demás: cuanto más variadas sean las
+      secuencias que ve, mejor aprende su memoria a anticipar.</p>
+
     <h3 class="sub">¿Para qué sirve? (en el mundo real)</h3>
     <div class="uses">
       <div class="use"><div class="h"><span class="e">🎥</span>Cuando el presente no basta</div><p>Si una sola observación no dice todo (por ejemplo, un fotograma sin velocidad), la memoria reconstruye lo que falta a partir del pasado.</p></div>
@@ -1412,6 +1432,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <p>Como un LSTM aprende de secuencias ordenadas, no le sirve el replay buffer que baraja transiciones sueltas: necesita
       su propia memoria que guarde los episodios <b>en orden</b>. Por eso esta variante añade un <b>buffer de secuencias</b>
       que acumula cada partida completa y luego muestrea tramos contiguos de 16 pasos para entrenar.</p>
+    <figure><img src="assets/dg_wmrnn.svg" /><figcaption>El circuito completo: la experiencia real llena un buffer de secuencias ordenadas; el LSTM aprende de tramos de 16 pasos; luego imagina rollouts arrastrando su memoria, y con ellos (más los reales) se entrena el Q-net Double DQN que decide la acción.</figcaption></figure>
     <div class="curiosos"><div class="t">🔬 Para curiosos: el estado oculto</div><div class="bd">
       En cada paso, el LSTM combina la entrada actual (el estado y la acción, <span class="mono">s_t ⊕ a_t</span>) con su
       memoria anterior <span class="mono">h_{t-1}</span> para producir una memoria nueva, y de ahí salen las predicciones:
@@ -1447,29 +1468,30 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <figure><img src="assets/app_worldmodel_rnn.jpg" /><figcaption>World Model RNN entrenando en el navegador. Las métricas son las del World Model (error del modelo, planning) más el tamaño de la memoria LSTM; el inspector compara el estado real con el predicho por el modelo recurrente.</figcaption></figure>
 
     <h3 class="sub">Resultados</h3>
-    <p>En una verificación de 20.000 pasos (CPU), la recompensa subió de <b>−0.055 a ~0.44</b> (veredicto «aprende»), con el
-      error del modelo LSTM bajando de 1.0 a <b>~0.13</b> (RMSE sobre estados normalizados) y memoria plana (~43 tensores,
-      sin fugas). En el navegador (WebGPU) entrena con normalidad: el error del modelo cae a ~0.15 y la imaginación
-      recurrente funciona. Es un resultado de partida razonable, en la liga de los demás.</p>
+    <p>En una verificación de 30.000 pasos (CPU) la recompensa subió de ~0 a <b>~1.33</b> (veredicto «aprende»), con el error
+      del modelo LSTM bajando de 1.0 a <b>~0.14</b> (RMSE sobre estados normalizados): tan fiable como el modelo de un paso
+      del World Model. Y un dato que sorprende: con ese <b>mismo presupuesto superó al World Model base</b> (~0.89). El modelo
+      recurrente imaginó trayectorias más útiles. Memoria plana (~43 tensores, sin fugas) pese a entrenar por secuencias e
+      imaginar con estado oculto.</p>
     <div class="pm">
-      <div class="box prob"><div class="h">⚠ El matiz de esta tarea</div>Nuestro estado ya incluye la <b>velocidad</b> de la pelota, así que un solo instante casi basta para predecir el siguiente (es «casi markoviano»). La memoria del LSTM aporta menos aquí que en una tarea con información incompleta.</div>
-      <div class="box mejo"><div class="h">✔ Dónde luce</div>Su ventaja —imaginar trayectorias largas más coherentes— se nota cuando el presente no basta, como en el «World Models» original, que aprende desde <b>imágenes</b> (sin velocidad explícita).</div>
+      <div class="box prob"><div class="h">⚠ Lo que el dato corrigió</div>Suponíamos que, al ser nuestro estado «casi markoviano» (ya incluye la <b>velocidad</b>), la memoria aportaría poco. El experimento lo matizó: con 30.000 pasos el recurrente <b>igualó o superó</b> al base.</div>
+      <div class="box mejo"><div class="h">✔ El hallazgo no obvio</div>Decaer ε más rápido —que mejora a DQN y al World Model— aquí lo <b>empeora</b> (1.33→1.05): el LSTM necesita secuencias <b>variadas</b>, así que le conviene explorar más tiempo. Por eso su ε se mantiene a propósito en 20.000.</div>
     </div>
 
     <h3 class="sub">Interpretación: qué pasó al entrenar</h3>
     <div class="interp">
       <div class="col obs"><div class="h">📊 Qué observamos</div><ul>
-        <li>El LSTM aprende la física por secuencias: su error baja de 1.0 a <b>~0.13</b>.</li>
-        <li>La recompensa sube a ~0.44; en línea con el World Model base, no por encima.</li>
+        <li>El LSTM aprende la física por secuencias: su error baja de 1.0 a <b>~0.14</b>.</li>
+        <li>La recompensa sube a <b>~1.33</b> en 30k: <b>igualó o superó</b> al World Model base.</li>
         <li>Sin fugas de memoria pese a entrenar por secuencias e imaginar con estado oculto.</li>
       </ul></div>
       <div class="col ok"><div class="h">✓ Qué funcionó</div><ul>
         <li>El <b>buffer de secuencias</b> + entrenar sobre tramos de 16 pasos.</li>
         <li>Arrastrar el estado oculto al imaginar: rollouts coherentes.</li>
-        <li>Reutilizar el Q-net de DQN sin cambios: solo cambia el modelo.</li>
+        <li><b>Explorar más tiempo</b> (ε lento): le da las secuencias variadas que necesita.</li>
       </ul></div>
       <div class="col mejora"><div class="h">↗ Qué mejoraríamos</div><ul>
-        <li>Probarlo en una tarea con <b>información incompleta</b>, donde la memoria mande.</li>
+        <li>Probarlo en una tarea con <b>información incompleta</b>, donde la memoria mande aún más.</li>
         <li>Predecir una <b>distribución</b> (como el MDN-RNN original), no un único futuro.</li>
         <li>Alargar el horizonte imaginado aprovechando que la memoria lo sostiene mejor.</li>
       </ul></div>
@@ -1483,6 +1505,8 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <tr><td>Cómo se entrena</td><td>Transiciones sueltas barajadas.</td><td><b>Secuencias</b> ordenadas (tramos de 16 pasos).</td></tr>
       <tr><td>Al imaginar</td><td>Cada paso parte de cero.</td><td>Arrastra el <b>estado oculto</b>: más coherente.</td></tr>
       <tr><td>Memoria que usa</td><td>Replay buffer.</td><td>Replay buffer <b>+ buffer de secuencias</b>.</td></tr>
+      <tr><td>Exploración (ε)</td><td>Decae rápido (12.000).</td><td>Decae <b>lento</b> (20.000): quiere secuencias variadas.</td></tr>
+      <tr><td>Resultado aquí (30k pasos)</td><td>~0.89</td><td><b>~1.33</b></td></tr>
       <tr><td>Dónde brilla</td><td>Estado completo (como el nuestro).</td><td>Información incompleta / secuencias.</td></tr>
     </table>
     <div class="palabra"><span class="w">De dónde viene.</span> La idea está tomada de <b>«World Models»</b> (Ha &amp;
@@ -1494,8 +1518,9 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <h3 class="sub">Conclusiones</h3>
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">El World Model RNN sustituye el modelo de un paso
       por un <span class="term">LSTM</span> que aprende <span class="term">secuencias</span> y arrastra
-      <span class="term">memoria</span>, imaginando trayectorias más coherentes. En esta tarea casi markoviana iguala al
-      World Model base; su ventaja real asoma cuando el presente no basta.</div></div>
+      <span class="term">memoria</span>, imaginando trayectorias más coherentes. Con el mismo presupuesto igualó o superó al
+      World Model base, y nos dejó una lección medida: a diferencia de los demás, <b>le conviene explorar más tiempo</b>
+      porque su memoria se nutre de secuencias variadas.</div></div>
   </div>
 </section>
 
@@ -1586,6 +1611,73 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     <div class="takeaway"><div class="t">En una frase</div><div class="bd">Construir un modelo no basta: hay que <b>medirlo bien</b>.
       La recompensa de entrenamiento mezcla la exploración de cada uno; la comparación justa es la <span class="term">evaluación
       greedy</span> —sin exploración, sobre partidas nuevas y con el mismo presupuesto para todos.</div></div>
+  </div>
+</section>
+
+<!-- ============================ AFINADO Y CONCLUSIONES ============================ -->
+<section class="section">
+  <div class="band b-ink"><div class="n">AFINADO Y CONCLUSIONES</div><h2>Qué dicen los datos</h2>
+    <div class="tag">La búsqueda de hiperparámetros de cada uno, el afinado que de verdad movió la aguja, y el veredicto.</div></div>
+  <div class="pad" style="--accent:#374151;--accent-soft:#f3f4f6">
+
+    <h3 class="sub">La búsqueda en rejilla, algoritmo por algoritmo</h3>
+    <p>El laboratorio incorpora una <b>búsqueda en rejilla</b> (grid search): prueba combinaciones de los dos o tres ajustes
+      más influyentes de cada algoritmo, entrena un agente <b>aislado</b> por combinación y las ordena por recompensa,
+      resaltando la mejor. Aquí están dos rejillas reales del pop-up, y debajo la tabla con lo que ganó en cada uno:</p>
+    <div class="imgrow">
+      <figure><img src="assets/grid_dqn.jpg" /><figcaption>DQN · ritmo × γ. La mejor (en verde): 8e-4 / 0.99, el valor por defecto.</figcaption></figure>
+      <figure><img src="assets/grid_ppo.jpg" /><figcaption>PPO · ritmo × recorte ε. Cada fila es una combinación entrenada, ordenada por recompensa.</figcaption></figure>
+    </div>
+    <p class="note">Son capturas reales del pop-up. La búsqueda funciona igual para los cinco (incluido el World Model RNN,
+      cuya rejilla añadimos). SAC, World Model y World Model RNN entrenan mucho más lento sin GPU, así que mostramos dos
+      como muestra y resumimos lo que salió en cada rejilla:</p>
+    <table class="compare">
+      <tr><th>Modelo</th><th>Qué se barrió</th><th>Qué salió</th></tr>
+      <tr><td><b>DQN</b></td><td>ritmo × γ (3×3, 45k pasos)</td><td>8e-4 / 0.99 (la zona estable más alta). El ritmo rápido daba el pico pero también el peor caso.</td></tr>
+      <tr><td><b>PPO</b></td><td>coef. de entropía</td><td><b>0.003</b> ≫ 0.01: bajarlo más que dobló la recompensa.</td></tr>
+      <tr><td><b>SAC</b></td><td>entropía objetivo (0.4 / 0.55 / 0.7)</td><td>casi <b>insensible</b> (0.64 / 0.57 / 0.66): el valor por defecto vale.</td></tr>
+      <tr><td><b>World Model</b></td><td>velocidad de decaimiento de ε</td><td><b>12.000</b> &gt; 20.000: explotar antes ayuda.</td></tr>
+      <tr><td><b>World Model RNN</b></td><td>velocidad de decaimiento de ε</td><td><b>20.000</b> &gt; 12.000: al revés que el resto, le conviene explorar más.</td></tr>
+    </table>
+
+    <h3 class="sub">El afinado que de verdad movió la aguja</h3>
+    <p>Mirar solo la rejilla rápida no basta. Analizando las <b>curvas de convergencia</b> de corridas más largas
+      aparecieron dos ajustes que dejaban mucho rendimiento sin aprovechar, y una sorpresa. Cada cambio se validó con un
+      experimento de <b>una sola variable</b>:</p>
+    <table class="compare">
+      <tr><th>Modelo</th><th>Ajuste</th><th>Efecto medido</th></tr>
+      <tr><td><b>PPO</b></td><td>coef. de entropía 0.01 → <b>0.003</b></td><td>final 1.88 → <b>4.59</b> (+144%): su política estaba casi uniforme (no se comprometía); ahora sí.</td></tr>
+      <tr><td><b>DQN</b></td><td>ε decae en 25.000 → <b>12.000</b> pasos</td><td>1.13 → <b>1.55</b> (+37%); explotaba demasiado tarde. Converge ~12k pasos antes.</td></tr>
+      <tr><td><b>World Model</b></td><td>ε decae en 20.000 → <b>12.000</b></td><td>0.89 → <b>1.05</b> (+19%): misma lógica que DQN (también usa Q-net + ε).</td></tr>
+      <tr><td><b>World Model RNN</b></td><td>ε se mantiene <b>lento</b> (20.000)</td><td>al revés: ε rápido lo <b>empeora</b> (1.33→1.05). Su LSTM necesita secuencias variadas → explorar más.</td></tr>
+      <tr><td><b>SAC</b></td><td>entropía objetivo (barrida) — sin cambios</td><td>insensible entre 0.4 y 0.7, así que el default 0.55 vale. Es el <b>más estable</b>; no hacía falta tocarlo.</td></tr>
+    </table>
+    <div class="ejemplo"><div class="t">🧭 La lección</div>El mayor salto no vino de un algoritmo nuevo, sino de <b>afinar</b>
+      uno existente (PPO rendía menos de la mitad de lo que podía). Y el caso del World Model RNN recuerda por qué hay que
+      <b>medir, no suponer</b>: el mismo cambio que ayuda a tres modelos perjudica al cuarto, porque su aprendizaje tiene
+      otra naturaleza.</div>
+
+    <h3 class="sub">Convergencia y estabilidad, cara a cara</h3>
+    <p>Con los valores afinados, así se comportan en corridas reales (recompensa media de los últimos 100 episodios):</p>
+    <table class="compare">
+      <tr><th>Modelo</th><th>Rapidez en converger</th><th>Estabilidad</th><th>Coste por paso</th><th>Nota</th></tr>
+      <tr><td><b>PPO</b></td><td><b>La más rápida</b> (≈14k pasos a reward 1)</td><td>Media (algo ruidosa)</td><td>Bajo</td><td>Tras afinar, la <b>mayor recompensa</b> con diferencia.</td></tr>
+      <tr><td><b>DQN</b></td><td>Media</td><td>Media</td><td>Bajo</td><td>El cimiento simple y fiable.</td></tr>
+      <tr><td><b>SAC</b></td><td>Media</td><td><b>La mejor</b></td><td>Alto (5 redes)</td><td>Sube suave, sin sustos.</td></tr>
+      <tr><td><b>World Model</b></td><td>Media</td><td>Alta</td><td>Medio</td><td>La idea más eficiente en datos; techo por el model bias.</td></tr>
+      <tr><td><b>World Model RNN</b></td><td>Media</td><td>Media</td><td><b>El más alto</b> (LSTM)</td><td>Competitivo; pide explorar más.</td></tr>
+    </table>
+
+    <h3 class="sub">El veredicto</h3>
+    <div class="takeaway"><div class="t">Qué nos llevamos de los cinco</div><div class="bd">No hay un «mejor» universal, pero
+      los datos dejan un mapa claro: <b>PPO</b> bien afinado es el que más recompensa logra y converge antes; <b>SAC</b> es
+      el más estable; <b>DQN</b>, el cimiento sólido; el <b>World Model</b>, la idea más eficiente en datos (a vigilar el
+      model bias); y el <b>World Model RNN</b> añade memoria y, sobre todo, nos enseñó que <b>afinar y medir</b> rinden más
+      que cualquier corazonada.</div></div>
+    <div class="check"><div class="t">⚠ Honestidad: dónde está el techo</div>Con presupuestos de 30–80k pasos <b>ninguno
+      llega a limpiar un nivel</b> (rompen ~2 de 28 ladrillos): aprenden a golpear la bola y a tirar ladrillos sueltos,
+      pero la maestría pide muchos más pasos. El cuello de botella aquí no es el algoritmo, sino el <b>tiempo de
+      entrenamiento</b>. Es justo lo que un laboratorio sirve para ver.</div>
   </div>
 </section>
 
