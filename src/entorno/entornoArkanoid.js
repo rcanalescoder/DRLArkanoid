@@ -228,7 +228,7 @@ export class EntornoArkanoid {
       this.estado = "ganado";
       this.recompensaPaso += RECOMPENSAS.COMPLETAR_NIVEL;
     } else if (this.pasos >= CFG.MAX_PASOS_EPISODIO) {
-      this.estado = "perdido"; // timeout cuenta como fin (sin penalización extra)
+      this.estado = "timeout"; // se agotó el tiempo: fin del episodio SIN penalización
     }
   }
 

@@ -120,10 +120,16 @@ export class GestorEntornos {
     const n = this.numVisuales;
     for (let i = 0; i < n; i++) {
       const env = this.visuales[i];
-      const { done } = env.paso(acciones[i]);
-      if (done) {
-        // Pequeña pausa visual reiniciando enseguida (la UI lo verá como nuevo).
-        env.reiniciar();
+      if (env.estaTerminado()) {
+        // Mantener el estado terminal unos frames para que se VEA el motivo
+        // (perdió, ganó o se agotó el tiempo) antes de empezar otra partida.
+        env._holdVisual = (env._holdVisual || 0) + 1;
+        if (env._holdVisual >= 45) {
+          env.reiniciar();
+          env._holdVisual = 0;
+        }
+      } else {
+        env.paso(acciones[i]); // si termina, queda en estado terminal y arranca el "hold"
       }
       this._escribirEstado(env, this._estadosVisuales, i);
     }

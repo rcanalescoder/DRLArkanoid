@@ -307,7 +307,7 @@
       <div class="use"><div class="h"><span class="e">🎁</span>Recompensa (r)</div><p>La señal numérica que premia o castiga cada paso. Define qué significa "jugar bien". El agente no busca otra cosa que acumular recompensa.</p></div>
       <div class="use"><div class="h"><span class="e">🧭</span>Política (π)</div><p>La estrategia del agente: una función que, dado un estado, decide la acción (o una probabilidad por acción). Es lo que de verdad queremos aprender.</p></div>
       <div class="use"><div class="h"><span class="e">💰</span>Valor (V / Q)</div><p>Cuánta recompensa futura cabe esperar. <b>V(s)</b> mide lo bueno que es un estado; <b>Q(s,a)</b>, lo bueno que es tomar una acción en un estado. Guían a la política.</p></div>
-      <div class="use"><div class="h"><span class="e">🔁</span>Episodio</div><p>Una partida completa, desde el saque hasta perder la pelota o limpiar el nivel. El agente aprende de muchos episodios; medimos la recompensa media de los últimos 100.</p></div>
+      <div class="use"><div class="h"><span class="e">🔁</span>Episodio</div><p>Una partida completa. Termina de tres formas: perder la pelota, limpiar el nivel, o agotar el límite de pasos (600 = “tiempo agotado”, sin castigo). El agente aprende de muchos episodios; medimos la recompensa media de los últimos 100.</p></div>
       <div class="use"><div class="h"><span class="e">⚖️</span>Exploración vs explotación</div><p>El dilema central: ¿pruebo algo nuevo (explorar) por si es mejor, o aprovecho lo que ya sé que funciona (explotar)? Demasiada explotación estanca; demasiada exploración no avanza.</p></div>
       <div class="use"><div class="h"><span class="e">🗃️</span>Memoria (replay)</div><p>Un almacén de experiencias pasadas (s,a,r,s') del que se muestrean lotes para entrenar. Rompe la correlación temporal y reutiliza cada dato. Propio de métodos off-policy.</p></div>
       <div class="use"><div class="h"><span class="e">🔮</span>Modelo del entorno</div><p>Una predicción de cómo responde el entorno: dado (s,a), ¿cuál es s' y r? La mayoría de métodos no lo usan (model-free); el World Model sí (model-based).</p></div>
@@ -941,7 +941,7 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
       <div class="g"><span class="term">Política (π)</span> — la estrategia: de un estado a una acción (o probabilidades).</div>
       <div class="g"><span class="term">Valor V(s)</span> — recompensa futura esperada desde un estado.</div>
       <div class="g"><span class="term">Q-valor Q(s,a)</span> — recompensa futura esperada de una acción en un estado.</div>
-      <div class="g"><span class="term">Episodio</span> — una partida completa (hasta perder o ganar).</div>
+      <div class="g"><span class="term">Episodio</span> — una partida completa (hasta perder, ganar o agotar el tiempo).</div>
       <div class="g"><span class="term">Exploración/explotación</span> — probar lo nuevo vs aprovechar lo conocido.</div>
       <div class="g"><span class="term">ε-greedy</span> — explorar al azar con probabilidad ε (que decae).</div>
       <div class="g"><span class="term">Replay buffer</span> — memoria de experiencias para muestrear lotes.</div>

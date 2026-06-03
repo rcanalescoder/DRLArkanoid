@@ -70,15 +70,26 @@ export function dibujarEntorno(ctx, env, opciones = {}) {
   ctx.fill();
   ctx.shadowBlur = 0;
 
-  // Estado terminal
-  if (env.estado !== "jugando" && !mini) {
-    ctx.fillStyle = env.estado === "ganado" ? "rgba(61,220,151,0.16)" : "rgba(255,107,129,0.14)";
+  // Estado terminal: tinte por motivo (ganó / tiempo agotado / perdió)
+  if (env.estado !== "jugando") {
+    const cfg =
+      env.estado === "ganado"
+        ? { tint: "rgba(61,220,151,0.18)", fg: "#3ddc97", msg: "¡NIVEL COMPLETADO!" }
+        : env.estado === "timeout"
+        ? { tint: "rgba(255,180,84,0.16)", fg: "#ffb454", msg: "TIEMPO AGOTADO" }
+        : { tint: "rgba(255,107,129,0.16)", fg: "#ff6b81", msg: "PELOTA PERDIDA" };
+    ctx.fillStyle = cfg.tint;
     ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = env.estado === "ganado" ? "#3ddc97" : "#ff6b81";
-    ctx.font = "600 22px system-ui";
-    ctx.textAlign = "center";
-    ctx.fillText(env.estado === "ganado" ? "¡NIVEL COMPLETADO!" : "PELOTA PERDIDA", W / 2, H / 2);
-    ctx.textAlign = "left";
+    if (!mini) {
+      ctx.textAlign = "center";
+      ctx.fillStyle = cfg.fg;
+      ctx.font = "600 22px system-ui";
+      ctx.fillText(cfg.msg, W / 2, H / 2 - 6);
+      ctx.fillStyle = "rgba(230,236,245,0.65)";
+      ctx.font = "400 13px system-ui";
+      ctx.fillText("nueva partida…", W / 2, H / 2 + 20);
+      ctx.textAlign = "left";
+    }
   }
 }
 

@@ -299,9 +299,11 @@ export class Aplicacion {
     this.dom.statReward.textContent = env.recompensaEpisodio.toFixed(2);
     this.dom.statLadrillos.textContent = env.ladrillosRotosEpisodio;
     this.dom.statPasos.textContent = env.pasos;
-    this.dom.badgeJugando.innerHTML = `<span class="punto"></span>${
-      env.estado === "jugando" ? "jugando" : env.estado === "ganado" ? "ganado" : "perdido"
-    }`;
+    const etiquetaEstado =
+      { jugando: "jugando", ganado: "ganado", timeout: "tiempo agotado", perdido: "perdido" }[
+        env.estado
+      ] || env.estado;
+    this.dom.badgeJugando.innerHTML = `<span class="punto"></span>${etiquetaEstado}`;
     this.rejilla.render(this.gestor.visuales);
     this.panelTransicion.actualizar(env.obtenerTransicionLegible());
   }
