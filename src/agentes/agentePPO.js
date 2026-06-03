@@ -50,43 +50,42 @@ export class AgentePPO extends AgenteBase {
   }
 
   seleccionarAcciones(estadosFlat, n, { entrenar = true } = {}) {
-    this._asegurarRollout(n);
-    const { probs, valores } = tf.tidy(() => {
-      const sT = this._tensorEstados(estadosFlat, n);
-      const logits = this.actor.predict(sT);
-      return { probs: tf.softmax(logits).dataSync(), valores: this.critico.predict(sT).dataSync() };
-    });
-
+    const A = this.numAcciones;
+    const probs = tf.tidy(() =>
+      tf.softmax(this.actor.predict(this._tensorEstados(estadosFlat, n))).dataSync()
+    );
     const acciones = new Int32Array(n);
+
+    // IMPORTANTE: el pool visual (entrenar:false) NO debe tocar el rollout ni el
+    // stash; si lo hiciera, reasignaría/vaciaría el rollout de entrenamiento cada
+    // frame y PPO no entrenaría nunca. Aquí solo calcula la acción greedy.
+    if (!entrenar) {
+      for (let i = 0; i < n; i++) {
+        let a = 0;
+        for (let k = 1; k < A; k++) if (probs[i * A + k] > probs[i * A + a]) a = k;
+        acciones[i] = a;
+      }
+      return acciones;
+    }
+
+    // Entrenamiento on-policy: muestrear de la política y guardar logp y valor.
+    this._asegurarRollout(n);
+    const valores = tf.tidy(() =>
+      this.critico.predict(this._tensorEstados(estadosFlat, n)).dataSync()
+    );
     const logps = new Float32Array(n);
     const valoresArr = new Float32Array(n);
-    const A = this.numAcciones;
-
     for (let i = 0; i < n; i++) {
-      let a;
-      if (entrenar) {
-        // Muestreo categórico.
-        const u = Math.random();
-        let acum = 0;
-        a = A - 1;
-        for (let k = 0; k < A; k++) {
-          acum += probs[i * A + k];
-          if (u <= acum) {
-            a = k;
-            break;
-          }
-        }
-      } else {
-        // Greedy para el pool visual.
-        a = 0;
-        for (let k = 1; k < A; k++) if (probs[i * A + k] > probs[i * A + a]) a = k;
+      const u = Math.random();
+      let acum = 0, a = A - 1;
+      for (let k = 0; k < A; k++) {
+        acum += probs[i * A + k];
+        if (u <= acum) { a = k; break; }
       }
       acciones[i] = a;
       logps[i] = Math.log(Math.max(probs[i * A + a], 1e-8));
       valoresArr[i] = valores[i];
     }
-
-    // Guardamos lo necesario para emparejar con recompensas/dones en el store.
     this._ultEstados = estadosFlat.slice();
     this._ultAcciones = acciones;
     this._ultLogps = logps;
