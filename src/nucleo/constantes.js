@@ -58,7 +58,11 @@ export const CONFIGURACION_ENTORNO = Object.freeze({
 export const RECOMPENSAS = Object.freeze({
   PASO: 0.0, // coste por paso (0 = no penalizar la supervivencia)
   GOLPEAR_PALA: 0.2, // premio por devolver la pelota con la pala (rebote correcto)
-  ROMPER_LADRILLO: 1.0, // premio por destruir un ladrillo
+  ROMPER_LADRILLO: 1.0, // premio base por destruir un ladrillo
+  // Bonus de combo: cada ladrillo roto SIN que la bola vuelva a la pala vale más.
+  // Ladrillo n de una misma subida → +ROMPER + COMBO_BONUS·(n-1). Premia colar la
+  // bola arriba y reventar muchos de golpe (la jugada óptima del Breakout).
+  COMBO_BONUS: 0.5,
   PERDER_PELOTA: -1.0, // penalización terminal al perder la pelota
   COMPLETAR_NIVEL: 5.0, // premio terminal al limpiar todos los ladrillos
   // Reward shaping basado en potencial: Φ(s) = -|pelota.x - pala.x|.

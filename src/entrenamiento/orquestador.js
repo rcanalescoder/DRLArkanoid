@@ -78,13 +78,22 @@ export class Orquestador {
     return metrica;
   }
 
-  /** Avanza el pool visual con la política greedy actual (solo observación). */
-  pasoVisual() {
+  /**
+   * Avanza el pool visual con la política greedy actual (solo observación).
+   * `pasos` = cuántos pasos de simulación avanzar este frame (fast-forward de la
+   * animación). NO cambia la física ni el modelo: solo muestra más pasos por
+   * segundo. El "hold" de fin de partida se gestiona una vez por frame.
+   */
+  pasoVisual(pasos = 1) {
     const nv = this.gestor.numVisuales;
     if (nv === 0) return;
-    const estadosV = this.gestor.obtenerEstadosVisuales();
-    const accionesV = this.agente.seleccionarAcciones(estadosV, nv, { entrenar: false });
-    this.gestor.aplicarAccionesVisuales(accionesV);
+    const n = Math.min(Math.max(1, Math.floor(pasos)), 12);
+    for (let s = 0; s < n; s++) {
+      const estadosV = this.gestor.obtenerEstadosVisuales();
+      const accionesV = this.agente.seleccionarAcciones(estadosV, nv, { entrenar: false });
+      this.gestor.pasoVisualSimple(accionesV);
+    }
+    this.gestor.tickHoldVisual();
   }
 
   _registrarTraza(metrica) {

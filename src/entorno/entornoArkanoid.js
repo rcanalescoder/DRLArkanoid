@@ -84,6 +84,8 @@ export class EntornoArkanoid {
     this.accionActual = ACCIONES.MANTENER;
     this.recompensaPaso = 0;
     this.ladrillosRotosEpisodio = 0;
+    this.combo = 0; // ladrillos rotos seguidos sin tocar la pala
+    this.comboMax = 0;
     this._distAnterior = Math.abs(this.pelota.x - this.pala.x);
 
     return this.obtenerVectorEstado();
@@ -174,6 +176,7 @@ export class EntornoArkanoid {
       p.y = yPala - p.r - 1e-4;
       this._renormalizarVelocidad();
       this.recompensaPaso += RECOMPENSAS.GOLPEAR_PALA;
+      this.combo = 0; // la bola vuelve a la pala: se corta el combo
     }
   }
 
@@ -214,7 +217,11 @@ export class EntornoArkanoid {
         const dy = (p.y - centroY) / CFG.ALTO_LADRILLO;
         if (Math.abs(dx) > Math.abs(dy)) p.vx *= -1;
         else p.vy *= -1;
-        this.recompensaPaso += RECOMPENSAS.ROMPER_LADRILLO;
+        // Premio base + bonus de combo: cada ladrillo extra de esta misma subida
+        // (sin tocar la pala) vale más → incentiva colar la bola y reventar varios.
+        this.combo++;
+        if (this.combo > this.comboMax) this.comboMax = this.combo;
+        this.recompensaPaso += RECOMPENSAS.ROMPER_LADRILLO + RECOMPENSAS.COMBO_BONUS * (this.combo - 1);
         break; // un ladrillo por paso
       }
     }

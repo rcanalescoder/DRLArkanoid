@@ -18,6 +18,7 @@ import "@tensorflow/tfjs-backend-webgpu"; // registra el backend WebGPU (Metal/M
 import { BACKENDS_PREFERIDOS } from "./nucleo/constantes.js";
 import { registrarAgentes } from "./agentes/catalogoAgentes.js";
 import { registrarInspectores } from "./ui/inspectores/gestorInspectores.js";
+import { inicializarInfoModal } from "./ui/infoModal.js";
 import { Aplicacion } from "./ui/aplicacion.js";
 import { bus, EVENTOS } from "./nucleo/busEventos.js";
 
@@ -46,6 +47,8 @@ async function main() {
 
   const backend = await inicializarBackend();
   bus.emitir(EVENTOS.BACKEND_LISTO, { backend });
+
+  inicializarInfoModal();
 
   const app = new Aplicacion();
   app.iniciar(backend);

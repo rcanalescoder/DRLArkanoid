@@ -116,22 +116,35 @@ export class GestorEntornos {
   }
 
   /** Avanza los entornos visuales con las acciones dadas (sin almacenar). */
-  aplicarAccionesVisuales(acciones) {
+  /** Avanza UN paso a los entornos visuales no terminales (sin gestionar el hold). */
+  pasoVisualSimple(acciones) {
+    const n = this.numVisuales;
+    for (let i = 0; i < n; i++) {
+      const env = this.visuales[i];
+      if (!env.estaTerminado()) {
+        env.paso(acciones[i]);
+        this._escribirEstado(env, this._estadosVisuales, i);
+      }
+    }
+  }
+
+  /**
+   * Gestiona el "hold" de fin de partida UNA vez por frame (independiente de
+   * cuántos pasos de animación se den): mantiene el estado terminal visible
+   * ~45 frames mostrando el motivo y luego reinicia.
+   */
+  tickHoldVisual() {
     const n = this.numVisuales;
     for (let i = 0; i < n; i++) {
       const env = this.visuales[i];
       if (env.estaTerminado()) {
-        // Mantener el estado terminal unos frames para que se VEA el motivo
-        // (perdió, ganó o se agotó el tiempo) antes de empezar otra partida.
         env._holdVisual = (env._holdVisual || 0) + 1;
         if (env._holdVisual >= 45) {
           env.reiniciar();
           env._holdVisual = 0;
         }
-      } else {
-        env.paso(acciones[i]); // si termina, queda en estado terminal y arranca el "hold"
+        this._escribirEstado(env, this._estadosVisuales, i);
       }
-      this._escribirEstado(env, this._estadosVisuales, i);
     }
   }
 

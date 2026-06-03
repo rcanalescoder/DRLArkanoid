@@ -33,7 +33,8 @@ export class PanelMetricas {
       if (d.ayuda) {
         const a = document.createElement("span");
         a.className = "info";
-        a.innerHTML = `i<span class="tip">${d.ayuda}</span>`;
+        a.setAttribute("data-info", d.clave); // abre el pop-up rico de esa métrica
+        a.textContent = "i";
         etq.appendChild(a);
       }
       const val = document.createElement("div");

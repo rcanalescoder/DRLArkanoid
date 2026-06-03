@@ -154,7 +154,8 @@ export class Aplicacion {
   }
 
   reiniciar() {
-    this._pausar();
+    const estabaCorriendo = this.corriendo;
+    this.corriendo = false; // detener el bucle un instante mientras reconstruimos
     this.agente.reiniciar();
     this.metricas.reiniciar();
     this.panelMetricas.reiniciar();
@@ -163,6 +164,9 @@ export class Aplicacion {
     this.orquestador.pasoGlobal = 0;
     this.orquestador._ultimoRegistro = 0;
     fijarLineaBase();
+    // Conservar el estado: si estaba entrenando, sigue entrenando (no se congela).
+    if (estabaCorriendo) this._reanudar();
+    else this._pausar();
   }
 
   // --- Controles -------------------------------------------------------------
@@ -179,7 +183,7 @@ export class Aplicacion {
       card.innerHTML = `
         <div class="cab">
           <div class="nom">${def.nombre}
-            <span class="info">i<span class="tip"><b>${def.nombreLargo}.</b> ${def.descripcion}</span></span>
+            <span class="info" data-info="${def.id}">i</span>
           </div>
           ${ins}
         </div>
@@ -281,7 +285,9 @@ export class Aplicacion {
   async _tick() {
     if (this.corriendo && this.orquestador) {
       for (let i = 0; i < this.velocidad; i++) await this.orquestador.ejecutarLote();
-      this.orquestador.pasoVisual();
+      // La animación avanza tantos pasos como la velocidad → fast-forward visual
+      // sin tocar la física ni el modelo (solo se ven más pasos por segundo).
+      this.orquestador.pasoVisual(this.velocidad);
     }
     this._render();
     const ahora = performance.now();
