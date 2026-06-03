@@ -152,7 +152,7 @@
   <div class="credits">
     <div class="cr"><span class="lbl">Autor</span><span class="val">Roberto Canales Mora</span></div>
     <div class="cr"><span class="lbl">Licencia</span><span class="val">MIT</span></div>
-    <div class="cr"><span class="lbl">Repositorio</span><span class="val mono">github.com/robertocanalesmora/arkanoid-drl-learning-lab</span></div>
+    <div class="cr"><span class="lbl">Repositorio</span><span class="val mono">github.com/rcanalescoder/DRLArkanoid</span></div>
   </div>
   <div class="foot"><span>Un laboratorio para entender el RL profundo, de dentro afuera.</span><span>Roberto Canales Mora · con Claude Chat / Code</span></div>
 </div>
@@ -195,6 +195,104 @@
       <div class="use"><div class="h"><span class="e">🗃️</span>Cómo se guardan los datos</div><p>La transición (s, a, r, s', done), el replay buffer y el rollout: la memoria del aprendizaje.</p></div>
       <div class="use"><div class="h"><span class="e">📈</span>Cómo se entrena la red y se actualizan las gráficas</div><p>El paso de gradiente, la red objetivo y el flujo desde el entrenamiento hasta las curvas en pantalla.</p></div>
     </div>
+  </div>
+</section>
+
+<!-- ============================ FUNDAMENTOS DE RL ============================ -->
+<section class="section">
+  <div class="band b-violet"><div class="n">FUNDAMENTOS</div><h2>Las reglas del juego del RL</h2>
+    <div class="tag">El bucle agente–entorno, los componentes de cualquier sistema de RL, las recompensas y la red neuronal que usamos.</div></div>
+  <div class="pad" style="--accent:#7c3aed;--accent-soft:#f4effe">
+    <p class="lead">Antes de entrar en cada algoritmo conviene fijar el vocabulario. Todo el aprendizaje por refuerzo —da igual el
+      método— gira en torno a un mismo bucle y a un puñado de componentes. Si los entiendes aquí, el resto del cuaderno
+      encaja solo.</p>
+
+    <!-- 1) El bucle agente-entorno -->
+    <h3 class="sub">El bucle principal: agente ↔ entorno</h3>
+    <p>El RL modela una conversación que se repite millones de veces entre dos partes. En cada <span class="term">paso de
+      tiempo</span> t: el <b>agente</b> observa el estado <span class="mono">sₜ</span>, elige una <b>acción</b>
+      <span class="mono">aₜ</span>; el <b>entorno</b> aplica esa acción, evoluciona y devuelve la <b>recompensa</b>
+      <span class="mono">rₜ</span> y el siguiente estado <span class="mono">sₜ₊₁</span>. El agente usa esa información para
+      mejorar y vuelta a empezar. El objetivo del agente es maximizar la <b>recompensa acumulada</b> a largo plazo, no solo
+      la inmediata.</p>
+    <figure>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 230" style="width:100%;border:1px solid #e7e9ef;border-radius:12px;background:#fff" font-family="-apple-system,Segoe UI,sans-serif">
+        <defs><marker id="fa" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#7c3aed"/></marker>
+          <marker id="fb" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0c9f6e"/></marker></defs>
+        <rect x="40" y="80" width="240" height="74" rx="14" fill="#f4effe" stroke="#7c3aed"/>
+        <text x="160" y="112" text-anchor="middle" font-size="19" font-weight="700" fill="#11181f">🧠 AGENTE</text>
+        <text x="160" y="134" text-anchor="middle" font-size="12" fill="#41464f">la red neuronal que decide</text>
+        <rect x="480" y="80" width="240" height="74" rx="14" fill="#e7f7fb" stroke="#0891b2"/>
+        <text x="600" y="112" text-anchor="middle" font-size="19" font-weight="700" fill="#11181f">🎮 ENTORNO</text>
+        <text x="600" y="134" text-anchor="middle" font-size="12" fill="#41464f">el juego de Arkanoid</text>
+        <path d="M285,100 C360,60 400,60 475,100" fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#fa)"/>
+        <text x="380" y="60" text-anchor="middle" font-size="13" fill="#7c3aed" font-weight="700">acción aₜ  (← · →)</text>
+        <path d="M475,134 C400,176 360,176 285,134" fill="none" stroke="#0c9f6e" stroke-width="2" marker-end="url(#fb)"/>
+        <text x="380" y="194" text-anchor="middle" font-size="13" fill="#0a7f57" font-weight="700">estado sₜ₊₁ · recompensa rₜ</text>
+      </svg>
+      <figcaption>El bucle de interacción. El agente actúa, el entorno responde con estado y recompensa, y el ciclo se repite.</figcaption>
+    </figure>
+
+    <!-- 2) Componentes -->
+    <h3 class="sub">Los componentes de un sistema de RL</h3>
+    <div class="uses">
+      <div class="use"><div class="h"><span class="e">👁️</span>Estado (s)</div><p>Lo que el agente percibe en un instante. Aquí, 6 números: posición y velocidad de la pelota, posición de la pala y la distancia pelota–pala. Es la "foto" sobre la que decide.</p></div>
+      <div class="use"><div class="h"><span class="e">🎮</span>Acción (a)</div><p>Lo que el agente puede hacer. Aquí, 3 acciones discretas: mover la pala a la izquierda, mantenerla o moverla a la derecha.</p></div>
+      <div class="use"><div class="h"><span class="e">🎁</span>Recompensa (r)</div><p>La señal numérica que premia o castiga cada paso. Define qué significa "jugar bien". El agente no busca otra cosa que acumular recompensa.</p></div>
+      <div class="use"><div class="h"><span class="e">🧭</span>Política (π)</div><p>La estrategia del agente: una función que, dado un estado, decide la acción (o una probabilidad por acción). Es lo que de verdad queremos aprender.</p></div>
+      <div class="use"><div class="h"><span class="e">💰</span>Valor (V / Q)</div><p>Cuánta recompensa futura cabe esperar. <b>V(s)</b> mide lo bueno que es un estado; <b>Q(s,a)</b>, lo bueno que es tomar una acción en un estado. Guían a la política.</p></div>
+      <div class="use"><div class="h"><span class="e">🔁</span>Episodio</div><p>Una partida completa, desde el saque hasta perder la pelota o limpiar el nivel. El agente aprende de muchos episodios; medimos la recompensa media de los últimos 100.</p></div>
+      <div class="use"><div class="h"><span class="e">⚖️</span>Exploración vs explotación</div><p>El dilema central: ¿pruebo algo nuevo (explorar) por si es mejor, o aprovecho lo que ya sé que funciona (explotar)? Demasiada explotación estanca; demasiada exploración no avanza.</p></div>
+      <div class="use"><div class="h"><span class="e">🗃️</span>Memoria (replay)</div><p>Un almacén de experiencias pasadas (s,a,r,s') del que se muestrean lotes para entrenar. Rompe la correlación temporal y reutiliza cada dato. Propio de métodos off-policy.</p></div>
+      <div class="use"><div class="h"><span class="e">🔮</span>Modelo del entorno</div><p>Una predicción de cómo responde el entorno: dado (s,a), ¿cuál es s' y r? La mayoría de métodos no lo usan (model-free); el World Model sí (model-based).</p></div>
+    </div>
+    <div class="tint"><div class="t">On-policy vs off-policy</div>Un método <b>on-policy</b> (PPO) solo aprende de datos generados por su política
+      actual y los descarta tras usarlos. Uno <b>off-policy</b> (DQN, SAC, World Model) puede aprender de experiencias viejas
+      guardadas en memoria, lo que lo hace más eficiente en datos pero a veces menos estable.</div>
+
+    <!-- 3) Las recompensas -->
+    <h3 class="sub">Las recompensas de este Arkanoid</h3>
+    <p>Una recompensa de solo <span class="mono">+1 / −1</span> sería <b>pobre</b>: el agente recibiría señal en muy pocos
+      momentos. Aquí usamos varios eventos de distinta magnitud para dar pistas más ricas y frecuentes:</p>
+    <table class="params">
+      <tr><th>Evento</th><th>Recompensa</th><th>Para qué</th></tr>
+      <tr><td class="k">Romper un ladrillo</td><td>+1.0</td><td>El objetivo del juego. Premio claro y repetible.</td></tr>
+      <tr><td class="k">Devolver la pelota (rebote)</td><td>+0.2</td><td>Premio intermedio: enseña a no perder la pelota antes de saber romper ladrillos.</td></tr>
+      <tr><td class="k">Perder la pelota</td><td>−1.0</td><td>Castigo terminal: termina el episodio. Le enseña a colocar la pala.</td></tr>
+      <tr><td class="k">Completar el nivel</td><td>+5.0</td><td>Gran premio terminal por limpiar los 28 ladrillos.</td></tr>
+      <tr><td class="k">Acercar la pala a la pelota</td><td>shaping ≈ +0.3·Δ</td><td>Recompensa densa y telescópica (potential shaping): da señal en cada paso sin cambiar la política óptima. Acelera mucho el aprendizaje inicial.</td></tr>
+    </table>
+    <figure><img src="assets/replay_conceptual.jpg" /><figcaption>Panel "Replay buffer (conceptual)" de la app: las experiencias y su recompensa real. Las más informativas (perder la bola, romper un ladrillo) tienen mayor TD-error y se repiten más con replay prioritario.</figcaption></figure>
+
+    <!-- 4) La red neuronal -->
+    <h3 class="sub" id="red-neuronal">La red neuronal que usamos</h3>
+    <p>¿Cómo "aprende" el agente? Mediante una <span class="term">red neuronal</span>: una función con miles de parámetros
+      (pesos) que se ajustan para acertar cada vez más. La nuestra es un <b>perceptrón multicapa (MLP)</b>: toma los 6
+      números del estado, los pasa por <b>dos capas ocultas de 128 neuronas</b> con activación <b>ReLU</b> (que introduce
+      la no linealidad necesaria para aprender relaciones complejas) y produce la salida. Según el algoritmo, esa salida es
+      distinta: en <b>DQN</b> y <b>World Model</b> son los 3 valores <b>Q(s,a)</b>; en <b>PPO/SAC</b>, el actor da 3
+      probabilidades (política) y un crítico da 1 valor.</p>
+    <figure><img src="assets/red_neuronal.svg" /><figcaption>La red de este laboratorio: 6 entradas (el estado) → 128 → 128 (ReLU) → 3 salidas (un valor o probabilidad por acción). Cada línea es un peso que el entrenamiento ajusta.</figcaption></figure>
+    <div class="tint"><div class="t">Aproximar una función</div>Con pocos estados podríamos guardar Q en una tabla. Pero el estado aquí es
+      continuo (infinitas posiciones de la pelota): imposible tabular. La red <b>aproxima</b> esa función y, además,
+      <b>generaliza</b> a estados que nunca vio exactamente. Eso es lo "deep" del Deep RL.</div>
+
+    <!-- 5) Red actual vs objetivo -->
+    <h3 class="sub">Red actual y red objetivo</h3>
+    <p>Para entrenar necesitamos un <b>objetivo</b> al que acercar las predicciones. En RL ese objetivo se construye con la
+      propia red (ecuación de Bellman), así que si usáramos la misma red para predecir y para fijar su objetivo, este se
+      movería a cada paso: como intentar alcanzar tu propia sombra. La solución son <b>dos copias</b> de la red:</p>
+    <div class="pm">
+      <div class="box mejo" style="background:#eff4fe;border-color:#cfe0fb"><div class="h" style="color:#1d4ed8">▶ Red actual (online)</div>
+        La que <b>entrenamos</b> en cada paso y la que <b>decide</b> las acciones. Cambia continuamente.</div>
+      <div class="box mejo" style="background:#f4effe;border-color:#e2d2fb"><div class="h" style="color:#6d28d9">🎯 Red objetivo</div>
+        Una <b>copia que se mueve despacio</b> y solo sirve para calcular el objetivo. Da un blanco estable al que apuntar.</div>
+    </div>
+    <div class="formula">θ⁻ ← τ·θ + (1−τ)·θ⁻      <span style="color:#8a909b">// soft update (Polyak), τ = 0.01: la objetivo copia un 1% de la actual por paso</span></div>
+    <div class="takeaway"><div class="t">En una frase</div><div class="bd">El RL es un bucle agente–entorno guiado por recompensas; el agente aprende
+      una <span class="term">política</span> apoyándose en estimaciones de <span class="term">valor</span>, una red neuronal
+      que <span class="term">aproxima</span> esas funciones, y trucos de estabilidad como la <span class="term">red
+      objetivo</span>. Todo lo demás son variaciones sobre este esqueleto.</div></div>
   </div>
 </section>
 
@@ -412,8 +510,11 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
     </div>
 
     <h3 class="sub">Cómo funciona (su estructura)</h3>
-    <p>La red es un <b>perceptrón multicapa</b> (MLP): toma los 6 números del estado, pasa por dos capas ocultas de 128
-      neuronas con activación ReLU, y produce <b>3 salidas</b>, una por acción (el valor Q de cada una).</p>
+    <p>DQN no guarda Q(s,a) en una tabla (imposible con un estado continuo): usa una <b>red neuronal para aproximar Q</b>.
+      Es exactamente el MLP descrito en <a href="#red-neuronal">Fundamentos · La red neuronal</a>: entran los 6 números del
+      estado, pasan por dos capas ocultas de 128 neuronas (ReLU) y salen <b>3 valores Q</b>, uno por acción. Para estabilizar
+      el entrenamiento mantenemos <b>dos copias</b>: la <b>red actual</b> (decide y se entrena) y la <b>red objetivo</b>
+      (copia lenta que fija el blanco de Bellman), tal y como se explica en Fundamentos.</p>
     <div class="pipe">
       <div class="stage"><div class="nm">Estado</div><div class="dim">6</div></div>
       <div class="arrow">→</div>
@@ -699,9 +800,9 @@ actualizacionSuave(this.redPolitica, this.redObjetivo, tau);   <span class="cm">
   <div class="band b-green"><div class="n">PRUÉBALO</div><h2>Descárgalo y entrénalo tú</h2>
     <div class="tag">Todo corre en local; el entrenamiento, en tu navegador con WebGPU.</div></div>
   <div class="pad" style="--accent:#0c9f6e;--accent-soft:#e9fbf4">
-    <div class="tint"><div class="t">Repositorio</div><span class="mono">github.com/robertocanalesmora/arkanoid-drl-learning-lab</span></div>
+    <div class="tint"><div class="t">Repositorio</div><span class="mono">github.com/rcanalescoder/DRLArkanoid</span></div>
     <h3 class="sub">1 · Clona e instala</h3>
-    <div class="code" style="--accent:#0c9f6e"><div class="fn">terminal<span class="role">instalación</span></div><pre>git clone «URL-del-repo» &amp;&amp; cd DRLArkanoid
+    <div class="code" style="--accent:#0c9f6e"><div class="fn">terminal<span class="role">instalación</span></div><pre>git clone https://github.com/rcanalescoder/DRLArkanoid.git &amp;&amp; cd DRLArkanoid
 npm install          <span class="cm"># vite + @tensorflow/tfjs + backend WebGPU</span></pre></div>
     <h3 class="sub">2 · Arranca el laboratorio</h3>
     <div class="code" style="--accent:#0c9f6e"><div class="fn">terminal<span class="role">arrancar</span></div><pre>npm run dev          <span class="cm"># abre http://localhost:5173 y pulsa ▶ Entrenar</span>
@@ -810,7 +911,7 @@ const lossAlphaT = pasoGradiente(this.optAlpha, () =&gt; {
     <dl class="defs">
       <dt>Autor</dt><dd>Roberto Canales Mora · con Claude Chat / Code</dd>
       <dt>Licencia</dt><dd>MIT</dd>
-      <dt>Repositorio</dt><dd class="mono">github.com/robertocanalesmora/arkanoid-drl-learning-lab</dd>
+      <dt>Repositorio</dt><dd class="mono">github.com/rcanalescoder/DRLArkanoid</dd>
       <dt>Entorno</dt><dd>Vite + TensorFlow.js (WebGPU / WebGL / CPU). Probado en macOS (Apple Silicon M4).</dd>
     </dl>
     <div class="code" style="--accent:#374151"><div class="fn">LICENSE<span class="role">texto completo</span></div><pre>Licencia MIT
