@@ -192,55 +192,21 @@
   <div class="foot"><span>Un laboratorio para entender el RL profundo, de dentro afuera.</span><span>Roberto Canales Mora · con Claude Chat / Code</span></div>
 </div>
 
-<!-- ============================ CÓMO LEER ESTA GUÍA ============================ -->
-<section class="section">
-  <div class="band b-blue"><div class="n">ANTES DE EMPEZAR</div><h2>Cómo leer esta guía</h2>
-    <div class="tag">Una guía de autoestudio pensada para leerse en orden, de cero a los cuatro algoritmos.</div></div>
-  <div class="pad" style="--accent:#2563eb;--accent-soft:#eff4fe">
-    <p class="lead">Este cuaderno es una <b>guía de autoestudio</b>: está pensado para que alguien que empieza en
-      aprendizaje por refuerzo pueda leerlo <b>de principio a fin</b> y entenderlo todo, sin dar nada por sabido. Cada
-      concepto se explica <b>la primera vez que aparece</b> y se reutiliza después. Los términos clave van
-      <span class="term">resaltados así</span> cuando se definen.</p>
-
-    <h3 class="sub">La ruta: de menos a más</h3>
-    <p>Primero los <b>fundamentos</b> (el vocabulario y las ideas que comparten todos los métodos). Luego, cómo está
-      hecho el laboratorio por dentro. Y después los cuatro algoritmos, <b>en orden de dificultad creciente</b>: cada uno
-      reutiliza ideas del anterior.</p>
-    <figure><img src="assets/dg_ruta.svg" /><figcaption>El recorrido del cuaderno. Si lees en orden, cada sección se apoya en lo ya explicado.</figcaption></figure>
-
-    <h3 class="sub">Qué necesitas saber (y qué no)</h3>
-    <div class="uses">
-      <div class="use"><div class="h"><span class="e">✅</span>Ayuda tener…</div><p>Nociones básicas de programación y de qué es una red neuronal (una función con parámetros que se ajustan). Nada avanzado.</p></div>
-      <div class="use"><div class="h"><span class="e">🚫</span>No hace falta…</div><p>Saber matemáticas avanzadas. Las pocas fórmulas que aparecen se explican término a término y siempre con intuición primero.</p></div>
-    </div>
-    <div class="note">A lo largo de la guía verás recuadros <b>“Comprueba que lo entiendes”</b> (preguntas para autoevaluarte)
-      y <b>“Ejemplo paso a paso”</b> (cálculos con números reales). Úsalos: son los que fijan el aprendizaje.</div>
-
-    <h3 class="sub">Cómo está construido lo que vas a leer</h3>
-    <dl class="defs">
-      <dt>Cifras reales</dt><dd>Todas las curvas y números salen de ejecutar este laboratorio de verdad (navegador con WebGPU y Node con CPU). Nada inventado.</dd>
-      <dt>Capturas reales</dt><dd>Las imágenes son de la aplicación funcionando; podrás reproducirlas tú al final (sección “Descárgalo”).</dd>
-      <dt>Diagramas</dt><dd>Cada concepto tiene su esquema para verlo, no solo leerlo.</dd>
-    </dl>
-  </div>
-</section>
-
 <!-- ============================ ON-RAMP (lo más básico) ============================ -->
 <section class="section">
   <div class="band b-cyan"><div class="n">EMPEZAMOS DE CERO</div><h2>Aprender jugando, como tú</h2>
-    <div class="tag">Sin una sola fórmula: solo la idea, con palabras de andar por casa.</div></div>
+    <div class="tag">La idea esencial del aprendizaje por refuerzo.</div></div>
   <div class="pad" style="--accent:#0891b2;--accent-soft:#e7f7fb">
     <p class="lead">Olvida por un momento la palabra «inteligencia artificial». Imagina que le enseñas a alguien un juego que
       no ha visto nunca, pero <b>sin explicarle las reglas</b>. Lo único que puedes decirle, después de cada movimiento, es
       <b>«bien»</b> o <b>«mal»</b>. Al principio se moverá al azar y fallará; pero si insiste, irá notando qué movimientos
-      le dan más «bien» y los repetirá. Eso —ni más ni menos— es el <b>aprendizaje por refuerzo</b>. Y es justo lo que vas a
-      ver en pantalla con el Arkanoid.</p>
+      le dan más «bien» y los repetirá. Eso es, en esencia, el <b>aprendizaje por refuerzo</b>, y es lo que ocurre en este Arkanoid.</p>
 
     <div class="analogy"><div class="ic">🐕</div><div class="bd"><div class="t">La analogía del adiestramiento</div>
       Cuando enseñas un truco a un perro no le explicas anatomía ni física: le das un premio cuando lo hace bien. Con muchas
       repeticiones, el perro asocia «esta acción → premio» y la repite. El agente hace lo mismo, pero el premio es un número.</div></div>
 
-    <h3 class="sub">Las cuatro palabras que necesitas (y nada más, de momento)</h3>
+    <h3 class="sub">Las cuatro palabras clave</h3>
     <div class="uses">
       <div class="use"><div class="h"><span class="e">🤖</span>El agente</div><p>El «jugador». No es una persona: es la red neuronal que mira la pantalla y decide cómo mover la pala. Es quien aprende.</p></div>
       <div class="use"><div class="h"><span class="e">🎮</span>La acción</div><p>Lo único que el agente puede hacer aquí: mover la pala a la <b>izquierda</b>, a la <b>derecha</b> o <b>dejarla quieta</b>. Tres opciones, nada más.</p></div>
@@ -248,9 +214,9 @@
       <div class="use"><div class="h"><span class="e">🔁</span>El episodio</div><p>Una partida entera, desde el saque hasta perder la bola (o ganar). El agente juega <b>miles</b> de episodios; en cada uno mejora un poquito.</p></div>
     </div>
 
-    <h3 class="sub">Los primeros minutos de vida del agente (lo que vas a ver)</h3>
-    <p>Cuando le des a <b>▶ Entrenar</b>, no esperes magia inmediata. El agente nace sin saber nada. Esto es lo que ocurre,
-      y por qué la curva de recompensa hace lo que hace:</p>
+    <h3 class="sub">Los primeros minutos del agente</h3>
+    <p>Un agente recién creado no sabe nada. Esta es la evolución típica conforme entrena, y explica la forma de la curva
+      de recompensa:</p>
     <table class="params">
       <tr><th>Momento</th><th>Qué hace el agente</th><th>La recompensa…</th></tr>
       <tr><td class="k">Segundo 0</td><td>Mueve la pala al azar. La bola cae al vacío casi siempre.</td><td>muy baja (pierde la bola enseguida).</td></tr>
@@ -258,12 +224,11 @@
       <tr><td class="k">Después</td><td>Devuelve la bola con soltura y va rompiendo ladrillos.</td><td>claramente positiva y al alza.</td></tr>
       <tr><td class="k">Con suerte y tiempo</td><td>Aprende a colar la bola arriba y reventar varios de golpe.</td><td>se dispara (combos).</td></tr>
     </table>
-    <div class="note">Si al principio ves la recompensa <b>negativa</b>, <b>es normal</b>: el agente todavía está aprendiendo lo
-      más básico (no perder la bola). No está roto; está practicando. Dale unos segundos.</div>
+    <div class="note">Que la recompensa sea <b>negativa al principio</b> es esperable: el agente aún está aprendiendo lo más
+      básico, evitar perder la bola. Empieza a subir en cuanto aprende a devolverla.</div>
 
-    <div class="takeaway"><div class="t">Quédate con esto</div><div class="bd">Un agente que <b>prueba</b>, recibe <b>premios y
-      castigos</b>, y <b>repite lo que funciona</b>. Todo lo demás de esta guía es ponerle nombre técnico y herramientas a
-      esta idea tan simple. Ahora sí, vamos a nombrar las cosas. →</div></div>
+    <div class="takeaway"><div class="t">En esencia</div><div class="bd">Un agente que <b>prueba</b>, recibe <b>premios y
+      castigos</b> y <b>repite lo que funciona</b>. El resto son las herramientas técnicas para hacerlo bien y a gran escala.</div></div>
   </div>
 </section>
 
@@ -298,36 +263,14 @@
       <dt>Agente</dt><dd>La red (o redes) neuronal que decide qué acción tomar y que aprende de la experiencia.</dd>
       <dt>Política</dt><dd>La estrategia del agente: la función que, dado un estado, dice qué acción conviene.</dd>
     </dl>
-
-    <h3 class="sub">El hilo conductor: construir → entrenar → medir → mejorar</h3>
-    <p>Cada algoritmo de este cuaderno se ha tratado igual: se <b>construye</b>, se <b>entrena de verdad</b>, se
-      <b>leen sus métricas</b> (recompensa, pérdida, exploración, throughput) y, si no aprende, se <b>ajusta</b>
-      (hiperparámetros, arquitectura, regla de actualización) hasta que mejora de forma medible. Esa misma disciplina
-      —proponer, entrenar, medir, quedarse con lo que funciona— es la que aplicamos con agentes de IA para afinar el sistema.</p>
-
-    <div class="note"><b>Todas las cifras de este cuaderno son reales</b>, medidas ejecutando el propio laboratorio
-      (en el navegador con WebGPU y en Node con CPU). Las capturas son de la aplicación funcionando; las curvas, de
-      entrenamientos reales. Nada está inventado ni maquillado.</div>
-
-    <h3 class="sub">Lo que vas a poder seguir</h3>
-    <div class="uses">
-      <div class="use"><div class="h"><span class="e">🎮</span>Cómo arranca y se ejecuta el juego</div><p>La simulación de paso fijo, el estado que ve el agente y cómo se reinicia un episodio.</p></div>
-      <div class="use"><div class="h"><span class="e">🕹️</span>Cómo enganchamos los controles</div><p>El agente sustituye al jugador: su red decide las 3 acciones para cientos de partidas a la vez.</p></div>
-      <div class="use"><div class="h"><span class="e">🗃️</span>Cómo se guardan los datos</div><p>La transición (s, a, r, s', done), el replay buffer y el rollout: la memoria del aprendizaje.</p></div>
-      <div class="use"><div class="h"><span class="e">📈</span>Cómo se entrena la red y se actualizan las gráficas</div><p>El paso de gradiente, la red objetivo y el flujo desde el entrenamiento hasta las curvas en pantalla.</p></div>
-    </div>
   </div>
 </section>
 
 <!-- ============================ FUNDAMENTOS DE RL ============================ -->
 <section class="section">
-  <div class="band b-violet"><div class="n">FUNDAMENTOS</div><h2>El vocabulario, en cristiano</h2>
-    <div class="tag">Le ponemos nombre a lo que viste en el capítulo anterior, sin dar nada por sabido.</div></div>
+  <div class="band b-violet"><div class="n">FUNDAMENTOS</div><h2>El vocabulario esencial</h2>
+    <div class="tag">Los conceptos en los que se apoyan los cuatro algoritmos.</div></div>
   <div class="pad" style="--accent:#7c3aed;--accent-soft:#f4effe">
-    <div class="porque"><b>La regla de este capítulo:</b> primero te explico cada idea con palabras normales y una comparación;
-      el término técnico va <b>al final, entre paréntesis</b>, como premio. Si te tropiezas con una palabra que no he
-      explicado antes, es un fallo mío. Las cajas grises <b>«Para curiosos»</b> guardan el detalle matemático: puedes
-      <b>saltártelas</b> sin perderte nada.</div>
 
     <!-- 1) El bucle agente-entorno -->
     <h3 class="sub">El bucle principal: agente ↔ entorno</h3>
@@ -377,9 +320,9 @@
       aprovecha menos cada partida, pero es más estable (así es PPO). En la <b>Forma B</b> <b>guarda partidas viejas en una
       memoria</b> y las reutiliza muchas veces: aprende con menos partidas, pero a veces se vuelve más inestable (así son
       DQN, SAC y World Model).</p>
-    <div class="palabra"><span class="w">Las palabras técnicas:</span> a la Forma A se la llama <b>on-policy</b> («aprende de
-      lo que genera su política actual») y a la Forma B, <b>off-policy</b> («puede aprender de datos de antes»). Y esa
-      «carpeta» de apuntes viejos de la Forma B es el <b>replay buffer</b> (la memoria de experiencias).</div>
+    <div class="palabra"><span class="w">On-policy y off-policy.</span> La Forma A se denomina <b>on-policy</b>: el método solo
+      aprende de los datos de su política actual. La Forma B se denomina <b>off-policy</b>: puede aprender también de
+      experiencias anteriores, guardadas en una memoria llamada <b>replay buffer</b>.</div>
 
     <!-- Retorno y descuento -->
     <h3 class="sub">Recompensa, retorno y descuento</h3>
@@ -408,20 +351,19 @@
     <p>Al principio le interesa probar mucho (todavía no sabe nada), así que el dado manda explorar muy a menudo. Según
       aprende, prueba cada vez menos: ese porcentaje de azar <b>va bajando poco a poco</b>.</p>
     <figure><img src="assets/dg_epsilon.svg" /><figcaption>El porcentaje de movimientos «al azar» empieza alto (probar mucho) y baja con el tiempo hacia un mínimo (ya casi solo aprovecha lo aprendido).</figcaption></figure>
-    <div class="palabra"><span class="w">Tres palabras que oirás:</span> a ese porcentaje de azar se le llama <b>épsilon (ε)</b>
-      y a toda la receta, <b>ε-greedy</b> (la usan DQN y el World Model). Cuando algo «va bajando poco a poco», los técnicos
-      dicen que <b>«decae»</b>.</div>
-    <p>PPO y SAC exploran de otra manera: su «cerebro» ya elige <b>con un puntito de azar de fábrica</b>, no siempre lo
-      mismo. Compáralo con elegir siempre la misma acción (predecible) frente a repartir entre varias:</p>
+    <div class="palabra"><span class="w">Épsilon (ε) y ε-greedy.</span> El porcentaje de movimientos al azar se denomina
+      <b>épsilon (ε)</b>, y la estrategia de explorar con esa probabilidad e ir a lo seguro el resto del tiempo, <b>ε-greedy</b>
+      (la emplean DQN y el World Model). Que ε <b>decae</b> significa que disminuye con el entrenamiento.</div>
+    <p>PPO y SAC exploran de otra manera: su política ya incorpora <b>cierta aleatoriedad</b> al elegir, de modo que no
+      siempre toma la misma acción. La diferencia entre elegir siempre lo mismo (predecible) y repartir entre varias acciones:</p>
     <figure><img src="assets/dg_estocastica.svg" /><figcaption>Elegir siempre lo mismo (a la izquierda) frente a elegir con algo de azar repartido entre las acciones (a la derecha).</figcaption></figure>
-    <div class="palabra"><span class="w">La palabra:</span> a un «cerebro» que elige con algo de azar (no siempre lo mismo) se
-      le llama política <b>estocástica</b>. Lo contrario —siempre la misma elección— es <b>determinista</b>.</div>
-    <p>Y SAC, además, <b>se premia a sí mismo por no volverse predecible</b>, por mantener variedad en sus decisiones. ¿Por
-      qué? Porque un agente que siempre hace lo mismo deja de descubrir cosas. A esa «cantidad de variedad o sorpresa» en
-      sus elecciones se le pone número:</p>
+    <div class="palabra"><span class="w">Política estocástica.</span> Una política que elige la acción con cierta aleatoriedad
+      (no siempre la misma) se denomina <b>estocástica</b>. La que elige siempre la misma es <b>determinista</b>.</div>
+    <p>SAC, además, <b>premia mantener variedad</b> en sus decisiones: un agente que siempre hace lo mismo deja de descubrir
+      alternativas mejores. Esa variedad también se mide con un número:</p>
     <figure><img src="assets/dg_entropia.svg" /><figcaption>Cuando casi siempre elige lo mismo, hay poca «variedad» (entropía baja); cuando reparte entre varias acciones, hay mucha (entropía alta).</figcaption></figure>
-    <div class="palabra"><span class="w">La palabra:</span> esa medida de «cuánta variedad/sorpresa hay en las decisiones» se
-      llama <b>entropía</b>. Más entropía = más exploración. SAC la premia para no cerrarse demasiado pronto.</div>
+    <div class="palabra"><span class="w">Entropía.</span> La medida de la variedad de las decisiones de la política se denomina
+      <b>entropía</b>. Más entropía equivale a más exploración; SAC la premia para no concentrarse en pocas acciones demasiado pronto.</div>
 
     <!-- El valor -->
     <h3 class="sub">¿Cómo de buena es una situación? El «valor»</h3>
@@ -429,9 +371,9 @@
       <b>número</b> a esa intuición: cuántos puntos espera conseguir a partir de esa situación. Si la pala está justo bajo
       la bola y quedan ladrillos, pinta bien (número alto). Si la bola se escapa por un lado, pinta mal (número bajo).</p>
     <figure><img src="assets/dg_valor.svg" /><figcaption>El «valor» es el número que la red le pone a cada situación: cuánto premio espera conseguir desde ahí en adelante.</figcaption></figure>
-    <div class="palabra"><span class="w">Las palabras:</span> a ese número se le llama <b>valor</b>. Cuando responde a «cómo de
-      buena es esta situación», se escribe <b>V(s)</b>. Cuando responde a «cómo de bueno es hacer este movimiento en esta
-      situación», se escribe <b>Q(s, a)</b>. Aprender a estimar bien estos números es media batalla del RL.</div>
+    <div class="palabra"><span class="w">Valor, V(s) y Q(s, a).</span> Ese número se denomina <b>valor</b>. <b>V(s)</b> indica
+      cómo de buena es una situación; <b>Q(s, a)</b>, cómo de buena es tomar una acción concreta en esa situación. Estimar
+      bien estos números es buena parte del problema.</div>
 
     <!-- Bellman -->
     <h3 class="sub">El truco para no mirar infinitos pasos (Bellman)</h3>
@@ -506,9 +448,9 @@
       (sus <b>pesos</b>): mide cuánto se ha equivocado y mueve cada mando <b>un poquito</b> en la dirección que reduce el
       error. Repetido millones de veces, va «sonando» cada vez mejor.</p>
     <figure><img src="assets/dg_gradiente.svg" /><figcaption>Cada ajuste mueve los mandos «cuesta abajo», hacia donde la red se equivoca menos. El fondo del valle es la versión de la red que mejor acierta.</figcaption></figure>
-    <div class="palabra"><span class="w">Las palabras:</span> a «cuánto se equivoca» se le llama <b>pérdida</b>; al método de
-      moverse cuesta abajo, <b>descenso de gradiente</b>; y a lo grande que es cada pasito, <b>learning rate</b> (tasa de
-      aprendizaje). Pasos grandes = rápido pero a trompicones; pasos pequeños = lento pero estable.</div>
+    <div class="palabra"><span class="w">Pérdida, descenso de gradiente y learning rate.</span> A «cuánto se equivoca» se le
+      llama <b>pérdida</b>; al método de reducirla ajustando los pesos, <b>descenso de gradiente</b>; y al tamaño de cada
+      ajuste, <b>learning rate</b> (tasa de aprendizaje). Pasos grandes: rápido pero inestable; pasos pequeños: lento pero estable.</div>
 
     <!-- 5) Red actual vs objetivo -->
     <h3 class="sub">Red actual y red objetivo</h3>
