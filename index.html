@@ -13,13 +13,7 @@
           <span style="font-size: 26px">🧠</span>
           <div>
             <h1>Arkanoid <span style="color: var(--acento)">DRL</span> Learning Lab
-              <span class="info ancho der">i<span class="tip"><b>Laboratorio de Deep Reinforcement Learning.</b>
-                Un <b>agente</b> aprende a jugar al Arkanoid probando acciones y observando recompensas (premios y castigos),
-                sin que nadie le explique las reglas. El bucle es: el agente observa el <b>estado</b>, elige una <b>acción</b>,
-                el <b>entorno</b> responde con una <b>recompensa</b> y un nuevo estado, y el agente ajusta su <b>política</b>
-                para acumular el máximo premio. Aquí lo verás con 4 algoritmos (DQN, PPO, SAC, World Model), con sus métricas,
-                curvas e inspector internos.
-                <span class="formula">estado → acción → recompensa → estado' → (repite)</span></span></span>
+              <span class="info" data-info="lab">i</span>
             </h1>
             <div class="sub">Estudia el bucle agente–entorno, los datos que genera y cómo aprende cada algoritmo · DQN · PPO · SAC · World Model</div>
           </div>
@@ -38,9 +32,8 @@
         <span class="ic">i</span>
         <div><b>Motivación del laboratorio.</b> Esta interfaz está pensada como guía de estudio: no solo muestra al agente
           jugando, también el <b>mecanismo interno</b>. Por eso hay un icono de información (ℹ) junto a cada grupo y cada
-          dato importante, curvas de entrenamiento, un resumen de qué conceptos usa cada algoritmo y un inspector que cambia
-          según el método. Pasa el ratón por encima de cualquier <span class="info">i<span class="tip">¡Como este! Cada
-          icono explica qué es el elemento, por qué importa y, cuando aplica, su fórmula.</span></span> para aprender qué hace.</div>
+          dato importante. <b>Pulsa cualquier <span class="info" data-info="lab">i</span></b> para abrir una ficha completa
+          que explica qué es, por qué importa y, cuando aplica, su fórmula y sus datos.</div>
       </div>
 
       <!-- ===================== FILA PRINCIPAL ===================== -->
@@ -49,17 +42,14 @@
         <div class="panel panel-juego">
           <div class="cabecera-juego">
             <div class="seccion-titulo" style="margin: 0">🎮 Partida observada
-              <span class="info">i<span class="tip"><b>La ventana de observación.</b> Es una de las partidas que juega el
-                agente con su política actual. La <b>pala</b> es la única acción controlable (← · →); la <b>pelota</b> y los
-                ladrillos pertenecen a la dinámica del entorno. Cambia sola conforme el agente mejora.</span></span>
+              <span class="info" data-info="partidaObservada">i</span>
               · <span id="envSeleccionado" class="mono" style="color: var(--acento)">env 0</span></div>
             <span class="badge" id="badgeJugando"><span class="punto"></span>jugando</span>
           </div>
           <canvas id="canvasJuego" class="canvas-principal" width="380" height="520"></canvas>
           <div class="juego-stats">
             <span>Recompensa episodio: <b id="statReward">0.00</b>
-              <span class="info">i<span class="tip"><b>Recompensa acumulada</b> en el episodio actual de esta partida.
-                Suma de los premios (+) y castigos (−) de cada paso. Es lo que el agente intenta maximizar.</span></span></span>
+              <span class="info" data-info="rewardEpisodio">i</span></span>
             <span>Ladrillos: <b id="statLadrillos">0</b>/28</span>
             <span>Pasos: <b id="statPasos">0</b></span>
           </div>
@@ -70,9 +60,7 @@
           <div class="fila-metricas-inspector">
             <div class="panel">
               <div class="seccion-titulo">📊 Métricas clave
-                <span class="info">i<span class="tip"><b>El pulso del entrenamiento.</b> Las dos primeras (recompensa y
-                  pérdida) son comunes a todos los algoritmos; las tres del centro cambian según el método seleccionado
-                  (p. ej. ε para DQN, entropía para PPO, temperatura α para SAC). La última es la tasa de éxito.</span></span></div>
+                <span class="info" data-info="panelMetricas">i</span></div>
               <div class="metricas-grid" id="metricasGrid"></div>
             </div>
             <div class="panel inspector" id="inspector">
@@ -83,9 +71,7 @@
 
           <div class="panel">
             <div class="seccion-titulo">📈 Curvas de entrenamiento
-              <span class="info">i<span class="tip"><b>Cómo evoluciona el aprendizaje.</b> Cada punto se registra cada 250
-                pasos. Si la recompensa (verde) sube, el agente aprende. La pérdida no tiene que bajar siempre (el objetivo
-                se mueve en RL), pero no debe diverger. Las otras dos curvas se adaptan al algoritmo.</span></span></div>
+              <span class="info" data-info="curvas">i</span></div>
             <div class="curvas-grid">
               <div class="curva">
                 <div class="cabecera-curva">
@@ -129,31 +115,28 @@
       <section class="fila-controles">
         <div class="panel">
           <div class="seccion-titulo">🧩 Versión del experimento
-            <span class="info">i<span class="tip"><b>Qué agente se está estudiando.</b> Los cuatro resuelven el mismo juego
-              con filosofías distintas. Al cambiar de algoritmo se recrea el agente desde cero y la interfaz (métricas,
-              curvas, inspector) se adapta. La insignia indica la familia de cada uno.</span></span></div>
+            <span class="info" data-info="selectorAlgoritmo">i</span></div>
           <div class="algo-cards" id="chipsAlgoritmos"></div>
         </div>
         <div class="panel">
           <div class="seccion-titulo">⚙️ Control de ejecución
-            <span class="info">i<span class="tip"><b>Cómo corre la simulación.</b> No afecta a lo que el agente aprende,
-              solo a la velocidad y a cuántas partidas se usan.</span></span></div>
+            <span class="info" data-info="controlEjecucion">i</span></div>
           <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 4px">
             <div class="control-slider">
-              <div class="etiqueta"><span>Velocidad de simulación <span class="info">i<span class="tip"><b>Avance rápido (fast-forward).</b> Cuántos pasos de simulación ocurren por frame, tanto en el <b>entrenamiento</b> como en la <b>animación</b> que ves. <b>NO cambia la física ni el modelo</b>: la pelota se mueve igual por paso; solo ocurren más pasos por segundo. Súbela para ver las partidas (y aprender) más rápido; bájala para observar con calma.</span></span></span><span class="valor" id="valVelocidad">4×</span></div>
+              <div class="etiqueta"><span>Velocidad de simulación <span class="info" data-info="velocidad">i</span></span><span class="valor" id="valVelocidad">4×</span></div>
               <input type="range" id="sliderVelocidad" min="1" max="30" value="4" />
             </div>
             <div class="control-slider">
-              <div class="etiqueta"><span>Entornos de entrenamiento (headless) <span class="info">i<span class="tip"><b>Pool headless.</b> Entornos sin dibujar que generan las experiencias para entrenar. Más entornos = más datos por segundo y gradientes más estables. Se ejecutan en batch en la GPU.</span></span></span><span class="valor" id="valHeadless">256</span></div>
+              <div class="etiqueta"><span>Entornos de entrenamiento (headless) <span class="info" data-info="poolHeadless">i</span></span><span class="valor" id="valHeadless">256</span></div>
               <input type="range" id="sliderHeadless" min="50" max="2000" step="50" value="256" />
             </div>
             <div class="control-slider">
-              <div class="etiqueta"><span>Entornos visuales <span class="info">i<span class="tip"><b>Pool visual.</b> Pocos entornos que sí se dibujan, ejecutando la misma política del agente. Son una ventana de observación; no generan la mayoría de los datos de entrenamiento.</span></span></span><span class="valor" id="valVisuales">8</span></div>
+              <div class="etiqueta"><span>Entornos visuales <span class="info" data-info="poolVisual">i</span></span><span class="valor" id="valVisuales">8</span></div>
               <input type="range" id="sliderVisuales" min="1" max="15" value="8" />
             </div>
             <label class="toggle">
               <input type="checkbox" id="toggleShaping" checked />
-              <span>Reward shaping potencial <span class="info">i<span class="tip"><b>Φ(s) = −|pelota.x − pala.x|.</b> Recompensa densa y telescópica que premia acercar la pala a la pelota. No cambia la política óptima (Ng et al. 1999) pero acelera mucho el aprendizaje. Cambiarlo reinicia el agente.</span></span></span>
+              <span>Reward shaping potencial <span class="info" data-info="shaping">i</span></span>
             </label>
           </div>
         </div>
@@ -162,9 +145,7 @@
       <!-- ===================== ENTORNOS VISUALES ===================== -->
       <section class="panel seccion-entornos">
         <div class="seccion-titulo">🪟 Entornos en paralelo
-          <span class="info">i<span class="tip"><b>Muchas partidas, una sola política.</b> Todas estas mini-partidas usan
-            el mismo cerebro del agente. Verlas a la vez ayuda a juzgar si la política es buena en general (no por suerte
-            en una partida). Pincha una para inspeccionarla arriba.</span></span></div>
+          <span class="info" data-info="entornosParalelos">i</span></div>
         <div class="rejilla-entornos" id="rejillaEntornos"></div>
       </section>
 
@@ -172,17 +153,13 @@
       <section class="fila-pedagogica">
         <div class="panel">
           <div class="seccion-titulo">📚 Conceptos de DRL
-            <span class="info">i<span class="tip"><b>Qué usa este algoritmo y qué no.</b> El RL profundo es un menú de
-              técnicas; cada método combina unas pocas. Esta tabla marca cuáles están activas en el algoritmo seleccionado,
-              para que veas las diferencias de un vistazo.</span></span>
+            <span class="info" data-info="panelConceptos">i</span>
             <span class="suave" style="text-transform: none; letter-spacing: 0">— <span id="conceptoAlgo" style="color: var(--acento)">este algoritmo</span></span></div>
           <div class="tabla-conceptos" id="tablaConceptos"></div>
         </div>
         <div class="panel">
           <div class="seccion-titulo">🔄 Flujo de datos
-            <span class="info">i<span class="tip"><b>El recorrido de una experiencia.</b> Desde que los entornos generan
-              datos hasta que la política mejorada vuelve a actuar. El diagrama se adapta: off-policy usa replay buffer;
-              on-policy usa rollouts; el World Model añade un modelo de dinámica.</span></span></div>
+            <span class="info" data-info="flujoDatos">i</span></div>
           <div class="flujo">
             <div class="flujo-pasos" id="flujoDatos"></div>
             <p class="suave" style="font-size: 12px" id="flujoDescripcion"></p>
@@ -193,18 +170,14 @@
       <!-- ===================== REPLAY BUFFER CONCEPTUAL ===================== -->
       <section class="panel" id="seccionReplay">
         <div class="seccion-titulo">🗃️ Replay buffer (conceptual)
-          <span class="info">i<span class="tip"><b>La memoria del agente.</b> Cada experiencia es una transición
-            (s, a, r, s', done). Las más informativas —romper un ladrillo, perder la bola— tienen mayor <b>TD-error</b>
-            (sorpresa para la red) y, con replay prioritario, se repiten más a menudo. Aquí ves las experiencias
-            arquetípicas y su recompensa real.</span></span>
+          <span class="info" data-info="replayPanel">i</span>
           <span class="suave" style="text-transform: none; letter-spacing: 0">— experiencias y su recompensa</span></div>
         <div id="replayConceptual"></div>
       </section>
 
       <section class="panel">
         <div class="seccion-titulo">🎓 Las cuatro familias en este laboratorio
-          <span class="info">i<span class="tip"><b>El mapa del RL profundo.</b> Resumen de los cuatro algoritmos:
-            su familia, si son on/off-policy y qué aprenden. El recuadro resaltado es el activo.</span></span></div>
+          <span class="info" data-info="familias">i</span></div>
         <div class="variantes" id="variantes"></div>
       </section>
     </div>

@@ -36,8 +36,8 @@ export class InspectorBase {
     return `<div class="insp-fila"><span>${etiqueta}</span><b>${valor}</b></div>`;
   }
 
-  _titulo(nombre, ayuda) {
+  _titulo(nombre, _ayuda) {
     return `<div class="titulo-insp">🔬 Inspector ${nombre}
-      <span class="info">i<span class="tip">${ayuda}</span></span></div>`;
+      <span class="info" data-info="inspector">i</span></div>`;
   }
 }

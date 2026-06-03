@@ -30,13 +30,12 @@ export class PanelMetricas {
       const etq = document.createElement("div");
       etq.className = "etiqueta";
       etq.textContent = d.etiqueta;
-      if (d.ayuda) {
-        const a = document.createElement("span");
-        a.className = "info";
-        a.setAttribute("data-info", d.clave); // abre el pop-up rico de esa métrica
-        a.textContent = "i";
-        etq.appendChild(a);
-      }
+      // Todas las métricas (incluidas las específicas del algoritmo) abren su pop-up.
+      const a = document.createElement("span");
+      a.className = "info";
+      a.setAttribute("data-info", d.clave);
+      a.textContent = "i";
+      etq.appendChild(a);
       const val = document.createElement("div");
       val.className = "valor";
       val.textContent = "—";
