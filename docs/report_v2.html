@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Arkanoid DRL Learning Lab — Edición 2 · De la formulación al resultado</title>
+<style>
+  :root{
+    --ink:#11181f; --slate:#41464f; --muted:#8a909b; --line:#e7e9ef;
+    --blue:#2563eb; --blue-soft:#eff4fe; --violet:#7c3aed; --violet-soft:#f4effe;
+    --pink:#db2777; --pink-soft:#fdeef6; --green:#0c9f6e; --green-soft:#e9fbf4;
+    --amber:#d97706; --amber-soft:#fef3e6; --cyan:#0891b2; --cyan-soft:#e7f7fb;
+  }
+  @page{ size:A4; margin:14mm 0; }
+  @page cover{ margin:0; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{ font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink); font-size:10.5pt; line-height:1.55; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .pad{ padding:0 18mm; }
+  .mono{ font-family:"SFMono-Regular",Menlo,Consolas,monospace; }
+  h1,h2,h3,h4{ margin:0; letter-spacing:-0.3px; }
+  p{ margin:0 0 8px; }
+  small{ color:var(--muted); }
+
+  .cover{ page:cover; height:297mm; display:flex; flex-direction:column; justify-content:center;
+    color:#fff; padding:0 22mm; position:relative; overflow:hidden;
+    background:linear-gradient(135deg,#2563eb 0%,#7c3aed 45%,#db2777 100%); }
+  .cover .kicker{ font-size:12pt; letter-spacing:3px; text-transform:uppercase; opacity:.85; font-weight:600; }
+  .cover h1{ font-size:46pt; line-height:1.02; margin:14px 0 0; font-weight:700; }
+  .cover .sub{ font-size:15pt; opacity:.92; margin-top:18px; max-width:155mm; font-weight:400; }
+  .cover .chips{ margin-top:34px; display:flex; gap:10px; flex-wrap:wrap; }
+  .cover .chip{ background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.28);
+    padding:8px 16px; border-radius:999px; font-size:11pt; font-weight:600; }
+  .cover .credits{ margin-top:30px; display:flex; flex-direction:column; gap:6px; }
+  .cover .cr{ display:flex; align-items:baseline; gap:14px; font-size:11.5pt; }
+  .cover .cr .lbl{ min-width:34mm; font-size:8.5pt; letter-spacing:2px; text-transform:uppercase; opacity:.72; font-weight:700; }
+  .cover .cr .val{ font-weight:600; }
+  .cover .foot{ position:absolute; bottom:20mm; left:22mm; right:22mm; font-size:10pt; opacity:.85;
+    display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,.25); padding-top:12px; }
+
+  .section{ page-break-before:always; }
+  .band{ color:#fff; padding:16px 18mm; margin-bottom:14px; }
+  .band .n{ font-size:11pt; font-weight:700; opacity:.8; letter-spacing:2px; }
+  .band h2{ font-size:25pt; margin-top:2px; }
+  .band .tag{ font-size:10.5pt; opacity:.92; margin-top:4px; }
+  .b-blue{ background:linear-gradient(120deg,#2563eb,#3b82f6); }
+  .b-violet{ background:linear-gradient(120deg,#7c3aed,#a855f7); }
+  .b-pink{ background:linear-gradient(120deg,#db2777,#ec4899); }
+  .b-cyan{ background:linear-gradient(120deg,#0891b2,#06b6d4); }
+  .b-ink{ background:linear-gradient(120deg,#1f2937,#374151); }
+  .b-green{ background:linear-gradient(120deg,#0c9f6e,#10b981); }
+
+  h3.sub{ font-size:13.5pt; margin:18px 0 6px; color:var(--ink); display:flex; align-items:center; gap:8px; break-after:avoid; page-break-after:avoid; }
+  h3.sub::before{ content:""; width:5px; height:18px; border-radius:3px; background:var(--accent,#2563eb); display:inline-block; }
+
+  .card{ border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:8px 0; background:#fff; }
+  .tint{ border:none; border-left:4px solid var(--accent,#2563eb); border-radius:10px; padding:12px 16px; margin:10px 0; background:var(--accent-soft,#eff4fe); }
+  .tint .t{ font-weight:700; color:var(--accent,#2563eb); margin-bottom:3px; font-size:11pt; }
+
+  .defs{ display:grid; grid-template-columns:32mm 1fr; gap:6px 14px; margin:6px 0; }
+  .defs dt{ font-weight:700; color:var(--accent,#2563eb); font-family:"SFMono-Regular",Menlo,monospace; font-size:9.5pt; }
+  .defs dd{ margin:0; color:var(--slate); }
+
+  table.params{ width:100%; border-collapse:collapse; margin:8px 0; font-size:9.8pt; }
+  table.params th{ text-align:left; background:#f6f7f9; color:var(--muted); text-transform:uppercase; font-size:8pt; letter-spacing:.4px; padding:7px 10px; border-bottom:1px solid var(--line); }
+  table.params td{ padding:7px 10px; border-bottom:1px solid #f1f2f5; color:var(--slate); vertical-align:top; }
+  table.params td.k{ font-family:"SFMono-Regular",Menlo,monospace; color:var(--ink); font-weight:600; white-space:nowrap; }
+
+  figure{ margin:12px 0; break-inside:avoid; page-break-inside:avoid; }
+  figure img{ width:100%; border:1px solid var(--line); border-radius:12px; box-shadow:0 10px 26px -14px rgba(17,24,39,.45); display:block; }
+  figcaption{ font-size:9pt; color:var(--muted); margin-top:6px; text-align:center; }
+  .imgrow{ display:flex; gap:10px; } .imgrow figure{ flex:1; margin:12px 0; min-width:0; }
+
+  .pm{ display:flex; gap:12px; margin:12px 0; break-inside:avoid; page-break-inside:avoid; }
+  .pm .box{ flex:1; border-radius:12px; padding:13px 15px; }
+  .pm .prob{ background:#fdeef0; border:1px solid #f6d2d8; }
+  .pm .mejo{ background:#e9fbf4; border:1px solid #c7eede; }
+  .pm .h{ font-weight:700; font-size:10.5pt; margin-bottom:5px; display:flex; align-items:center; gap:6px; }
+  .pm .prob .h{ color:#c0344d; } .pm .mejo .h{ color:#0a6b4e; }
+
+  .note{ background:#fff8ec; border:1px solid #f6e2bd; border-radius:10px; padding:10px 14px; font-size:9.8pt; color:#7a5408; margin:10px 0; }
+  .formula{ font-family:"SFMono-Regular",Menlo,monospace; background:#f4f5f8; border:1px solid #eaecf1; border-radius:8px; padding:8px 12px; font-size:10pt; color:var(--ink); margin:8px 0; }
+
+  table.compare{ width:100%; border-collapse:collapse; font-size:9.1pt; margin:8px 0; break-inside:avoid; page-break-inside:avoid; }
+  table.compare th{ background:#f6f7f9; padding:7px 7px; text-align:left; border-bottom:2px solid var(--line); font-size:8.3pt; text-transform:uppercase; letter-spacing:.3px; color:var(--muted); }
+  table.compare td{ padding:7px 7px; border-bottom:1px solid #f1f2f5; color:var(--slate); }
+  table.compare td:first-child{ font-weight:600; color:var(--ink); }
+  table.compare td.best{ background:#e9fbf4; font-weight:700; color:#0a6b4e; }
+  table.compare .num{ font-family:"SFMono-Regular",Menlo,monospace; }
+
+  .analogy{ display:flex; gap:12px; align-items:flex-start; background:var(--accent-soft,#eff4fe); border:1px solid var(--line); border-radius:12px; padding:13px 16px; margin:10px 0; break-inside:avoid; page-break-inside:avoid; }
+  .analogy .ic{ font-size:20pt; line-height:1; flex:none; }
+  .analogy .t{ font-weight:700; color:var(--accent,#2563eb); font-size:10.5pt; margin-bottom:2px; }
+  .analogy .bd{ color:var(--slate); }
+
+  .uses{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0; }
+  .use{ border:1px solid var(--line); border-radius:11px; padding:11px 13px; background:#fff; }
+  .use .h{ font-weight:700; font-size:10pt; color:var(--ink); margin-bottom:2px; display:flex; gap:7px; align-items:center; }
+  .use .h .e{ font-size:13pt; }
+  .use p{ margin:0; color:var(--slate); font-size:9.6pt; }
+
+  .term{ font-weight:700; color:var(--accent,#2563eb); }
+  .lead{ color:var(--slate); font-size:10.4pt; margin:-2px 0 8px; }
+  .takeaway{ background:#f0fdf9; border:1px solid #c7eede; border-left:4px solid #0c9f6e; border-radius:10px; padding:11px 15px; margin:10px 0; break-inside:avoid; page-break-inside:avoid; }
+  .takeaway .t{ font-weight:700; color:#0a6b4e; font-size:10.5pt; margin-bottom:3px; }
+  .takeaway .bd{ color:#155e4a; }
+
+  .palabra{ background:#fff8ec; border:1px solid #f6e2bd; border-left:4px solid #d97706; border-radius:9px; padding:9px 14px; margin:9px 0; font-size:9.9pt; color:#7a5408; break-inside:avoid; }
+  .palabra .w{ font-weight:700; color:#b45309; }
+  .palabra b{ color:#5c3f06; }
+  .curiosos{ background:#f5f6f8; border:1px dashed #c4cad6; border-radius:11px; padding:11px 15px; margin:11px 0; break-inside:avoid; page-break-inside:avoid; }
+  .curiosos .t{ font-weight:700; color:#5b6472; font-size:9pt; text-transform:uppercase; letter-spacing:.6px; margin-bottom:5px; display:flex; align-items:center; gap:7px; }
+  .curiosos .bd{ font-size:9.6pt; color:var(--slate); line-height:1.55; }
+  .curiosos .bd b{ color:var(--ink); }
+  .porque{ font-size:11pt; color:var(--slate); background:var(--accent-soft,#eff4fe); border-radius:10px; padding:11px 15px; margin:0 0 12px; }
+  .porque b{ color:var(--accent,#2563eb); }
+
+  .takeaway, .pm, .uses, .analogy{ break-inside:avoid; page-break-inside:avoid; }
+  .nivel{ display:inline-block; font-size:7.6pt; font-weight:700; text-transform:uppercase; letter-spacing:.6px; padding:2px 9px; border-radius:999px; background:var(--accent-soft,#eff4fe); color:var(--accent,#2563eb); margin-left:9px; vertical-align:middle; }
+  .glosario{ column-count:2; column-gap:24px; margin:8px 0; }
+  .glosario .g{ break-inside:avoid; page-break-inside:avoid; margin-bottom:10px; font-size:9.8pt; color:var(--slate); }
+  .glosario .g b{ color:var(--ink); }
+  .glosario .g .term{ color:var(--blue); }
+
+  .interp{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:10px 0; break-inside:avoid; page-break-inside:avoid; }
+  .interp .col{ border-radius:11px; padding:11px 13px; font-size:9.5pt; }
+  .interp .obs{ background:#eef4ff; border:1px solid #cfe0fb; }
+  .interp .ok{ background:#e9fbf4; border:1px solid #c7eede; }
+  .interp .mejora{ background:#fef3e6; border:1px solid #f6dcb3; }
+  .interp .h{ font-weight:700; font-size:9.5pt; margin-bottom:4px; display:flex; gap:6px; align-items:center; }
+  .interp .obs .h{ color:#1d4ed8; } .interp .ok .h{ color:#0a7f57; } .interp .mejora .h{ color:#b45309; }
+  .interp ul{ margin:0; padding-left:15px; } .interp li{ margin:2px 0; color:var(--slate); }
+
+  .algocajas{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0; }
+  .algocaja{ border:1px solid var(--line); border-radius:11px; padding:11px 14px; background:#fff; break-inside:avoid; }
+  .algocaja .ti{ font-weight:700; font-size:11pt; display:flex; align-items:center; gap:7px; }
+  .algocaja .fa{ font-size:8.2pt; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; margin:2px 0 5px; }
+  .algocaja p{ margin:0; font-size:9.5pt; color:var(--slate); }
+
+  .kpis{ display:flex; gap:10px; margin:12px 0; }
+  .kpi{ flex:1; border:1px solid var(--line); border-radius:12px; padding:12px 10px; text-align:center; background:#fff; }
+  .kpi .v{ font-size:21pt; font-weight:800; letter-spacing:-1px; }
+  .kpi .l{ font-size:8.4pt; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-top:2px; }
+</style>
+</head>
+<body>
+
+<!-- ============================ PORTADA ============================ -->
+<div class="cover">
+  <div class="kicker">Cuaderno de divulgación · Deep RL · Edición 2</div>
+  <h1>Arkanoid<br/>DRL<br/>Learning Lab</h1>
+  <div class="sub">Cinco algoritmos de aprendizaje por refuerzo aprendiendo a <b>pasar niveles que nunca han visto</b>.
+    Esta segunda edición da la vuelta a la tesis: el cuello de botella nunca fue el algoritmo ni «entrenar más»,
+    sino <b>cómo planteábamos la tarea</b>. Al arreglar el reloj, la recompensa, la observación y la evaluación,
+    varios algoritmos aprendieron a apuntar y generalizar. Con protocolo <b>congelado</b> y <b>multi-semilla</b>:
+    cada cifra tiene su artefacto.</div>
+  <div class="chips">
+    <span class="chip">PPO</span><span class="chip">DQN</span><span class="chip">SAC</span>
+    <span class="chip">World Model</span><span class="chip">World Model RNN</span>
+    <span class="chip">PyTorch · MPS</span><span class="chip">Protocolo congelado</span><span class="chip">5 semillas</span>
+  </div>
+  <div class="credits">
+    <div class="cr"><span class="lbl">Autor</span><span class="val">Roberto Canales Mora · con Claude</span></div>
+    <div class="cr"><span class="lbl">Web</span><span class="val mono">www.robertocanales.com</span></div>
+    <div class="cr"><span class="lbl">Repositorio</span><span class="val mono">github.com/rcanalescoder/DRLArkanoid</span></div>
+    <div class="cr"><span class="lbl">Protocolo</span><span class="val mono">frozen_hash a1ab7ce18d7bad6b</span></div>
+  </div>
+  <div class="foot"><span>El problema no era el algoritmo ni el tiempo; era la formulación.</span><span>Edición 2 · resultados sobre niveles no vistos</span></div>
+</div>
+
+<!-- ============================ §1 EL PROBLEMA ============================ -->
+<section class="section">
+  <div class="band b-cyan"><div class="n">CAPÍTULO 1 · EL PROBLEMA</div><h2>Pasar niveles nunca vistos</h2>
+    <div class="tag">Qué queremos de verdad, por qué es difícil y cómo se mide.</div></div>
+  <div class="pad" style="--accent:#0891b2;--accent-soft:#e7f7fb">
+    <div class="porque">De qué va este documento y <b>por qué te importa</b>: vas a ver a varios agentes aprender,
+      desde cero y sin que nadie les explique las reglas, a <b>limpiar niveles de Arkanoid que no estaban en su
+      entrenamiento</b>. Y vas a ver, con datos honestos, qué de verdad desbloqueó el problema. Spoiler: no fue el algoritmo.</div>
+
+    <p class="lead">El objetivo no es que el agente «sobreviva» moviendo la pala, sino que <b>resuelva</b> el nivel:
+      que rompa todos los ladrillos. Y no en un nivel que ha practicado mil veces, sino en niveles <b>nuevos</b>,
+      con los ladrillos colocados de formas que no ha visto. Eso es lo difícil, y es lo que de verdad mide si ha
+      <b>aprendido a jugar</b> en lugar de <b>memorizar</b>.</p>
+
+    <h3 class="sub">La regla de oro de este documento</h3>
+    <div class="tint"><div class="t">La métrica de cabecera: éxito en niveles de TEST no vistos</div>
+      A lo largo de todo el documento, la cifra que importa es el <b>porcentaje de niveles NUEVOS que el agente
+      limpia por completo</b>, jugando «a lo seguro» (sin explorar). Nunca la recompensa de entrenamiento: un agente
+      puede acumular mucha recompensa y aun así no pasar ni un nivel. Premio ≠ logro.</div>
+
+    <div class="analogy"><div class="ic">🎓</div><div class="bd"><div class="t">La analogía del examen</div>
+      Estudiar con los exámenes de otros años está bien, pero el examen de verdad trae preguntas nuevas. Si solo
+      sabes repetir los ejercicios vistos, suspendes. Medir en niveles <b>no vistos</b> es traer preguntas nuevas:
+      separa al que entendió del que memorizó.</div></div>
+
+    <p>Para que «niveles nuevos» signifique algo, separamos desde el principio los niveles en dos bolsas que <b>no
+      se tocan</b>: una para <b>entrenar</b> y otra, oculta, para <b>examinar</b>. El agente nunca entrena con los
+      niveles del examen. Y medimos sobre tres exámenes distintos, de menos a más exigente:</p>
+    <div class="uses">
+      <div class="use"><div class="h"><span class="e">🟦</span>TEST-ID (500 niveles)</div><p>Mismo «estilo» que el entrenamiento (mismas familias de patrones) pero niveles concretos no vistos. Mide si generaliza dentro de lo conocido.</p></div>
+      <div class="use"><div class="h"><span class="e">🟪</span>TEST-OOD-patrón (250)</div><p>Familias <b>estructuralmente nuevas</b> (túneles, diagonales, anillos, huecos centrales…). Mide si generaliza a formas que nunca vio.</p></div>
+      <div class="use"><div class="h"><span class="e">🟧</span>TEST-OOD-dificultad (199)</div><p>Niveles más <b>densos</b> (casi llenos). Mide si aguanta cuando hay muchísimos ladrillos.</p></div>
+    </div>
+    <div class="note">Todos los niveles de examen están <b>verificados como limpiables</b> por un oráculo determinista:
+      ninguno es imposible. Si el agente no lo limpia, es cosa suya, no del nivel.</div>
+
+    <div class="takeaway"><div class="t">Quédate con esto</div><div class="bd">Queremos agentes que <b>pasen niveles
+      nuevos</b>, no que sobrevivan. Lo medimos con el <b>% de niveles no vistos que limpian</b>, jugando a lo seguro.
+      Todo lo demás del documento gira alrededor de esa cifra.</div></div>
+  </div>
+</section>
+
+<!-- ============================ §2 EL AGENTE CIEGO ============================ -->
+<section class="section">
+  <div class="band b-ink"><div class="n">CAPÍTULO 2 · EL PRIMER INTENTO</div><h2>El agente ciego</h2>
+    <div class="tag">Sobrevive, pero no limpia. Y ahí empieza el misterio.</div></div>
+  <div class="pad" style="--accent:#374151;--accent-soft:#f3f4f6">
+    <p class="lead">El primer agente solo veía <b>seis números</b>: la posición y la velocidad de la bola, y la
+      posición de la pala. Nada más. En particular, <b>no veía los ladrillos</b>. Con esa información puede aprender
+      a poner la pala debajo de la bola y devolverla… pero no puede saber <b>hacia dónde</b> conviene dirigirla,
+      porque no sabe dónde quedan ladrillos por romper.</p>
+
+    <div class="palabra"><span class="w">Ojo con esta palabra · observación.</span> En RL, la <b>observación</b> (u
+      <b>estado</b>) es «lo que el agente ve» en cada instante. Si la observación no contiene una información, el
+      agente <b>no puede</b> usarla, por muy listo que sea el algoritmo. El agente ciego tenía una observación
+      <b>parcial</b>: le faltaba lo esencial, los ladrillos.</p>
+
+    <div class="kpis">
+      <div class="kpi" style="border-color:#f6d2d8"><div class="v" style="color:#c0344d">0%</div><div class="l">niveles dispersos limpiados</div></div>
+      <div class="kpi" style="border-color:#f6d2d8"><div class="v" style="color:#c0344d">~2/28</div><div class="l">ladrillos que rompía</div></div>
+      <div class="kpi" style="border-color:#f6e2bd"><div class="v" style="color:#b45309">≈56%</div><div class="l">«éxito» en rejilla LLENA*</div></div>
+    </div>
+    <p><small>* Ese 56% es la trampa, no un logro: en una rejilla <b>llena</b>, una bola que rebota durante
+      ~2.200 pasos acaba tocando casi todo por pura física. Es <b>supervivencia degenerada</b>, no inteligencia.
+      En cuanto los ladrillos están <b>dispersos</b>, hay que <b>apuntar</b> — y ahí el ciego se queda en 0%.</small></p>
+
+    <div class="pm">
+      <div class="box prob"><div class="h">🧩 El misterio</div>El agente entrena y entrena, la recompensa sube…
+        y sigue sin pasar niveles dispersos. La tentación fácil es decir «necesita entrenar más». <b>Es falso</b>,
+        y demostrarlo es el corazón de este documento.</div>
+      <div class="box mejo"><div class="h">🔎 La pista</div>Un agente que no ve los ladrillos no puede apuntar.
+        Su techo no es de entrenamiento: es de <b>información</b>. Pero, como veremos, la observación no era el único
+        muro — había tres, y ninguno era el algoritmo.</div>
+    </div>
+
+    <div class="takeaway"><div class="t">Quédate con esto</div><div class="bd">El agente ciego <b>sobrevive pero no
+      limpia</b> (0% en niveles dispersos). No es que el algoritmo sea malo ni que falte entrenamiento: es que
+      <b>le falta información y la tarea estaba mal planteada</b>. Vamos a diagnosticarlo.</div></div>
+  </div>
+</section>
+
+<!-- ============================ §3 EL DIAGNÓSTICO ============================ -->
+<section class="section">
+  <div class="band b-pink"><div class="n">CAPÍTULO 3 · EL DIAGNÓSTICO</div><h2>Tres muros, ninguno el algoritmo</h2>
+    <div class="tag">El reloj, la recompensa y la observación. Uno por uno.</div></div>
+  <div class="pad" style="--accent:#db2777;--accent-soft:#fdeef6">
+    <div class="porque">Aquí está el giro de la historia. El PDF anterior concluía que «el cuello de botella es el
+      tiempo de entrenamiento». <b>Los datos lo refutan.</b> El cuello de botella era la <b>formulación</b> de la
+      tarea, en tres capas que conviene separar porque se arreglan por separado.</div>
+
+    <!-- MURO 1: el reloj -->
+    <h3 class="sub">Muro 1 · El reloj: ganar era imposible</h3>
+    <p>Cada partida (un <span class="term">episodio</span>) tenía un límite de pasos. Si se agotaba, la partida
+      terminaba «en tablas». El problema: limpiar todos los ladrillos exige <b>muchos</b> pasos, y el límite estaba
+      puesto demasiado corto. Ganar no era difícil: era <b>literalmente imposible</b>, porque no daba tiempo material.</p>
+    <div class="palabra"><span class="w">Ojo con esta palabra · límite de episodio (timeout).</span> Es el número
+      máximo de pasos que dura una partida. Si limpiar el nivel necesita más pasos que el límite, el agente
+      <b>no puede ganar aunque juegue perfecto</b>. Estábamos midiendo contra un reloj imposible.</p>
+    <div class="ejemplo" style="background:#fdeef6;border-color:#f6d2d8"><div class="t" style="color:#c0344d">🔢 El cálculo que lo delata</div>
+      Romper 28 ladrillos exige del orden de <b>~1.760 pasos</b> (hay que ir, golpear, volver…). El límite estaba en
+      <b>600</b>. Un rastreador <b>perfecto</b>, sin red neuronal, pasaba del <b>0%</b> al <b>37,6%</b> solo con
+      arreglar el reloj (timeout proporcional al nº de ladrillos). El algoritmo no había cambiado ni un bit.</div>
+
+    <!-- MURO 2: la recompensa -->
+    <h3 class="sub">Muro 2 · La recompensa: premiábamos lo que no queríamos</h3>
+    <p>Para «ayudar» al agente le dábamos una recompensa extra, <span class="mono">Φ</span> (shaping), por acercar la
+      pala a la bola. La intención era buena; el efecto, un sabotaje. Esa recompensa <b>arreaba</b> al agente hacia
+      un rebote casi vertical y una estrategia <b>degenerada</b>: mantener la bola arriba sin importar dónde, limpiando
+      como mucho una columna. Optimizaba el premio… alejándose del objetivo.</p>
+    <div class="palabra"><span class="w">Ojo con esta palabra · reward shaping.</span> Es añadir recompensas
+      auxiliares para guiar el aprendizaje. <b>Bien hecho</b> acelera sin cambiar la solución óptima. <b>Mal hecho</b>
+      crea una solución óptima <b>distinta</b> de la que querías: el agente aprende a maximizar tu pista, no tu meta.
+      Aquí <span class="mono">Φ</span> fue lo segundo. (Y, como veremos en los datos, quitarlo <b>mejora</b> el resultado.)</p>
+    <div class="note">Corrección de rumbo respecto al PDF anterior: allí se presentaba <span class="mono">Φ</span> como
+      algo bueno («acelera sin cambiar la política óptima»). En la práctica era <b>el saboteador</b>. Lo decimos claro.</div>
+
+    <!-- MURO 3: la observación -->
+    <h3 class="sub">Muro 3 · La observación: ciego a los ladrillos (el techo real)</h3>
+    <p>Arreglado el reloj y la exploración, el ciego seguía sin apuntar: ganaba por <b>supervivencia</b> en niveles
+      llenos (≈56%) pero <b>0%</b> en dispersos. Este es el muro de verdad: <b>sin ver los ladrillos no se puede
+      apuntar ni generalizar</b>. Ninguna cantidad de entrenamiento arregla una observación incompleta.</p>
+    <div class="curiosos"><div class="t">▸ Para curiosos · observabilidad parcial</div><div class="bd">
+      Cuando la observación no contiene todo lo relevante del estado real, el problema deja de ser un MDP limpio y se
+      vuelve <b>parcialmente observable</b>. El agente toma decisiones con información insuficiente; el techo de
+      rendimiento lo pone la observación, no el algoritmo. La solución no es un algoritmo más potente: es <b>darle de
+      ver</b> lo que necesita.</div></div>
+
+    <div class="takeaway"><div class="t">El diagnóstico, en una frase</div><div class="bd">No era el algoritmo ni
+      «entrenar más». Eran tres cosas de la <b>formulación</b>: un <b>reloj</b> imposible, una <b>recompensa</b> que
+      premiaba lo que no queríamos, y una <b>observación</b> ciega a los ladrillos. Arreglémoslas.</div></div>
+  </div>
+</section>
+
+<!-- ============================ §4 EL ARREGLO ============================ -->
+<section class="section">
+  <div class="band b-blue"><div class="n">CAPÍTULO 4 · EL ARREGLO</div><h2>Darle un reloj justo, una meta limpia y ojos</h2>
+    <div class="tag">Timeout proporcional + recompensa corregida + visión + currículo + niveles procedurales.</div></div>
+  <div class="pad" style="--accent:#2563eb;--accent-soft:#eff4fe">
+    <p class="lead">La solución no fue un algoritmo nuevo, sino <b>replantear la tarea</b>. Cinco cambios, cada uno
+      atacando una causa concreta:</p>
+
+    <div class="defs">
+      <dt>1 · Reloj justo</dt><dd>Timeout <b>proporcional al nº de ladrillos</b> (no un número fijo corto): ganar pasa a ser posible.</dd>
+      <dt>2 · Meta limpia</dt><dd>Quitar el shaping <span class="mono">Φ</span> que arreaba a sobrevivir; la recompensa premia romper ladrillos y ganar, no «estar cerca de la bola».</dd>
+      <dt>3 · Ojos</dt><dd>Añadir a la observación la <b>matriz de ocupación</b> de ladrillos (8×10): el agente por fin <b>ve</b> qué queda por romper.</dd>
+      <dt>4 · Encoder conv</dt><dd>Una pequeña red <b>convolucional</b> que lee esa matriz como lo que es: una rejilla con estructura espacial.</dd>
+      <dt>5 · Currículo</dt><dd>Empezar por niveles fáciles (pocos ladrillos) e ir subiendo, sobre <b>niveles generados al azar</b> con familias de patrones, y examinar en una bolsa <b>aparte</b>.</dd>
+    </div>
+
+    <h3 class="sub">La pieza «ojos»: una matriz de ocupación, NO píxeles</h3>
+    <p>Es importante ser honestos con qué ve el agente ahora. <b>No</b> le damos la imagen del juego ni le explicamos
+      las reglas. Le damos una <b>matriz 8×10</b> que dice, por cada celda, si hay ladrillo o no (1/0), más los seis
+      números de antes (bola y pala). Es una representación <b>estructurada</b> y ligera, no percepción visual desde
+      píxeles como en el Atari clásico.</p>
+    <div class="palabra"><span class="w">Ojo con esta palabra · convolución.</span> Una capa convolucional es un
+      pequeño «detector de patrones» que se desliza por la rejilla mirando vecindarios locales. Aquí actúa como un
+      <b>encoder ligero sobre una matriz de ocupación</b>: aprovecha que dos ladrillos vecinos están relacionados.
+      No es «visión por píxeles»; es leer una rejilla con estructura.</p>
+    <div class="curiosos"><div class="t">▸ Para curiosos · ¿por qué conv y no una lista plana?</div><div class="bd">
+      Se podría aplanar la matriz a una lista de 80 números y meterla en una red normal (un <b>MLP</b>). Funciona…
+      peor. La convolución incorpora el <b>sesgo espacial</b> (lo cercano se relaciona), aprende más rápido y
+      generaliza mejor a configuraciones nuevas. Lo cuantificamos en el Capítulo 5 (ablación): quitar la conv cuesta
+      ~20 puntos de éxito.</div></div>
+
+    <h3 class="sub">Currículo y niveles procedurales: aprender a generalizar</h3>
+    <p>En vez de un único nivel fijo, generamos <b>cientos</b> de niveles con familias de patrones (dispersión, filas,
+      columnas, bloques, simétricos) y los repartimos en <b>train</b> y <b>test</b> disjuntos. El agente entrena
+      primero con los fáciles (pocos ladrillos) y va desbloqueando los difíciles a medida que mejora — un
+      <span class="term">currículo</span>, como un temario que sube de nivel. Así no memoriza un nivel: aprende una
+      <b>política general</b>.</p>
+
+    <div class="takeaway"><div class="t">Quédate con esto</div><div class="bd">Mismo algoritmo, tarea bien planteada:
+      reloj justo + meta limpia + <b>ojos</b> (matriz de ocupación) + encoder conv + currículo sobre niveles nuevos.
+      Con esto, como vamos a ver, <b>PPO funcionó a la primera</b>.</div></div>
+  </div>
+</section>
+
+<!-- ============================ §5 EL RESULTADO ============================ -->
+<section class="section">
+  <div class="band b-green"><div class="n">CAPÍTULO 5 · EL RESULTADO</div><h2>Ahora limpian niveles que nunca vieron</h2>
+    <div class="tag">Lo conseguido, con datos honestos: distribuciones multi-semilla, no el mejor run.</div></div>
+  <div class="pad" style="--accent:#0c9f6e;--accent-soft:#e9fbf4">
+
+    <p class="lead"><b>Qué conseguimos y qué significa.</b> Con la tarea bien planteada y el protocolo congelado,
+      varios agentes pasan de no limpiar nada a <b>resolver la mayoría de niveles no vistos</b>. Esta es la imagen
+      que lo resume:</p>
+    <figure><img src="assets/v2/f1_conquista.png" alt="Antes/después: ciego 0% vs visión hasta 91%."/>
+      <figcaption><b>F1 · La conquista.</b> Antes (agente ciego): 0% en niveles dispersos. Después (visión + conv,
+        TEST-ID @1.5M, media de 5 semillas): PPO 91%, DQN 77%, SAC-hybrid 61%, WM 55%, WM-RNN 35%.</figcaption></figure>
+
+    <h3 class="sub">Cómo aprenden: curvas con banda multi-semilla</h3>
+    <p>No reportamos «el mejor intento»: reportamos la <b>distribución</b> sobre 5 semillas. La línea es la media; la
+      banda, el rango (mín–máx). Una banda ancha = resultado <b>frágil</b> (depende de la suerte de la semilla).</p>
+    <figure><img src="assets/v2/f2_curvas.png" alt="Curvas de aprendizaje, 5 modelos, banda multi-semilla."/>
+      <figcaption><b>F2 · Curvas de aprendizaje</b> (éxito en validación durante el entrenamiento, banda mín–máx
+        sobre 5 semillas, presupuesto 1,5 M de pasos). PPO sube rápido y alto; DQN converge; SAC tiene banda ancha
+        (frágil); los World Models se quedan más abajo.</figcaption></figure>
+
+    <h3 class="sub">La prueba de que <i>apunta</i>: mapas de calor</h3>
+    <p>Si el agente ha aprendido a apuntar, los impactos se <b>concentran</b> donde hay ladrillos, siguiendo el patrón
+      del nivel. Si no, se reparten al azar (o casi no hay, porque pierde la bola pronto). Compara:</p>
+    <div class="imgrow">
+      <figure><img src="assets/v2/heat_ppo.png" alt="Heatmap PPO"/><figcaption><b>PPO</b> — impactos concentrados: apunta y limpia.</figcaption></figure>
+      <figure><img src="assets/v2/heat_dqn.png" alt="Heatmap DQN"/><figcaption><b>DQN</b> — también apunta, algo menos pulido.</figcaption></figure>
+      <figure><img src="assets/v2/heat_colapso.png" alt="Heatmap colapso"/><figcaption><b>Run colapsada</b> — apenas rompe: pierde la bola enseguida.</figcaption></figure>
+    </div>
+    <figcaption style="text-align:center;margin:-4px 0 8px"><b>F3 · Mapas de calor de ladrillos rotos.</b> La visión
+      convierte el rebote ciego en puntería: los impactos siguen el patrón de cada nivel.</figcaption>
+
+    <h3 class="sub">Tabla comparativa final (T1)</h3>
+    <p>Una fila por modelo y por <b>variante honesta</b> (SAC-pure y SAC-critic-hybrid <b>separados</b>). Métricas en
+      TEST, jugando a lo seguro, media de 5 semillas, presupuesto 1,5 M. En verde, la mejor de cada columna.</p>
+    <table class="compare">
+      <tr><th>Modelo / variante</th><th>TEST-ID</th><th>OOD-patrón</th><th>OOD-dificultad</th><th>60–80 ladr.</th><th>Colapsos</th><th>%sem&gt;80</th><th>Pasos/limpiar</th><th>Comentario</th></tr>
+      <tr><td>PPO</td><td class="best num">91%</td><td class="best num">89%</td><td class="best num">86%</td><td class="best num">85%</td><td class="best num">0%</td><td class="best num">100%</td><td class="num">1923</td><td>El mejor y el más fiable.</td></tr>
+      <tr><td>SAC-pure (actor)</td><td class="num">87%</td><td class="num">84%</td><td class="num">68%</td><td class="num">62%</td><td class="best num">0%</td><td class="num">80%</td><td class="num">2732</td><td>El actor SÍ funciona (ver §6).</td></tr>
+      <tr><td>DQN</td><td class="num">77%</td><td class="num">74%</td><td class="num">64%</td><td class="num">65%</td><td class="best num">0%</td><td class="num">80%</td><td class="best num">2125</td><td>Necesita presupuesto; estable.</td></tr>
+      <tr><td>SAC-critic-hybrid</td><td class="num">61%</td><td class="num">60%</td><td class="num">51%</td><td class="num">54%</td><td class="num">20%</td><td class="num">40%</td><td class="best num">1716</td><td>Bimodal: a veces colapsa.</td></tr>
+      <tr><td>WM (Dyna-Q cinemático)</td><td class="num">55%</td><td class="num">53%</td><td class="num">42%</td><td class="num">44%</td><td class="best num">0%</td><td class="num">0%</td><td class="num">1977</td><td>Techo ~55% (ver §6).</td></tr>
+      <tr><td>WM-RNN (Dyna-Q cinemático)</td><td class="num">35%</td><td class="num">29%</td><td class="num">27%</td><td class="num">22%</td><td class="best num">0%</td><td class="num">0%</td><td class="num">1370</td><td>No-monótono; no mejora con LSTM.</td></tr>
+    </table>
+    <p><small>«Colapsos» = % de semillas por debajo del 10% de éxito. «%sem&gt;80» = % de semillas que superan el 80%.
+      Todas las cifras salen de <span class="mono">results/ledger.csv</span> (160 runs reales).</small></p>
+
+    <h3 class="sub">El presupuesto importa (y revela quién es frágil)</h3>
+    <p>El mismo experimento a tres presupuestos (700 k / 1,5 M / 3 M de pasos) cuenta quién aprende rápido y quién
+      necesita tiempo. A 3 M, los tres model-free convergen arriba; los world-models se estancan.</p>
+    <table class="compare">
+      <tr><th>Modelo</th><th>700k</th><th>1,5M</th><th>3M</th><th>Lectura</th></tr>
+      <tr><td>PPO</td><td class="num">90%</td><td class="num">91%</td><td class="num">87%</td><td>Aprende ya a 700k; meseta. El más sample-efficient.</td></tr>
+      <tr><td>SAC-pure</td><td class="num">25%</td><td class="num">87%</td><td class="best num">91%</td><td>Despega entre 700k y 1,5M; arriba a 3M.</td></tr>
+      <tr><td>SAC-hybrid</td><td class="num">4%</td><td class="num">61%</td><td class="num">88%</td><td>Dependencia brutal del presupuesto.</td></tr>
+      <tr><td>DQN</td><td class="num">67%</td><td class="num">77%</td><td class="num">85%</td><td>Mejora monótona; se estabiliza con presupuesto.</td></tr>
+      <tr><td>WM (Dyna-Q)</td><td class="num">33%</td><td class="num">55%</td><td class="num">56%</td><td>Techo ~55%.</td></tr>
+      <tr><td>WM-RNN</td><td class="num">54%</td><td class="num">35%</td><td class="num">40%</td><td>No-monótono (ruido de semilla + alta varianza).</td></tr>
+    </table>
+
+    <h3 class="sub">No solo niveles fáciles (F4)</h3>
+    <figure><img src="assets/v2/f4_dificultad.png" alt="Éxito por dificultad (nº de ladrillos)."/>
+      <figcaption><b>F4 · Éxito por dificultad.</b> Éxito por tramo de nº de ladrillos (TEST-ID @1,5M). PPO mantiene
+        ~85% incluso en los niveles más densos (60–80 ladrillos); los demás caen con la densidad.</figcaption></figure>
+
+    <h3 class="sub">Qué ingrediente desbloqueó el aprendizaje (T2 · ablación)</h3>
+    <p>Partimos de la receta completa (DQN, 77%) y quitamos <b>un</b> ingrediente cada vez. La caída mide su
+      importancia. Hay dos sorpresas honestas.</p>
+    <table class="compare">
+      <tr><th>Ingrediente que quitamos</th><th>Éxito</th><th>Δ vs receta</th><th>Colapsos</th><th>Lectura</th></tr>
+      <tr><td>— (receta completa)</td><td class="num">77%</td><td class="num">—</td><td class="num">0%</td><td>Referencia.</td></tr>
+      <tr><td>Escala 1.0 → 0.25 (de los ladrillos)</td><td class="num">1%</td><td class="num" style="color:#c0344d;font-weight:700">−76,5</td><td class="num">100%</td><td><b>El ingrediente crítico.</b> Atenuar la señal de ladrillos la mata.</td></tr>
+      <tr><td>Timeout constante → proporcional</td><td class="num">54%</td><td class="num">−23,5</td><td class="num">0%</td><td>El reloj importa, también en sentido inverso.</td></tr>
+      <tr><td>Conv → lista plana (MLP)</td><td class="num">57%</td><td class="num">−20,4</td><td class="num">0%</td><td>El sesgo espacial vale ~20 puntos.</td></tr>
+      <tr><td>ε-decay rápido → lento</td><td class="num">75%</td><td class="num">−2,6</td><td class="num">0%</td><td>Poco efecto a este presupuesto.</td></tr>
+      <tr><td>Sin currículo</td><td class="num">75%</td><td class="num">−1,9</td><td class="num">0%</td><td>Casi neutro a 1,5M (ayuda más a bajo presupuesto).</td></tr>
+      <tr><td>Sin shaping (Φ)</td><td class="num" style="color:#0a6b4e;font-weight:700">85%</td><td class="num" style="color:#0a6b4e;font-weight:700">+8,0</td><td class="num">0%</td><td><b>¡Quitarlo MEJORA!</b> Confirma que Φ era el saboteador.</td></tr>
+    </table>
+    <div class="note"><b>Inversión histórica.</b> En la era antigua (rejilla pequeña, lista plana) la escala 0.25 fue
+      <b>la pieza que desbloqueó</b> el aprendizaje (atenuaba los ladrillos para no ahogar a la bola). Con el encoder
+      <b>conv</b> —que ya separa ladrillos de cinemática— la escala 0.25 lo <b>mata</b>. El ingrediente óptimo
+      <b>depende de la arquitectura</b>: una lección que solo se ve midiendo, no suponiendo.</div>
+
+    <div class="takeaway"><div class="t">Lo conseguido, en una frase</div><div class="bd">De 0% (ciego) a <b>91% en
+      niveles no vistos</b> (PPO), con 0 colapsos y todas las semillas por encima del 80%. Y la ablación confirma la
+      tesis: lo que desbloqueó el problema fueron <b>ingredientes de formulación</b> (escala, reloj, conv), no el algoritmo.</div></div>
+  </div>
+</section>
+
+<!-- ============================ §6 LOS ALGORITMOS ============================ -->
+<section class="section">
+  <div class="band b-violet"><div class="n">CAPÍTULO 6 · EL REPARTO</div><h2>Los cinco algoritmos, en breve</h2>
+    <div class="tag">Cada uno con su carácter y cómo le fue — al servicio de la comparativa.</div></div>
+  <div class="pad" style="--accent:#7c3aed;--accent-soft:#f4effe">
+    <p class="lead">Ahora sí, los protagonistas — pero como <b>reparto</b>, no como plato principal. La estrella es el
+      resultado; ellos lo explican.</p>
+
+    <div class="algocajas">
+      <div class="algocaja" style="--accent:#7c3aed"><div class="ti">🟣 PPO <span class="nivel">ganador</span></div>
+        <div class="fa">model-free · actor-crítico · on-policy</div>
+        <p>Ajusta directamente la <b>política</b> (qué acción tomar) con pasos pequeños y seguros (un «clip» que evita
+          cambios bruscos). Aquí fue el <b>mejor y el más fiable</b>: 91% a 1,5M, 0 colapsos, 100% de semillas &gt;80%.
+          Funcionó <b>a la primera</b> en cuanto la tarea estuvo bien planteada.</p></div>
+      <div class="algocaja" style="--accent:#2563eb"><div class="ti">🔵 DQN</div>
+        <div class="fa">model-free · basado en valor · off-policy</div>
+        <p>Aprende el <b>valor</b> de cada acción (Q) y elige la mejor. Sólido pero más <b>hambriento de presupuesto</b>:
+          67%→77%→85% conforme entrena más. Estable (0 colapsos), con alguna semilla rezagada a 1,5M.</p></div>
+      <div class="algocaja" style="--accent:#db2777"><div class="ti">🩷 SAC <span class="nivel" style="background:#fdeef6;color:#db2777">honesto: 2 variantes</span></div>
+        <div class="fa">model-free · actor-crítico · off-policy · entropía</div>
+        <p>Tiene un <b>actor</b> (la política) y un <b>crítico</b> (el valor). Aquí aparece el hallazgo que <b>invierte
+          la creencia previa</b>: ver caja inferior. Honestidad: lo reportamos como dos modelos separados.</p></div>
+      <div class="algocaja" style="--accent:#d97706"><div class="ti">🟠 World Model + 🔷 WM-RNN</div>
+        <div class="fa">model-based · Dyna-Q con modelo cinemático</div>
+        <p>Aprenden un <b>modelo de la dinámica</b> e «imaginan» pasos para entrenar más rápido. Importante (honestidad):
+          su modelo es <b>solo cinemático</b> (predice la bola; los ladrillos quedan fijos en la imaginación). <b>No</b>
+          es un simulador del juego. Topan ~55% (MLP) / ~40% (RNN).</p></div>
+    </div>
+
+    <h3 class="sub">SAC: el actor «de libro» no colapsaba (corrección honesta)</h3>
+    <div class="pm">
+      <div class="box prob"><div class="h">❌ Lo que se creía</div>«El actor discreto de SAC colapsa, así que usamos la
+        política del <b>crítico</b> como apaño» (SAC-critic-hybrid). Era una <b>sobre-corrección</b>.</div>
+      <div class="box mejo"><div class="h">✅ Lo que dicen los datos</div>El <b>SAC-pure</b> (usar el actor para jugar y
+        evaluar) <b>iguala o supera</b> al híbrido en los tres presupuestos (87% vs 61% a 1,5M) y <b>colapsa menos</b>
+        (0% vs 20% de semillas). La premisa no se sostiene bajo protocolo congelado y multi-semilla.</div>
+    </div>
+    <div class="curiosos"><div class="t">▸ Para curiosos · por qué pasó</div><div class="bd">Con una sola semilla, el
+      actor de SAC sí parecía colapsar — y de ahí salió el apaño del crítico. Pero al medir con <b>5 semillas</b> y la
+      receta congelada, el actor resulta competitivo y más estable. Es el peligro de concluir con n=1: lo que parece una
+      verdad del algoritmo era ruido de semilla.</div></div>
+
+    <h3 class="sub">World Models: el hallazgo negativo (caracterizado, no escondido)</h3>
+    <p>Los modelos basados en modelo se quedan en ~55% (MLP) y ~40% (RNN), muy por debajo de los model-free. La
+      hipótesis natural era «el LSTM predice peor la dinámica y por eso lastra». <b>La medimos y la refutamos</b>: el
+      error de predicción 1-paso del LSTM es prácticamente igual al del MLP (×1,02). El techo no lo pone el modelo, sino
+      la <b>dinámica solo-cinemática</b> (los ladrillos congelados en la imaginación). La recurrencia no aporta y solo
+      añade varianza. Es un <b>hallazgo negativo principista</b>: el model-based, así planteado, no ayuda — y sabemos por qué.</p>
+
+    <h3 class="sub">PPO: ¿de qué falla ese ~10% restante?</h3>
+    <p>Hasta el mejor, PPO, falla ~1 de cada 10. ¿Es resoluble o es un techo? Lo diagnosticamos: los niveles que falla
+      son <b>100% limpiables</b> (el oráculo los limpia), el fallo está <b>repartido</b> entre familias (ninguna es un
+      punto ciego), domina «pierde la bola» dejando el 71–80% sin romper (falla <b>pronto</b>), y <b>no mejora</b> con
+      más presupuesto. Conclusión honesta: es un <b>techo de control fino</b> de la política, no de datos ni de visión.</p>
+  </div>
+</section>
+
+<!-- ============================ §7 LAS LECCIONES ============================ -->
+<section class="section">
+  <div class="band b-ink"><div class="n">CAPÍTULO 7 · LAS LECCIONES</div><h2>Lo que de verdad nos llevamos</h2>
+    <div class="tag">Más allá del Arkanoid: cómo pensar y cómo medir en Deep RL.</div></div>
+  <div class="pad" style="--accent:#374151;--accent-soft:#f3f4f6">
+    <div class="interp">
+      <div class="col ok"><div class="h">✅ Formulación &gt; algoritmo</div><ul>
+        <li>El cuello de botella era la <b>tarea</b>, no el método.</li>
+        <li>Reloj, recompensa, observación, currículo y evaluación importan tanto o más que elegir PPO vs DQN.</li>
+        <li>Bien planteado, PPO funcionó a la primera.</li></ul></div>
+      <div class="col obs"><div class="h">📏 La trampa de la métrica</div><ul>
+        <li>Recompensa ≠ éxito. El ciego acumulaba premio y pasaba 0 niveles.</li>
+        <li>El shaping <span class="mono">Φ</span> optimizaba la pista, no la meta.</li>
+        <li>Medir el <b>logro real</b> (éxito en test) cambia las conclusiones.</li></ul></div>
+      <div class="col mejora"><div class="h">🔬 Medir con honestidad</div><ul>
+        <li><b>Multi-semilla</b>, no el mejor run: salvó 3 conclusiones falsas (SAC «roto», LSTM «peor», currículo «−27»).</li>
+        <li>Protocolo <b>congelado</b>: sin tocar nada entre comparaciones.</li>
+        <li>Cada cifra trazable a un artefacto.</li></ul></div>
+    </div>
+
+    <h3 class="sub">Tres conclusiones que solo se ven midiendo</h3>
+    <div class="defs">
+      <dt>Model-based</dt><dd>No siempre ayuda. Un modelo de dinámica <b>incompleto</b> (solo cinemático) pone un techo; imaginar sobre él no sube ese techo (y la recurrencia ni ayuda).</dd>
+      <dt>SAC frágil</dt><dd>Su fragilidad era en parte <b>nuestra</b> (un apaño de n=1). El actor puro, bien medido, es competitivo. La fragilidad real es la alta varianza entre semillas.</dd>
+      <dt>El contexto manda</dt><dd>La escala de entrada que <b>desbloqueó</b> la era antigua <b>mata</b> en la nueva. No hay recetas universales; hay recetas <b>para una arquitectura</b>.</dd>
+    </div>
+
+    <div class="takeaway"><div class="t">La frase que este trabajo puede defender</div><div class="bd">El problema no
+      era el algoritmo ni el tiempo; era <b>cómo planteábamos la tarea</b>. Al arreglar la observación, la recompensa,
+      el currículo y la evaluación, varios algoritmos aprendieron a pasar niveles no vistos — y aquí está cada
+      artefacto que lo demuestra.</div></div>
+  </div>
+</section>
+
+<!-- ============================ §8 MÉTODO Y HONESTIDAD ============================ -->
+<section class="section">
+  <div class="band b-cyan"><div class="n">APÉNDICE · MÉTODO</div><h2>Cómo se midió (y por qué te puedes fiar)</h2>
+    <div class="tag">Protocolo congelado, infraestructura y reproducibilidad.</div></div>
+  <div class="pad" style="--accent:#0891b2;--accent-soft:#e7f7fb">
+    <h3 class="sub">El protocolo congelado</h3>
+    <p>Antes de medir, se <b>congelaron</b> (y se sellaron con un hash) el generador de niveles, los tres conjuntos de
+      test, las semillas, los presupuestos, la receta base y la forma de evaluar. Una vez congelado, <b>no se cambia
+      nada</b> entre comparaciones; cualquier cambio obligaría a re-ejecutar todo. Hash del protocolo:
+      <span class="mono">a1ab7ce18d7bad6b</span>.</p>
+    <table class="params">
+      <tr><th>Decisión</th><th>Valor congelado</th></tr>
+      <tr><td class="k">Semillas</td><td>5 (0–4); se reporta la distribución, no el mejor run.</td></tr>
+      <tr><td class="k">Presupuestos</td><td>700k / 1,5M / 3M pasos de entorno.</td></tr>
+      <tr><td class="k">Evaluación</td><td>greedy (a lo seguro), sobre listas fijas de niveles no vistos.</td></tr>
+      <tr><td class="k">Test sets</td><td>TEST-ID 500 · OOD-patrón 250 · OOD-dificultad 199 (todos limpiables, verificado).</td></tr>
+      <tr><td class="k">Umbral colapso</td><td>una semilla «colapsa» si baja del 10% de éxito.</td></tr>
+      <tr><td class="k">Ledger</td><td>cada run añade una fila a <span class="mono">results/ledger.csv</span> (160 runs). Ninguna cifra del documento existe fuera del ledger.</td></tr>
+    </table>
+
+    <h3 class="sub">Infraestructura: exprimir la máquina sin tocar la ciencia</h3>
+    <p>El entrenamiento corre en PyTorch sobre la GPU Metal (MPS) de un Apple M3 Ultra. El entorno del juego va en
+      numpy (CPU) y la red en GPU, así que <b>una sola partida infrautiliza la máquina</b>. La solución honesta: correr
+      muchas runs <b>independientes</b> a la vez (cada una con su configuración congelada, bit a bit idéntica a correrla
+      sola). Medimos el punto óptimo en <b>24 runs concurrentes</b> (~5× de throughput; la GPU es el cuello). Resultado:
+      las 75 runs de la comparativa en <b>64 minutos</b> en vez de ~3 horas — sin alterar ningún número.</p>
+    <div class="curiosos"><div class="t">▸ Para curiosos · paralelismo honesto</div><div class="bd">La clave es que el
+      paralelismo es <b>entre</b> runs, no <b>dentro</b> de una run. No se cambia el tamaño de lote ni el nº de entornos
+      (eso alteraría los resultados). Se verificó que una run en paralelo da el mismo número que en solitario
+      (84,9% == 84,93%). La escritura del registro es segura entre procesos (lock).</div></div>
+
+    <h3 class="sub">Cómo reproducirlo</h3>
+    <div class="formula">uv venv --python 3.13 .venv &amp;&amp; uv pip install -r requirements.txt<br/>
+      .venv/bin/python gpu/tanda_par.py            <span style="color:#7e8da6"># comparativa C6 (75 runs, K=24)</span><br/>
+      .venv/bin/python gpu/report_c6.py            <span style="color:#7e8da6"># tabla final</span><br/>
+      .venv/bin/python gpu/c1_ppo_failures.py · c2_representation · c3_ablation · c4_sac · c5_world_models</div>
+
+    <div class="reflist" style="margin-top:12px">
+      <div class="r" style="border-left:3px solid var(--line);padding:5px 13px"><b>Artefactos</b> · <span class="mono">results/ledger.csv</span> (160 runs) · <span class="mono">tabla_c6</span> · <span class="mono">ppo_failures</span> · <span class="mono">dqn_representation</span> · <span class="mono">ablation.csv</span> · <span class="mono">sac_variants</span> · <span class="mono">wm_variants</span> · <span class="mono">hallazgos.md</span> · mapas de calor.</div>
+    </div>
+  </div>
+
+  <!-- Glosario -->
+  <div class="band b-violet" style="margin-top:18px"><div class="n">GLOSARIO</div><h2>Términos, como referencia</h2></div>
+  <div class="pad" style="--accent:#7c3aed;--accent-soft:#f4effe">
+    <div class="glosario">
+      <div class="g"><span class="term">Agente / Política (π)</span> — el que decide; la función estado→acción que queremos aprender.</div>
+      <div class="g"><span class="term">Observación / Estado</span> — lo que el agente «ve». Aquí: bola+pala (6 nº) + matriz de ocupación 8×10.</div>
+      <div class="g"><span class="term">Recompensa / Shaping</span> — la señal numérica. Shaping = recompensa auxiliar; mal hecha (Φ), saboteadora.</div>
+      <div class="g"><span class="term">Episodio / Timeout</span> — una partida; su límite de pasos. Si es muy corto, ganar es imposible.</div>
+      <div class="g"><span class="term">Éxito en test</span> — % de niveles <b>no vistos</b> limpiados por completo, jugando a lo seguro. La métrica reina.</div>
+      <div class="g"><span class="term">Convolución</span> — encoder ligero que lee la rejilla de ladrillos aprovechando su estructura espacial. No es visión por píxeles.</div>
+      <div class="g"><span class="term">Currículo</span> — entrenar de fácil a difícil, sobre niveles generados, para aprender una política general.</div>
+      <div class="g"><span class="term">Model-free / Model-based</span> — sin/ con modelo de la dinámica del entorno. Aquí el model-based usa un modelo solo cinemático.</div>
+      <div class="g"><span class="term">Multi-semilla / Colapso</span> — repetir con varias semillas y reportar la distribución; «colapso» = semilla por debajo del 10%.</div>
+      <div class="g"><span class="term">Greedy</span> — jugar «a lo seguro», eligiendo siempre la mejor acción conocida (sin explorar). Cómo se evalúa.</div>
+    </div>
+    <p style="text-align:center;margin-top:14px"><small>Arkanoid DRL Learning Lab · Edición 2 · Roberto Canales Mora con Claude ·
+      protocolo <span class="mono">a1ab7ce18d7bad6b</span> · todas las cifras desde <span class="mono">results/ledger.csv</span></small></p>
+  </div>
+</section>
+
+</body>
+</html>
