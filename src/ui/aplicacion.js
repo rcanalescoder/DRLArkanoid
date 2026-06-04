@@ -50,6 +50,7 @@ export class Aplicacion {
       envSeleccionado: $("envSeleccionado"),
       statReward: $("statReward"),
       statLadrillos: $("statLadrillos"),
+      statLadrillosTotal: $("statLadrillosTotal"),
       statPasos: $("statPasos"),
       metricasGrid: $("metricasGrid"),
       inspector: $("inspector"),
@@ -364,6 +365,7 @@ export class Aplicacion {
     dibujarEntorno(this.ctx, env);
     this.dom.statReward.textContent = env.recompensaEpisodio.toFixed(2);
     this.dom.statLadrillos.textContent = env.ladrillosRotosEpisodio;
+    if (this.dom.statLadrillosTotal) this.dom.statLadrillosTotal.textContent = env.ladrillosIniciales;
     this.dom.statPasos.textContent = env.pasos;
     const etiquetaEstado =
       { jugando: "jugando", ganado: "ganado", timeout: "tiempo agotado", perdido: "perdido" }[
