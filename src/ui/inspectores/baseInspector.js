@@ -1,6 +1,6 @@
 // ============================================================================
-//  InspectorBase — utilidades comunes a todos los inspectores de algoritmo
-//  Cada inspector reconstruye su contenido a partir de obtenerDatosInspeccion().
+//  InspectorBase — utilidades comunes a todos los inspectores de algoritmo.
+//  Cada campo puede llevar su propio icono de info (ℹ) que abre la ficha rica.
 // ============================================================================
 
 export class InspectorBase {
@@ -9,6 +9,11 @@ export class InspectorBase {
   }
 
   render(_datos) {}
+
+  /** Icono de info que abre la ficha pedagógica del id dado (vacío si no hay id). */
+  _info(id) {
+    return id ? ` <span class="info" data-info="${id}">i</span>` : "";
+  }
 
   /** Barras horizontales para Q-values o probabilidades (resalta la greedy). */
   _barras(valores, greedy, simbolos, esProb = false) {
@@ -26,18 +31,24 @@ export class InspectorBase {
         return `<div class="barra-q${opt}">
           <span class="acc">${simbolos[i]}</span>
           <div class="pista"><div class="relleno" style="width:${Math.max(2, w).toFixed(0)}%"></div></div>
-          <span class="num">${v.toFixed(esProb ? 3 : 3)}</span>
+          <span class="num">${v.toFixed(3)}</span>
         </div>`;
       })
       .join("");
   }
 
-  _fila(etiqueta, valor) {
-    return `<div class="insp-fila"><span>${etiqueta}</span><b>${valor}</b></div>`;
+  /** Subtítulo de una sección del inspector, con icono de info opcional. */
+  _subtitulo(texto, infoId) {
+    return `<div class="subtitulo">${texto}${this._info(infoId)}</div>`;
   }
 
-  _titulo(nombre, _ayuda) {
-    return `<div class="titulo-insp">🔬 Inspector ${nombre}
-      <span class="info" data-info="inspector">i</span></div>`;
+  /** Fila etiqueta→valor, con icono de info opcional junto a la etiqueta. */
+  _fila(etiqueta, valor, infoId) {
+    return `<div class="insp-fila"><span>${etiqueta}${this._info(infoId)}</span><b>${valor}</b></div>`;
+  }
+
+  /** Título del inspector; su info enlaza, por defecto, a la ficha del algoritmo. */
+  _titulo(nombre, infoId = "inspector") {
+    return `<div class="titulo-insp">🔬 Inspector ${nombre}${this._info(infoId)}</div>`;
   }
 }

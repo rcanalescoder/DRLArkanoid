@@ -367,6 +367,25 @@ export const INFO = {
     secciones:[
       {h:"Qué mide",cuerpo:"La suma de todos los premios y castigos del episodio en curso de la partida observada: rebotes con la pala, ladrillos rotos (con sus combos), la penalización si se pierde la pelota y el shaping. Es exactamente la cifra que el agente intenta maximizar."},
       {h:"Cómo evoluciona",cuerpo:"Crece mientras la partida va bien (cada rebote y cada ladrillo suman) y cae de golpe si se pierde la pelota. Al terminar el episodio se reinicia a cero para la siguiente partida. Observada a lo largo de muchas partidas, su nivel medio es lo que resume la métrica principal de recompensa."}] },
+
+  // ───────────────────────── INSPECTOR (campos internos) ─────────────────────────
+  qValores: { emoji:"📊", titulo:"Valores Q — Q(s,a)", categoria:"Concepto",
+    resumen:"La «nota» que el agente pone a cada acción: recompensa futura esperada.",
+    secciones:[
+      {h:"Qué muestran las barras",cuerpo:"Cada barra es el <b>valor Q</b> de una acción en el estado que se observa: la recompensa total que el agente espera lograr si toma esa acción y luego sigue jugando bien. La barra resaltada en verde es la de mayor Q, la acción <b>greedy</b> que elegiría si no estuviera explorando."},
+      {h:"Cómo leerlas",cuerpo:"No importan tanto los valores absolutos como <b>cuál es el mayor</b> y la <b>diferencia</b> entre ellos. Si una acción destaca, el agente tiene una preferencia clara; si las tres están parejas, está indeciso (normal al principio). A medida que aprende, las barras reflejan mejor qué conviene en cada situación."}],
+    formula:"acción greedy = argmaxₐ Q(s,a)" },
+  valorEstado: { emoji:"💰", titulo:"Valor del estado V(s)", categoria:"Concepto",
+    resumen:"Cuántos puntos se esperan, en promedio, a partir de este estado.",
+    secciones:[
+      {h:"Qué es",cuerpo:"<span class=\"mono\">V(s)</span> es la estimación de la <b>crítica</b>: la recompensa total que cabe esperar a partir del estado actual si se sigue con la política presente. A diferencia de <span class=\"mono\">Q(s,a)</span>, no depende de una acción concreta, sino del estado en su conjunto."},
+      {h:"Para qué sirve",cuerpo:"Es la <b>vara de medir</b> de PPO y SAC. Comparando lo que de verdad ocurre tras una acción con lo que la crítica esperaba del estado se obtiene la <b>ventaja</b>: si una acción supera a <span class=\"mono\">V(s)</span>, se refuerza; si queda por debajo, se debilita. Una crítica precisa hace que el actor aprenda con menos ruido."}],
+    formula:"ventaja  A(s,a) ≈ (retorno observado) − V(s)" },
+  unidadesLSTM: { emoji:"🧬", titulo:"Memoria LSTM", categoria:"Dato",
+    resumen:"El tamaño del estado oculto del modelo recurrente: su «memoria».",
+    secciones:[
+      {h:"Qué mide",cuerpo:"El número de unidades del <b>estado oculto</b> del LSTM que el World Model recurrente usa como modelo de dinámica. Ese estado oculto es la <b>memoria</b> de la red: el resumen, paso a paso, de la trayectoria reciente, que le permite predecir el siguiente estado teniendo en cuenta el pasado y no solo el instante actual."},
+      {h:"Por qué importa",cuerpo:"Más unidades = más capacidad de recordar y modelar secuencias largas, pero también más cómputo. Es la pieza que distingue al World Model recurrente del normal: donde el normal predice de uno en uno sin memoria, este arrastra su estado oculto y mantiene la coherencia al imaginar varios pasos seguidos."}] },
 };
 
 const COLOR_SOFT = {
