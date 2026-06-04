@@ -13,6 +13,7 @@ import { RecolectorMetricas } from "../src/entrenamiento/metricas.js";
 import { SistemaTrazas } from "../src/nucleo/trazas.js";
 import { Orquestador } from "../src/entrenamiento/orquestador.js";
 import { HIPERPARAMETROS, ALGORITMOS, CONFIGURACION_ENTORNO, dimensionEstado, NUM_LADRILLOS } from "../src/nucleo/constantes.js";
+import { backendRapido } from "./backend.mjs";
 
 const IMPORTADORES = {
   dqn: () => import("../src/agentes/agenteDQN.js").then((m) => m.AgenteDQN),
@@ -47,8 +48,7 @@ async function main() {
     process.exit(1);
   }
 
-  await tf.setBackend("cpu");
-  await tf.ready();
+  const backend = await backendRapido();
 
   const idAlgoritmo = ALGORITMOS[algo.toUpperCase()] ?? algo;
   const hpBase = HIPERPARAMETROS[idAlgoritmo] ?? {};

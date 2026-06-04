@@ -10,11 +10,24 @@
     "entrenar": "node scripts/entrenar.mjs",
     "verificar": "node scripts/verificarTodo.mjs"
   },
-  "keywords": ["drl", "arkanoid", "reinforcement-learning", "dqn", "ppo", "sac", "world-model", "tensorflowjs", "educativo"],
+  "keywords": [
+    "drl",
+    "arkanoid",
+    "reinforcement-learning",
+    "dqn",
+    "ppo",
+    "sac",
+    "world-model",
+    "tensorflowjs",
+    "educativo"
+  ],
   "license": "MIT",
   "dependencies": {
     "@tensorflow/tfjs": "^4.22.0",
     "@tensorflow/tfjs-backend-webgpu": "^4.22.0"
+  },
+  "optionalDependencies": {
+    "@tensorflow/tfjs-node": "^4.22.0"
   },
   "devDependencies": {
     "vite": "^5.4.0"

@@ -246,8 +246,49 @@ generador/splits. Progresión: domina ≤7 a 400k → full (≤28) a 500k → pu
 
 Por familia (test): bloque 96%, dispersión 88%, columnas 84%, simétrico 83%, filas 76%. ⇒ El currículum
 **sube el test 8 pts y baja el gap a 2.5** → política general sólida. **4×7 PULIDO** (objetivo >78% cumplido).
-**Siguiente: Fase 2b** — escalar a 8×10 + encoder conv (matriz de ocupación 2D) + rama cinemática,
-reutilizando generador/splits/currículum.
+
+### [Fase 2b — 8×10 + CONV: GENERALIZA al 86% con gap ≈ 0] · OBJETIVO CUMPLIDO A ESCALA
+Escalado a rejilla **8×10** (80 celdas, dim 86, timeout 7200). Red **CONV multi-entrada** (`crearRedConv`):
+matriz de ocupación 8×10 → Conv2D(16)→Conv2D(32) 3×3 same relu → flatten; rama cinemática Dense(16);
+concat → 128→128→3 (351.667 params). En DQN vía `_predecir` (parte el estado plano [n,86] en cinemática
+[n,6] + matriz [n,8,10,1]). Currículum por tiers ≤16/≤36/≤60/≤80, generador/splits reusados,
+**escala=1.0** (la rama conv ya separa ladrillos de cinemática → no hace falta atenuar). 1.5M pasos. Greedy:
+
+| | éxito | %ladrillos | vive |
+|---|---|---|---|
+| TRAIN | 86% | 92% | 1617 |
+| **TEST (no vistos)** | **86%** | 92% | 1578 |
+
+**GAP ≈ 0 (−0.7 pts).** Por familia (test): bloque 91, columnas 86, dispersión 84, simétrico 80, filas 72.
+⇒ **Política general conv que limpia niveles 8×10 NO vistos apuntando, con gap nulo.** El objetivo del
+proyecto queda cumplido a escala.
+
+### [INFRA — backend de cómputo] · tfjs-node (CPU nativo) y la cuestión GPU
+La conv en CPU-JS puro era lentísima. **`@tensorflow/tfjs-node`** (libtensorflow C++ multihilo) la pone a
+**~6.800 exp/s** (1.5M conv en 3.7 min). Helper `scripts/backend.mjs` (elige nativo→cpu) + `_compat_node.mjs`
+(shim `util.is*` que Node 25 eliminó y tfjs-node aún usa). **GPU:** en Mac NO hay backend GPU para TF.js en
+Node (`navigator.gpu` no existe en Node; tfjs-node-gpu es solo CUDA). La GPU Metal solo se alcanza vía
+**WebGPU en el navegador** (la app lo usa) o portando a otra librería (**PyTorch-MPS**).
+
+### [GPU — usar Metal de verdad vía PyTorch-MPS] · 5,5× más rápido, mismo resultado
+El usuario pidió usar la GPU (la del M4 Max estaba idle mientras el CPU iba al 99%). Investigado:
+- **TF.js en Node = solo CPU.** `navigator.gpu` no existe en Node 25; `tfjs-node-gpu` es solo CUDA.
+- **WebGPU en Node vía Dawn (`@kmamal/gpu`):** la GPU **se enciende** (Metal activo, 71% en powermetrics)
+  pero el test **se cuelga en `dataSync`** → no viable. TF.js+Metal solo es fiable en navegador.
+- **Solución (sugerencia del usuario): PyTorch sobre MPS.** `gpu/arkanoid_mps.py` porta la MISMA Fase 2b
+  (entorno 8×10 vectorizado en numpy + **conv DQN idéntico, 351.667 params** + generador/splits/currículo)
+  a PyTorch `device='mps'`. Resultado (1.5M, envs=256):
+
+| | exp/s | tiempo 1.5M | TEST éxito | gap |
+|---|---|---|---|---|
+| TF.js-CPU nativo (tfjs-node) | ~6.800 | 222s | 86% | −0.7 |
+| **PyTorch-MPS (GPU Metal)** 1.5M | **37.591** | **40s** | 81% | −4.7 |
+| **PyTorch-MPS (GPU Metal)** 3M | **37.368** | **80s** | **89%** | −4.7 |
+
+⇒ **La GPU sí se usa** (Metal, ~5,5× más rápida). A mismo presupuesto (1.5M) generaliza algo menos (81%
+porque el currículo solo llega a ≤60); pero como 3M cuesta **80s**, alcanza dificultad plena y **supera al
+CPU: 89% test**. Vía recomendada para escalar en Apple Silicon con la misma arquitectura. Ver `gpu/README.md`.
+*(Nota: con TF.js, la GPU solo en navegador/WebGPU; el lab educativo sigue en JS, y la GPU pesada va por Python-MPS.)*
 
 ### [Fase 0 — HECHA, código] · Puerta 0 medida (4×7, DQN, 40k pasos, Node CPU)
 **Cambios:** `Φ` OFF por defecto (entorno, gestor, app, herramientas; toggle conservado para

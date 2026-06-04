@@ -8,11 +8,18 @@
 
 import * as tf from "@tensorflow/tfjs";
 import { AgenteBase } from "./agenteBase.js";
-import { crearMLP, variablesEntrenables, copiarPesos } from "./redes/constructorRedes.js";
+import { crearMLP, crearRedConv, variablesEntrenables, copiarPesos } from "./redes/constructorRedes.js";
 import { ReplayBuffer } from "../datos/replayBuffer.js";
 import { ReplayPrioritario } from "../datos/replayPrioritario.js";
 import { actualizacionSuave, liberar } from "../nucleo/gestorTensores.js";
-import { ALGORITMOS, SIMBOLOS_ACCION } from "../nucleo/constantes.js";
+import {
+  ALGORITMOS,
+  SIMBOLOS_ACCION,
+  DIM_CINEMATICA,
+  FILAS_LADRILLOS,
+  COLUMNAS_LADRILLOS,
+  NUM_LADRILLOS,
+} from "../nucleo/constantes.js";
 
 export class AgenteDQN extends AgenteBase {
   constructor(hp) {
@@ -21,20 +28,16 @@ export class AgenteDQN extends AgenteBase {
   }
 
   _construir() {
-    const { capasOcultas, tasaAprendizaje, capacidadBuffer, prioritario } = this.hp;
-    this.redPolitica = crearMLP({
-      dimEntrada: this.dimEstado,
-      capasOcultas,
-      dimSalida: this.numAcciones,
-      nombre: "dqn_politica",
-    });
-    this.redObjetivo = crearMLP({
-      dimEntrada: this.dimEstado,
-      capasOcultas,
-      dimSalida: this.numAcciones,
-      entrenable: false,
-      nombre: "dqn_objetivo",
-    });
+    const { capasOcultas, tasaAprendizaje, capacidadBuffer, prioritario, arquitectura } = this.hp;
+    // Fase 2b: arquitectura="conv" → encoder convolucional sobre la matriz de ladrillos
+    // + rama cinemática (modelo funcional multi-entrada). Si no, MLP plano (Fase 1/2a).
+    this._conv = arquitectura === "conv";
+    const crear = (nombre, entrenable = true) =>
+      this._conv
+        ? crearRedConv({ dimCinematica: DIM_CINEMATICA, filas: FILAS_LADRILLOS, columnas: COLUMNAS_LADRILLOS, capasOcultas, dimSalida: this.numAcciones, entrenable, nombre })
+        : crearMLP({ dimEntrada: this.dimEstado, capasOcultas, dimSalida: this.numAcciones, entrenable, nombre });
+    this.redPolitica = crear("dqn_politica");
+    this.redObjetivo = crear("dqn_objetivo", false);
     copiarPesos(this.redPolitica, this.redObjetivo);
     this.optimizador = tf.train.adam(tasaAprendizaje);
     this.buffer = prioritario
@@ -57,11 +60,25 @@ export class AgenteDQN extends AgenteBase {
     return 0.4 + 0.6 * frac;
   }
 
+  // Predice Q soportando ambas arquitecturas. En conv parte el estado plano
+  // [n, 6+NUM_LADRILLOS] en cinemática [n,6] y matriz de ladrillos [n,F,C,1] (orden
+  // fila-mayor) y alimenta las dos entradas del modelo funcional; en flat predice
+  // directo. Siempre se llama dentro de tf.tidy o del closure de minimize, que
+  // gestionan los tensores intermedios (slice/reshape).
+  _predecir(red, sT) {
+    if (!this._conv) return red.predict(sT);
+    const n = sT.shape[0];
+    const sCin = sT.slice([0, 0], [n, DIM_CINEMATICA]);
+    const sMatFlat = sT.slice([0, DIM_CINEMATICA], [n, NUM_LADRILLOS]);
+    const sMat = sMatFlat.reshape([n, FILAS_LADRILLOS, COLUMNAS_LADRILLOS, 1]);
+    return red.predict([sCin, sMat]);
+  }
+
   seleccionarAcciones(estadosFlat, n, { entrenar = true } = {}) {
     const eps = entrenar ? this.epsilon : 0;
     const greedy = tf.tidy(() => {
       const sT = this._tensorEstados(estadosFlat, n);
-      return this.redPolitica.predict(sT).argMax(1).dataSync();
+      return this._predecir(this.redPolitica, sT).argMax(1).dataSync();
     });
     const acciones = new Int32Array(n);
     for (let i = 0; i < n; i++) {
@@ -96,10 +113,10 @@ export class AgenteDQN extends AgenteBase {
 
     // --- Objetivo TD (sin gradiente): r + γ·(1-done)·Q'(s') ---
     const objetivo = tf.tidy(() => {
-      const qObj = this.redObjetivo.predict(s2T); // [B,A]
+      const qObj = this._predecir(this.redObjetivo, s2T); // [B,A]
       let qSiguiente;
       if (dobleDQN) {
-        const aStar = this.redPolitica.predict(s2T).argMax(1); // selección online
+        const aStar = this._predecir(this.redPolitica, s2T).argMax(1); // selección online
         qSiguiente = qObj.mul(tf.oneHot(aStar, this.numAcciones)).sum(1);
       } else {
         qSiguiente = qObj.max(1);
@@ -110,7 +127,7 @@ export class AgenteDQN extends AgenteBase {
 
     // --- TD-error por muestra (para PER y métricas) ---
     const tdErrT = tf.tidy(() =>
-      this.redPolitica.predict(sT).mul(aOneHot).sum(1).sub(objetivo)
+      this._predecir(this.redPolitica, sT).mul(aOneHot).sum(1).sub(objetivo)
     );
     const tdErrArr = tdErrT.dataSync();
     tdErrT.dispose();
@@ -120,7 +137,7 @@ export class AgenteDQN extends AgenteBase {
     //     libera los intermedios del forward por sí mismo. ---
     const lossT = this.optimizador.minimize(
       () => {
-        const qa = this.redPolitica.predict(sT).mul(aOneHot).sum(1);
+        const qa = this._predecir(this.redPolitica, sT).mul(aOneHot).sum(1);
         return tf.losses.huberLoss(objetivo, qa, pesosT ?? undefined);
       },
       true,
@@ -152,7 +169,7 @@ export class AgenteDQN extends AgenteBase {
 
   obtenerDatosInspeccion(estadoFlat) {
     const qValores = tf.tidy(() =>
-      Array.from(this.redPolitica.predict(this._tensorEstados(estadoFlat, 1)).dataSync())
+      Array.from(this._predecir(this.redPolitica, this._tensorEstados(estadoFlat, 1)).dataSync())
     );
     let accionGreedy = 0;
     for (let i = 1; i < qValores.length; i++) if (qValores[i] > qValores[accionGreedy]) accionGreedy = i;

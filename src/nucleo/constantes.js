@@ -16,9 +16,11 @@ export const SIMBOLOS_ACCION = ["←", "·", "→"];
 export const NOMBRES_ACCION = ["Izquierda", "Mantener", "Derecha"];
 
 // --- Geometría de los ladrillos -------------------------------------------
-export const FILAS_LADRILLOS = 4;
-export const COLUMNAS_LADRILLOS = 7;
-export const NUM_LADRILLOS = FILAS_LADRILLOS * COLUMNAS_LADRILLOS; // 4×7 = 28
+// Fase 2b: rejilla 8×10 (80 celdas). El 4×7 fue la validación intermedia (Fase 1/2a).
+// Si cambias esto, NUM_LADRILLOS, la dimensión del estado y el timeout se recalculan solos.
+export const FILAS_LADRILLOS = 8;
+export const COLUMNAS_LADRILLOS = 10;
+export const NUM_LADRILLOS = FILAS_LADRILLOS * COLUMNAS_LADRILLOS; // 8×10 = 80
 
 // --- Dimensión del estado --------------------------------------------------
 // Parte CINEMÁTICA (siempre presente, 6 valores normalizados ~[-1,1]):
