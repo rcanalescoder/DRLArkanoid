@@ -82,7 +82,142 @@
 - [x] Legacy del prototipo movido a legacy/ (js/ y css/ antiguos)
 - [x] scripts/verificarTodo.mjs (npm run verificar) para re-verificar los 4
 
-## ESTADO FINAL: proyecto completo y verificado.
+## ESTADO FINAL (de la v1): proyecto completo y verificado.
 ##   - Arrancar: npm run dev  → abrir http://localhost:5173 en el navegador
 ##   - Verificar algoritmos (CPU, rápido): npm run verificar
 ##   - Entrenar uno en consola: node scripts/entrenar.mjs <dqn|ppo|sac|worldModel>
+
+
+# ============================================================================
+#  BITÁCORA — LA GRAN REIMPLEMENTACIÓN (Sesión 3, 2026-06-04)
+#  "De un agente ciego a una visión que generaliza, en la GPU, con los 5 modelos"
+#  Documento narrativo con TODOS los datos (históricos, actuales y los que vengan),
+#  para que la memoria en PDF salga con historia y con números.
+#  Fuente de verdad técnica: docs/PLAN-REIMPLEMENTACION.md
+# ============================================================================
+
+## CAPÍTULO 0 — El punto de partida: un agente CIEGO
+La v1 (arriba) construyó 5 algoritmos que "aprendían", pero medíamos mal. El agente
+solo veía 6 variables: posición y velocidad de la bola, y posición de la pala. NO veía
+los ladrillos. Resultado: aprendía a DEVOLVER la bola, no a APUNTAR.
+  · Dato histórico: en la rejilla 4×7 LLENA el ciego llegaba al 56% de "éxito"...
+    pero ganaba SOBREVIVIENDO (una bola que dura 2258 pasos en una rejilla llena acaba
+    tocando casi todo por rebote). Éxito DEGENERADO, no inteligencia.
+  · Antes descubrimos dos muros físicos que NO eran del algoritmo:
+      - El RELOJ: timeout 600 hacía el nivel INGANABLE (limpiar 28 ladrillos exige
+        ~1.760 pasos). Arreglo: timeout = 90·nº-ladrillos (4×7 → 2520). Un rastreador
+        perfecto pasó de 0% a 37,6%.
+      - La EXPLORACIÓN: εdecay 12000→8000 (decaer antes la exploración) subió al ciego
+        de 1,7 a 9,9 ladrillos. Lección: optimizar la métrica REAL, no la recompensa.
+
+## CAPÍTULO 1 — El diagnóstico y el PIVOTE: hay que ver el mundo
+Conclusión (confirmada con datos): el ciego está agotado. En cuanto los niveles sean
+dispersos/variados fracasará, porque no sabe dónde quedan los ladrillos. DECISIÓN:
+abandonar el ciego como referencia y darle VISTA. El objetivo real: que APUNTE y
+GENERALICE a niveles no vistos. Métrica de cabecera: success_rate en TEST.
+
+## CAPÍTULO 2 — La VISTA, y la pieza que lo desbloqueó todo (escala 0.25)
+Añadimos al estado la ocupación de los ladrillos (6 cinemáticas + 28 = 34 entradas).
+PERO la vista NO aprendía ni a sobrevivir. Investigando: las 28 ocupaciones (valor ≈1.0)
+AHOGAN en magnitud a las 6 cinemáticas (∈[-1,1]) en la primera capa. La señal de
+supervivencia (que solo depende de la cinemática) se diluía.
+  LA PIEZA CLAVE — atenuar el bloque de ladrillos (escala 0.25). Datos (greedy, 4×7 lleno):
+    | escala | 100k | 250k | 400k | 600k                |
+    | 1.0    | 68   | 63   | 97   | 128 pasos · 0%  ❌   |  (atascada)
+    | 0.25   | 61   | 129  | 1025 | 2209 pasos · 51% ✅  |  (¡despega!)
+  PUERTA 1 (¿apunta?) — eval en niveles DISPERSOS fijos (sobrevivir ≠ ganar):
+    77–84% de éxito en 2 semillas (columna/fila/salpicados). Y lo limpia SIN haberlos
+    entrenado (solo entrenó en lleno) → ya GENERALIZA en zero-shot. La vista funciona.
+
+## CAPÍTULO 3 — Generalización de verdad (Fase 2a, rejilla 4×7)
+Generador de niveles procedurales (familias: dispersión/filas/columnas/bloque/simétrico)
++ splits train/test DISJUNTOS. Entrenar en niveles variados y medir en TEST (no vistos):
+    | configuración                 | TEST éxito | gap train−test |
+    | varios niveles (sin currículo)| 78%        | 6,4            |
+    | + CURRÍCULO fácil→difícil      | 86%        | 2,5            |
+  → Política GENERAL que limpia niveles nunca vistos APUNTANDO. Gap pequeño = generaliza.
+
+## CAPÍTULO 4 — A lo grande (Fase 2b, 8×10 + convolución)
+Escalamos a rejilla 8×10 (80 ladrillos, estado dim 86, timeout 7200). Encoder
+CONVOLUCIONAL: matriz de ocupación 8×10 → Conv2D(16)→Conv2D(32) + rama cinemática
+(351.667 parámetros). La rama conv separa los ladrillos de la cinemática (ya no hace
+falta atenuar). Resultado (1.5M, greedy):
+    TRAIN 86% · TEST 86% · gap ≈ 0  → OBJETIVO CUMPLIDO A ESCALA.
+
+## CAPÍTULO 5 — La GPU (porque la tenías idle y tenías razón)
+TF.js en Node = solo CPU (no hay navigator.gpu; tfjs-node-gpu es solo CUDA; WebGPU vía
+Dawn en Node se cuelga). La GPU Metal del M4 Max solo se alcanza en el NAVEGADOR (WebGPU)
+o portando a PyTorch-MPS. Hicimos las dos:
+  · tfjs-node (CPU nativo) para iterar rápido en Node: conv a ~6.800 exp/s.
+  · PyTorch-MPS (GPU Metal), misma tarea/arquitectura (gpu/arkanoid_mps.py):
+      | backend                 | 1.5M    | TEST | exp/s   |
+      | TF.js-CPU nativo        | 222s    | 86%  | 6.800   |
+      | PyTorch-MPS (GPU) 1.5M  | 40s     | 81%  | 37.591  |  (~5,5× más rápido)
+      | PyTorch-MPS (GPU) 3M    | 80s     | 89%  | 37.368  |  (más pasos casi gratis)
+  · La UI web verificada a fondo (8×10, los 5 algos, comparativa, grid search, fichas
+    info; backend WebGPU; 0 errores de consola).
+
+## CAPÍTULO 6 — Los 5 algoritmos con visión (Fase 3) y el problema gordo
+Portamos PPO, SAC, World Model y WM-RNN a conv (y a PyTorch-MPS). Primera comparativa
+en GPU (1.5M/algo). Y aquí apareció lo interesante:
+    | algoritmo  | TEST | veredicto                          |
+    | PPO        | 98%  | ✅ a la primera, el mejor          |
+    | DQN        | 64%  | ✅ (luego 93% al converger)        |
+    | SAC        | 1%   | ❌ inaceptable (a veces 98%: bimodal)|
+    | World Model| 1%   | ❌ inaceptable                     |
+    | WM-RNN     | 1%   | ❌ inaceptable                     |
+  Regla del proyecto: PROHIBIDO concluir "el algoritmo no puede". Un 1% es fallo nuestro
+  de configuración. A iterar.
+
+## CAPÍTULO 7 — La cacería de bugs (intervenciones en los modelos)
+DIAGNÓSTICO (con datos): el Q-net conv de los World Models, SOLO con datos reales
+(imaginación apagada), saca 66% — o sea, RESUELVE. Con imaginación cae a 1%: la
+IMAGINACIÓN los ENVENENA. Y SAC: una semilla 98%, casi todas 0% → colapso bimodal.
+
+  World Models — qué probamos (y por qué), hasta sacarlos del veneno:
+    · dinámica SOLO cinemática (6 dims, no 86): el MSE de los 80 ladrillos ahogaba la
+      física de la bola, que es la que importa.
+    · ladrillos FIJOS en imaginación (cambian poco en pocos pasos).
+    · done=0 en imaginación: el "done" predicho truncaba los targets → Q colapsaba a ~0.
+    · clamp de la cinemática imaginada a [-1,1]: evitar estados fuera de distribución que
+      el conv extrapolaba sin límite.
+    · plan 5→1, warmup 150k, recompensa imaginada ri=0, y PESO 0.3 a los updates
+      imaginados (que el Q real domine).
+    RESULTADO (700k, variable por despegue de semilla): WM 65% · WM-RNN 82%. ¡Resueltos!
+
+  SAC — qué probamos contra el colapso bimodal:
+    α auto → α fijo → clamp de α → ε-exploración (sacó 99% en 1 semilla) → más entropía
+    objetivo → actor más lento → grad-clip (empeoró) → actor retardado (empeoró) → torso
+    compartido (empeoró) → eval con el crítico → conducta ε-greedy del crítico → target
+    soft-Q del crítico (sin depender del actor inestable).
+    DIAGNÓSTICO raíz: un BUCLE — actor colapsado → datos pobres → crítico pobre → actor
+    colapsado. Mejor hallazgo: romperlo recogiendo datos con ε-greedy del crítico y
+    desplegar la política greedy del crítico soft. (Sigue sin ser fiable del todo.)
+
+## CAPÍTULO 8 — Los datos DEFINITIVOS (comparativa convergida a 1.5M, GPU)
+Importante: el diagnóstico a 700k es RUIDOSO (el despegue varía mucho por semilla; el
+mismo código da WM 10% o 65%). El número fiable es a 1.5M convergido:
+  RANKING final (success_rate TEST, niveles no vistos, todos en GPU/MPS):
+    | # | algoritmo   | familia                  | TEST éxito | %ladr | tiempo |
+    | 1 | PPO         | model-free · actor-crít. | 100%       | 100%  | 159s   |  ✅
+    | 2 | DQN         | model-free · valor       | 93%        | 97%   | 41s    |  ✅
+    | 3 | World Model | model-based · Dyna-Q     | 71%        | 78%   | 161s   |  ✅ (¡el arreglo funcionó!)
+    | 4 | WM-RNN      | model-based · LSTM       | 2%         | 24%   | 161s   |  ❌ colapsó esta semilla (82% en otras)
+    | 5 | SAC         | model-free · actor-crít. | 0%         | 10%   | 78s    |  ❌ aún colapsa (98% en una semilla)
+  Lectura honesta: PPO, DQN y World Model RESUELVEN bien (100% / 93% / 71%). SAC y WM-RNN
+  son CAPACES (SAC 98% en una semilla; WM-RNN 82% en otras) pero AÚN NO FIABLES. La
+  varianza de semilla es real; la convergencia a 1.5M ayudó a DQN (64→93) y al WM (→71),
+  pero SAC y WM-RNN necesitan otra vuelta de iteración (la del próximo PROMPT).
+
+## CAPÍTULO 9 — Lo que viene (PROMPT de mejoras pendiente)
+[A rellenar cuando lleguen las siguientes mejoras. Objetivo: que SAC y WM-RNN sean
+fiables (no bimodales), y consolidar la comparativa de los 5 todos en verde. Cada
+iteración se registra aquí con sus datos, para la memoria en PDF.]
+
+# --- Cómo reproducir esta saga ---
+#   GPU (los 5 en Metal):   python3 gpu/comparativa_mps.py 1500000
+#   GPU (solo DQN):         python3 gpu/arkanoid_mps.py 1500000
+#   Diagnóstico modelos:    python3 gpu/diag_modelos.py
+#   JS — vista 4×7/8×10:    node scripts/fase2a_curriculum.mjs ·  node scripts/fase2b.mjs
+#   JS — puerta de apuntar: node scripts/puerta1.mjs
+#   App web:                npm run dev  (backend WebGPU en el navegador)

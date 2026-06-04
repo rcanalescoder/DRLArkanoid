@@ -6,6 +6,13 @@
 > mismos complementos: el **fichero LICENSE**, el **cuaderno PDF** (idéntico estilo) y el **README
 > visual**. Sustituye los marcadores `«...»` si quieres fijar algo; si no, el agente los infiere
 > leyendo tu repo.
+>
+> **Estado de este fichero (especializado para ESTE proyecto — Arkanoid DRL con visión):** la
+> maquinaria (§1–§4: toolchain, sistema de diseño, plantilla y criterios pedagógicos) es REUTILIZABLE
+> e idéntica al resto de mis proyectos; el **§5 fija el CONTENIDO real** de este (historia, algoritmos,
+> datos medidos). Las cifras definitivas se toman de **`pasosrealizados.txt`** (la bitácora) al generar.
+> ⚠ El proyecto **sigue en evolución (SAC y World Model RNN aún en iteración): NO generar el PDF hasta
+> que se cierre y los datos sean definitivos.**
 
 ---
 
@@ -25,10 +32,14 @@ Eres mi compañero de programación. Vas a crear, en ESTE repositorio (un proyec
 - **Cero invención:** todas las cifras, curvas, capturas y fragmentos de código deben salir del
   **código y las ejecuciones REALES de este repo**. Nada inventado ni maquillado. Si un dato no lo
   puedes medir/extraer, no lo pongas.
-- **Público:** alguien que comparte en LinkedIn ante gente que probablemente no sabe de IA. Hay que
-  ser **pedagógico**: explica cada tecnicismo en cuanto aparece, sin perder rigor. **Prohibido**
-  describir una arquitectura con metáforas baratas tipo «es como un embudo»: describe la **estructura
-  real** de la red/el algoritmo (capas, dimensiones, regla de actualización).
+- **Público (doble):** (a) alguien que comparte en LinkedIn ante gente que probablemente no sabe de IA;
+  y (b) **un ingeniero junior o un estudiante avanzado** que quiere ENTENDER de verdad cómo funciona
+  cada algoritmo y por qué se tomó cada decisión. La prueba de fuego: ese ingeniero/estudiante debe
+  poder leer el cuaderno **de corrido**, sin material externo, y quedarse capaz de explicar (y casi
+  reimplementar) cada pieza. Hay que ser **pedagógico sin perder rigor**: explica cada tecnicismo en
+  cuanto aparece. **Prohibido** describir una arquitectura con metáforas baratas tipo «es como un
+  embudo»: describe la **estructura real** de la red/el algoritmo (capas, dimensiones, regla de
+  actualización).
 - **Licencia MIT en castellano EN TODOS LOS SITIOS** donde aparezca su texto completo (el fichero
   `LICENSE` y la sección de licencia del PDF). El README solo la referencia.
 - **Autoría (constante):** Autor = `Roberto Canales Mora`, atribución = `Roberto Canales Mora · con
@@ -550,34 +561,105 @@ Verifica el README renderizándolo a HTML (con `python -m markdown` + un CSS tip
 `<base href="file://«ruta-repo»/">`) y capturándolo con Playwright, para confirmar que las imágenes
 cargan y se ve bonito.
 
-## 5) ADAPTACIÓN A DEEP REINFORCEMENT LEARNING (el mapeo)
+## 5) ESTE PROYECTO EN CONCRETO — la historia, los algoritmos y los DATOS reales
 
-Aplica la MISMA plantilla, cambiando «modelos generativos» por «algoritmos de RL». Sugerencia de
-escalera (usa la que de verdad esté en el repo):
+> Esto fija el CONTENIDO; la plantilla y el estilo (§1–§4) NO cambian. Es un laboratorio de **Deep
+> Reinforcement Learning** donde varios algoritmos aprenden a jugar al **Arkanoid mirando el tablero**,
+> en el navegador (TF.js/WebGPU) y en GPU (PyTorch-MPS). El cuaderno debe contar UNA HISTORIA con un
+> protagonista: **un agente que pasa de CIEGO a VER, y de sobrevivir a APUNTAR y GENERALIZAR.**
+> Todos los datos de abajo están MEDIDOS en el repo: cronología narrativa en **`pasosrealizados.txt`**
+> (la bitácora) y registro técnico en **`docs/PLAN-REIMPLEMENTACION.md`**. **Al generar el PDF, usa las
+> cifras DEFINITIVAS de la bitácora** (el proyecto sigue evolucionando; no congeles números desde aquí).
 
-- **Q-Learning tabular** (el cimiento) → tabla de valores, ecuación de Bellman, gridworld/FrozenLake.
-- **DQN** (red neuronal para Q) → replay buffer + target network; CartPole/LunarLander/Atari.
-- **REINFORCE / Policy Gradient** (optimiza la política directamente).
-- **Actor-Critic / A2C / PPO** (lo último / caballo de batalla) → política + valor, ventaja, clip.
-- **Comparador** de algoritmos (tabla + curvas con la misma semilla).
+### 5.1 El hilo narrativo (la espina del cuaderno)
+El documento sigue este arco; cada hito es material para una sección o un «antes/después» (`.pm`):
+1. **El agente ciego.** Ve 6 variables (posición y velocidad de la bola, posición de la pala); NO ve
+   los ladrillos. Aprende a DEVOLVER la bola, no a APUNTAR. En la rejilla llena «gana» el 56%… pero
+   **sobreviviendo** (la bola rebota por todo). Éxito **degenerado**, no inteligencia.
+2. **Dos muros físicos (no del algoritmo).** El **reloj**: timeout 600 hacía el nivel INGANABLE
+   (limpiar 28 ladrillos exige ~1.760 pasos) → se ata a 90·nº-ladrillos. La **exploración**: decaer ε
+   antes (εdecay 8000) sube de 1,7 a 9,9 ladrillos. Lección: medir la métrica REAL, no la recompensa.
+3. **El pivote: darle VISTA.** Se añade al estado la ocupación de los ladrillos.
+4. **La pieza clave (escala 0,25).** Con ocupación {0,1} pura, las 28/80 entradas de ladrillos AHOGAN
+   en magnitud a las 6 cinemáticas → no aprende ni a sobrevivir. Atenuarlas (×0,25) lo desbloquea todo.
+5. **Apuntar y generalizar.** Se mide en niveles DISPERSOS (donde sobrevivir ≠ ganar) y en niveles
+   NUNCA vistos (splits train/test). El éxito ahí PRUEBA que apunta y generaliza.
+6. **A lo grande: 8×10 + convolución.** Encoder conv sobre la matriz de ocupación + rama cinemática.
+7. **La GPU.** TF.js en Node es solo CPU; la GPU Metal se alcanza en el navegador (WebGPU) o portando a
+   **PyTorch-MPS** (~5,5× más rápido). Es honesto contar por qué y cómo.
+8. **Los 5 algoritmos con visión + el comparador**, con el tratamiento HONESTO de qué funcionó y qué
+   costó: la «cacería de bugs» de los model-based y de SAC es PARTE de la historia, no se esconde.
 
-Equivalencias de contenido:
-- **«Resultados»** = **curva de recompensa por episodio** (PNG real del proyecto), tasa de éxito,
-  score final y **eficiencia de muestra** (no son imágenes generadas: son métricas/curvas). Opcional:
-  tira de fotogramas de un episodio bueno.
-- **«Estructura de la red»** (`.pipe`) = Estado → red (política/valor, MLP/CNN con sus dims) → acción/Q/valor.
-- **«Parámetros»** (`table.params`, explicados en llano): `learning_rate`, `gamma (γ)`, `epsilon (ε)` y
-  su decaimiento, tamaño del `replay buffer`, `batch_size`, `target_update`, `n_steps`, `GAE lambda`,
-  `clip_epsilon` (PPO), `entropy_coef`, `value_coef`, nº de episodios/pasos.
-- **«Código clave»** por algoritmo: *la red* (policy/value net), *el entrenamiento* (la actualización:
-  Bellman/replay/PPO step) y un *extra* (replay buffer, ε-greedy, cálculo de ventaja/GAE, objetivo
-  recortado de PPO).
-- **Analogías** RL: aprender por premios/castigos, ensayo y error, aprender a montar en bici cayéndote.
-- **Usos reales**: videojuegos (Atari/AlphaGo), robótica y control, conducción autónoma, gestión de
-  energía/recursos, recomendación, trading, y **RLHF** para alinear LLMs.
-- **«Mejora con agentes»**: variantes que estabilizan/aceleran (target network, doble DQN, dueling,
-  prioritized replay, normalización de ventajas, reward shaping, ajuste de γ/ε…), con el «antes/después»
-  real medido.
+### 5.2 Los protagonistas (los algoritmos REALES — todos CON VISIÓN)
+Una sección por algoritmo (§3.4), alternando colores. La «escalera» pedagógica de este repo:
+- **La observación / la VISTA** (cimiento, antes de los algoritmos): estado = 6 cinemáticas + matriz de
+  ocupación de ladrillos; por qué importa la **escala**; flat (MLP) vs **convolución** (rama conv + cinemática).
+- **DQN** (model-free, basado en valor) — Double DQN + pérdida Huber + red objetivo + replay. Caballo de batalla.
+- **PPO** (model-free, actor-crítico on-policy) — *surrogate* recortado + GAE.
+- **SAC** (model-free, actor-crítico off-policy, máxima entropía) — doble crítico + temperatura.
+- **World Model** (model-based, Dyna-Q) — modelo de dinámica (s,a)→(s′,r) + imaginación/planning.
+- **World Model RNN** (model-based, dinámica LSTM) — imaginación recurrente.
+- **El generador de niveles + la generalización** (sección propia o dentro de «medición»): familias de
+  patrones, splits disjuntos, currículo, y por qué `success_rate` en TEST es la métrica honesta.
+
+### 5.3 Los DATOS reales que DEBEN aparecer (tablas medidas; nada inventado)
+> Son las cifras de esta saga, para «Resultados»/«Interpretación»/«Comparador». Verifica/actualiza
+> contra la bitácora al generar el PDF.
+- **La escala lo desbloquea** (greedy, 4×7 lleno): escala 1,0 → atascada (128 pasos · 0% a 600k);
+  escala 0,25 → despega (2209 pasos · 27/28 ladrillos · **51%**).
+- **Apuntar (Puerta 1):** 77–84% de éxito en niveles dispersos, en 2 semillas, **zero-shot** (esos
+  patrones no se entrenaron).
+- **Generalización 4×7:** niveles variados 78% test (gap 6,4) → **con currículo 86%** (gap 2,5).
+- **8×10 + conv:** TRAIN 86% · **TEST 86%** · gap ≈ 0.
+- **GPU (misma tarea/arquitectura):** TF.js-CPU nativo 1.5M → 222s · 86% · 6.800 exp/s; **PyTorch-MPS
+  (GPU) 1.5M → 40s · 81% · 37.591 exp/s** (~5,5×); MPS 3M → 80s · **89%**.
+- **Comparador final (los 5 con visión, GPU/MPS, 1.5M, success_rate TEST)** — *usa las cifras
+  DEFINITIVAS de la bitácora al generar*; instantánea actual: **PPO 100% · DQN 93% · World Model 71%**
+  (resueltos); **WM-RNN 2%** (capaz de 82%, varianza de semilla) · **SAC 0%** (capaz de 98%, inestable)
+  — estos dos en iteración.
+
+### 5.4 El entorno, la métrica y los parámetros reales
+- **Entorno:** Arkanoid de física de **paso fijo**, rejilla **8×10** (80 ladrillos), coordenadas
+  normalizadas, timeout = 90·nº-ladrillos. La «velocidad» de la UI solo controla lotes/frame, NO la física.
+- **Observación:** 6 cinemáticas (∈[-1,1]) + ocupación de ladrillos (matriz 8×10 para la conv, o vector
+  plano ×**escala 0,25** para el MLP).
+- **Métrica de cabecera:** `success_rate` (greedy, ε=0) sobre niveles de **TEST no vistos**. La
+  recompensa media NO es criterio (es diagnóstico). Honestidad: en rejilla llena «éxito» puede ser solo
+  «sobrevivir»; por eso se mide en niveles dispersos/variados (sobrevivir ≠ ganar → el éxito prueba apuntar).
+- **Parámetros clave (`table.params`, en llano):** `escala_ladrillos` (0,25), `εdecay` (8000),
+  `learning_rate`, `γ` (0,99), `τ` (soft update, 0,01), `replay` (100k), `batch` (256/128), currículo por
+  nº de ladrillos; y los propios de cada algoritmo (GAE λ y clip en PPO; α/entropía en SAC; pasos de
+  planning, horizonte e imaginación en los World Models).
+
+### 5.5 El tratamiento HONESTO por modelo (la «cacería de bugs» es parte del cuaderno)
+Aplica §0.1 (honestidad por encima del marketing). En «Resultados» y la caja `.interp` (qué observamos /
+qué funcionó / qué mejoraríamos) de cada modelo, cuenta lo que DE VERDAD pasó:
+- **DQN, PPO:** resuelven bien y rápido (93% / 100%); PPO es el más sólido.
+- **World Model / WM-RNN:** su Q-net **resuelve solo** (66%), pero la **imaginación los envenenaba**
+  (caían a 1%) por un modelo de dinámica pobre. Mejora encontrada: **dinámica solo cinemática, ladrillos
+  fijos en imaginación, sin recompensa/`done` imaginados, cinemática acotada y peso bajo del planning** →
+  World Model 71%. Caso real de **sesgo del modelo (model bias)** en Dyna-Q.
+- **SAC:** **colapso bimodal** (una semilla 98%, casi todas 0%) por un bucle *actor-malo→datos-malos→
+  crítico-malo*. Se documenta lo probado (exploración ε-greedy, α fijo, desplegar la política del
+  crítico…) — caso real de **inestabilidad de SAC discreto**. (Pendiente de fiabilizar.)
+
+### 5.6 Analogías y usos (para `.analogy` / `.uses`)
+Analogías: aprender por premios/castigos; ensayo y error; **aprender a apuntar mirando el tablero**, no a
+ciegas. Usos reales del RL: videojuegos (Atari/AlphaGo), robótica y control, conducción autónoma, gestión
+de energía/recursos, recomendación, trading, y **RLHF** para alinear LLMs.
+
+### 5.7 Mapeo de los entregables a ESTE repo (rellena al generar)
+- **«Resultados»** = `success_rate`/`%ladrillos` en TEST + curvas reales (de la app o de los scripts) +
+  tira de fotogramas de un episodio bueno (opcional). NO son imágenes generadas: son métricas medidas.
+- **«Estructura de la red»** (`.pipe`) = Estado (6 cin + matriz 8×10) → conv 16/32 + rama cinemática →
+  128→128 → 3 acciones (←/·/→) o Q/valor según el algoritmo.
+- **«Código clave»** por algoritmo (`src/agentes/*.js` para la app; `gpu/*.py` para la versión GPU):
+  *la red* (`constructorRedes.js`/`crearRedConv`), *el entrenamiento* (la actualización: Double DQN /
+  PPO step / SAC / Dyna-Q), y un *extra* (replay, GAE, imaginación, `_predRed` del split conv).
+- **Capturas de la app**: pestaña Laboratorio (juego 8×10 + métricas + inspector + curvas), pestaña
+  **Comparativa de modelos** y el **grid search**. Backend WebGPU visible en cabecera.
+- **Medición**: sección propia — por qué la curva de entrenamiento no basta, evaluación **greedy** sobre
+  niveles no vistos, splits train/test y currículo; captura del comparador.
 
 ## 6) CHECKLIST FINAL antes de darlo por bueno
 - [ ] **Voz (§0.1) en TODO**: idea llana antes que el término; registro neutro; **cero meta-información**;
@@ -595,5 +677,14 @@ Equivalencias de contenido:
 - [ ] README visual: hero del PDF (portada clicable + botón de descarga + tira de páginas) y **captura
       bajo cada tema**; pie de licencia a MIT.
 - [ ] **Nada inventado**: todo sale del código/ejecuciones reales del repo.
+- [ ] **La HISTORIA (§5.1)** es la espina del cuaderno: ciego → vista → apuntar → generalizar → GPU →
+      comparador. El protagonista (un agente que aprende a VER) se nota de principio a fin.
+- [ ] **Los DATOS reales (§5.3)** están: la tabla de la escala 0,25 (atascada vs despega), generalización
+      78→86% con currículo, 8×10 gap≈0, GPU CPU-vs-MPS (~5,5×), y el **comparador final** con las cifras
+      DEFINITIVAS de la bitácora (no las de aquí).
+- [ ] **Honestidad por modelo (§5.5)**: se cuenta el envenenamiento por imaginación de los World Models
+      (Q-net 66% vs imaginado 1%) y el colapso de SAC, con qué se arregló o qué queda pendiente. Sin maquillar.
+- [ ] **Generalización bien explicada**: por qué `success_rate` en TEST (niveles no vistos) y no la
+      recompensa; por qué en rejilla llena «éxito» puede ser solo «sobrevivir».
 
 === FIN DEL PROMPT ===
