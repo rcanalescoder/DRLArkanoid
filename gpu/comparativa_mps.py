@@ -17,7 +17,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from arkanoid_mps import DEV, FILAS, COLS, NUM, DIM, MAXP, gen_pool, split_pool, VecArkanoid
 
-PASOS = int(sys.argv[1]) if len(sys.argv) > 1 else 1_000_000
+PASOS = int(sys.argv[1]) if (len(sys.argv) > 1 and sys.argv[1].lstrip("-").isdigit()) else 1_000_000
 TIERS = [16, 36, 60, NUM]
 torch.manual_seed(0)
 
@@ -117,47 +117,51 @@ class SAC:
         self.actor = Head(3).to(DEV); self.q1 = Head(3).to(DEV); self.q2 = Head(3).to(DEV)
         self.t1 = Head(3).to(DEV); self.t2 = Head(3).to(DEV)
         self.t1.load_state_dict(self.q1.state_dict()); self.t2.load_state_dict(self.q2.state_dict())
-        self.oa = torch.optim.Adam(self.actor.parameters(), 6e-4)
+        self.oa = torch.optim.Adam(self.actor.parameters(), 3e-4)
         self.oc = torch.optim.Adam(list(self.q1.parameters()) + list(self.q2.parameters()), 8e-4)
-        self.logalpha = torch.tensor(np.log(0.2), dtype=torch.float32, device=DEV, requires_grad=True)
-        self.oalpha = torch.optim.Adam([self.logalpha], 6e-4)
-        self.tH = float(0.55 * np.log(3)); self.buf = Replay()
+        self.buf = Replay()
+    def _qpol(self, st):  # política greedy del CRÍTICO soft (fiable; el actor discreto colapsa)
+        return torch.min(self.q1(st), self.q2(st)).argmax(1).cpu().numpy()
     def act(self, s, train=False, frac=0):
         with torch.no_grad():
-            p = F.softmax(self.actor(tens(s)), 1)
-            if train: return torch.multinomial(p, 1).squeeze(1).cpu().numpy().astype(np.int64)
-            return p.argmax(1).cpu().numpy()
+            g = self._qpol(tens(s))  # conducta ε-greedy SOBRE EL CRÍTICO: rompe el bucle actor-malo→datos-malos
+            if not train: return g
+            eps = max(0.05, 1 + (0.05 - 1) * min(1, frac / 8000))
+            rnd = np.random.random(len(g)) < eps
+            if rnd.any(): g[rnd] = np.random.randint(0, 3, int(rnd.sum()))
+            return g
     def learn(self, steps):
         if self.buf.size() < 2000: return
-        s, a, r, s2, d = self.buf.sample(256); alpha = self.logalpha.exp().detach()
+        s, a, r, s2, d = self.buf.sample(256); alpha = 0.2
         with torch.no_grad():
-            p2 = F.softmax(self.actor(s2), 1); lp2 = F.log_softmax(self.actor(s2), 1)
             minq = torch.min(self.t1(s2), self.t2(s2))
-            v2 = (p2 * (minq - alpha * lp2)).sum(1)
-            y = r + 0.99 * (1 - d) * v2
+            p2 = F.softmax(minq / alpha, 1); lp2 = F.log_softmax(minq / alpha, 1)  # política soft del CRÍTICO (no del actor inestable)
+            v2 = (p2 * (minq - alpha * lp2)).sum(1); y = r + 0.99 * (1 - d) * v2
         q1 = self.q1(s).gather(1, a.unsqueeze(1)).squeeze(1); q2 = self.q2(s).gather(1, a.unsqueeze(1)).squeeze(1)
         lc = F.mse_loss(q1, y) + F.mse_loss(q2, y)
         self.oc.zero_grad(); lc.backward(); self.oc.step()
         p = F.softmax(self.actor(s), 1); lp = F.log_softmax(self.actor(s), 1)
-        with torch.no_grad(): minq = torch.min(self.q1(s), self.q2(s))
-        la = (p * (alpha * lp - minq)).sum(1).mean()
+        with torch.no_grad(): minqa = torch.min(self.q1(s), self.q2(s))
+        la = (p * (alpha * lp - minqa)).sum(1).mean()
         self.oa.zero_grad(); la.backward(); self.oa.step()
-        lalpha = -(self.logalpha * (lp.detach() + self.tH) * p.detach()).sum(1).mean()
-        self.oalpha.zero_grad(); lalpha.backward(); self.oalpha.step()
         with torch.no_grad():
-            for tp, p_ in zip(self.t1.parameters(), self.q1.parameters()): tp.mul_(0.99).add_(0.01 * p_)
-            for tp, p_ in zip(self.t2.parameters(), self.q2.parameters()): tp.mul_(0.99).add_(0.01 * p_)
+            for tp, pp in zip(self.t1.parameters(), self.q1.parameters()): tp.mul_(0.99).add_(0.01 * pp)
+            for tp, pp in zip(self.t2.parameters(), self.q2.parameters()): tp.mul_(0.99).add_(0.01 * pp)
     def eval_act(self, s):
-        with torch.no_grad(): return F.softmax(self.actor(tens(s)), 1).argmax(1).cpu().numpy()
+        with torch.no_grad(): return self._qpol(tens(s))
 
 # ============================ World Model (Dyna-Q) ==========================
-class Dyn(nn.Module):  # dinámica MLP: (s, onehot(a)) -> (Δs, r, doneLogit)
+# Dinámica SOLO CINEMÁTICA: (s[86], onehot(a)) -> (Δcinemática[6], r, doneLogit).
+# Predecir los 80 ladrillos era el error: su MSE ahogaba las 6 cinemáticas (las que
+# mueven la bola) y la imaginación divergía. En imaginación los ladrillos se mantienen
+# fijos (cambian poco en pocos pasos). Así el modelo se centra en la física que importa.
+class Dyn(nn.Module):
     def __init__(self):
-        super().__init__(); self.f = nn.Sequential(nn.Linear(DIM + 3, 200), nn.ReLU(), nn.Linear(200, 200), nn.ReLU(), nn.Linear(200, DIM + 2))
+        super().__init__(); self.f = nn.Sequential(nn.Linear(DIM + 3, 200), nn.ReLU(), nn.Linear(200, 200), nn.ReLU(), nn.Linear(200, 6 + 2))
     def forward(self, s, a1h): return self.f(torch.cat([s, a1h], 1))
 
 class WorldModel:
-    name = "worldModel"; fam = "model-based · Dyna-Q"; envs = 128; plan = 5
+    name = "worldModel"; fam = "model-based · Dyna-Q"; envs = 128; plan = 1; warmup = 150_000
     def __init__(self):
         self.q = Head(3).to(DEV); self.tgt = Head(3).to(DEV); self.tgt.load_state_dict(self.q.state_dict())
         self.dyn = Dyn().to(DEV)
@@ -168,42 +172,43 @@ class WorldModel:
         if not train: return g
         eps = max(0.05, 1 + (0.05 - 1) * min(1, frac / 8000))
         return np.where(np.random.random(len(g)) < eps, np.random.randint(0, 3, len(g)), g).astype(np.int64)
-    def _qupdate(self, s, a, r, s2, d):
+    def _qupdate(self, s, a, r, s2, d, peso=1.0):
         with torch.no_grad():
             astar = self.q(s2).argmax(1, keepdim=True)
             y = r + 0.99 * (1 - d) * self.tgt(s2).gather(1, astar).squeeze(1)
         qa = self.q(s).gather(1, a.unsqueeze(1)).squeeze(1)
-        loss = F.smooth_l1_loss(qa, y); self.oq.zero_grad(); loss.backward(); self.oq.step()
+        loss = peso * F.smooth_l1_loss(qa, y); self.oq.zero_grad(); loss.backward(); self.oq.step()
         with torch.no_grad():
             for tp, p in zip(self.tgt.parameters(), self.q.parameters()): tp.mul_(0.99).add_(0.01 * p)
     def learn(self, steps):
         if self.buf.size() < 2000: return
         s, a, r, s2, d = self.buf.sample(256)
         a1h = F.one_hot(a, 3).float()
-        pred = self.dyn(s, a1h); ds, rp, dl = pred[:, :DIM], pred[:, DIM], pred[:, DIM + 1]
-        ld = F.mse_loss(ds, s2 - s) + F.mse_loss(rp, r) + 0.5 * F.binary_cross_entropy_with_logits(dl, d)
+        pred = self.dyn(s, a1h); dk, rp, dl = pred[:, :6], pred[:, 6], pred[:, 7]
+        ld = F.mse_loss(dk, (s2 - s)[:, :6]) + F.mse_loss(rp, r) + 0.5 * F.binary_cross_entropy_with_logits(dl, d)
         self.od.zero_grad(); ld.backward(); self.od.step()
-        self._qupdate(s, a, r, s2, d)  # real
-        # planning imaginado (ladrillos ≈ fijos porque Δ≈0)
-        si = self.buf.sample(256)[0]
+        self._qupdate(s, a, r, s2, d)  # Q con datos REALES (esto ya resuelve, ~66%)
+        if steps < self.warmup: return  # no imaginar con el modelo aún malo
+        si = self.buf.sample(256)[0]  # imaginación: cinemática del modelo, ladrillos fijos
         for _ in range(self.plan):
             with torch.no_grad():
-                qv = self.q(si); ai = qv.argmax(1)
+                ai = self.q(si).argmax(1)
                 p = self.dyn(si, F.one_hot(ai, 3).float())
-                s2i = si + p[:, :DIM]; ri = p[:, DIM]; di = (torch.sigmoid(p[:, DIM + 1]) > 0.5).float()
-            self._qupdate(si, ai, ri, s2i, di); si = s2i
+                kin2 = (si[:, :6] + p[:, :6]).clamp(-1, 1)
+                s2i = torch.cat([kin2, si[:, 6:]], 1); z = torch.zeros(si.shape[0], device=DEV)
+            self._qupdate(si, ai, z, s2i, z, 0.3); si = s2i  # peso bajo: el Q real domina
     def eval_act(self, s):
         with torch.no_grad(): return self.q(tens(s)).argmax(1).cpu().numpy()
 
 # ============================ World Model RNN (LSTM) ========================
-class DynRNN(nn.Module):  # LSTM: secuencia (s,onehot(a)) -> (Δs,r,doneLogit)
+class DynRNN(nn.Module):  # LSTM: secuencia (s,onehot(a)) -> (Δcinemática[6], r, doneLogit)
     def __init__(self):
-        super().__init__(); self.lstm = nn.LSTM(DIM + 3, 128, batch_first=True); self.o = nn.Linear(128, DIM + 2)
+        super().__init__(); self.lstm = nn.LSTM(DIM + 3, 128, batch_first=True); self.o = nn.Linear(128, 6 + 2)
     def forward(self, x, h=None):
         y, h = self.lstm(x, h); return self.o(y), h
 
 class WorldModelRNN(WorldModel):
-    name = "worldModelRecurrente"; fam = "model-based · LSTM"; envs = 128; plan = 5
+    name = "worldModelRecurrente"; fam = "model-based · LSTM"; envs = 128; plan = 1
     def __init__(self):
         super().__init__(); self.dyn = DynRNN().to(DEV); self.od = torch.optim.Adam(self.dyn.parameters(), 1e-3)
     def learn(self, steps):
@@ -211,18 +216,20 @@ class WorldModelRNN(WorldModel):
         s, a, r, s2, d = self.buf.sample(256)
         x = torch.cat([s, F.one_hot(a, 3).float()], 1).unsqueeze(1)  # [B,1,DIM+3]
         out, _ = self.dyn(x); out = out[:, 0]
-        ds, rp, dl = out[:, :DIM], out[:, DIM], out[:, DIM + 1]
-        ld = F.mse_loss(ds, s2 - s) + F.mse_loss(rp, r) + 0.5 * F.binary_cross_entropy_with_logits(dl, d)
+        dk, rp, dl = out[:, :6], out[:, 6], out[:, 7]
+        ld = F.mse_loss(dk, (s2 - s)[:, :6]) + F.mse_loss(rp, r) + 0.5 * F.binary_cross_entropy_with_logits(dl, d)
         self.od.zero_grad(); ld.backward(); self.od.step()
         self._qupdate(s, a, r, s2, d)
+        if steps < self.warmup: return
         si = self.buf.sample(256)[0]; h = None
         for _ in range(self.plan):
             with torch.no_grad():
                 ai = self.q(si).argmax(1)
                 x = torch.cat([si, F.one_hot(ai, 3).float()], 1).unsqueeze(1)
                 out, h = self.dyn(x, h); o = out[:, 0]
-                s2i = si + o[:, :DIM]; ri = o[:, DIM]; di = (torch.sigmoid(o[:, DIM + 1]) > 0.5).float()
-            self._qupdate(si, ai, ri, s2i, di); si = s2i
+                kin2 = (si[:, :6] + o[:, :6]).clamp(-1, 1)
+                s2i = torch.cat([kin2, si[:, 6:]], 1); z = torch.zeros(si.shape[0], device=DEV)
+            self._qupdate(si, ai, z, s2i, z, 0.3); si = s2i  # peso bajo
 
 # ============================ PPO (on-policy) ===============================
 class PPO:

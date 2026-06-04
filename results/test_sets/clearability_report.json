@@ -1,0 +1,59 @@
+{
+  "method": "oráculo de seguimiento (cota inferior); clearable = limpiado en >=1 de K reinicios dentro del timeout base (constante MAXP=7200). Niveles no limpiables se DESCARTAN.",
+  "restarts": 6,
+  "timeout": 7200,
+  "git_commit": "c0d4ba4*",
+  "sets": {
+    "test_id": {
+      "generados": 500,
+      "descartados_no_limpiables": 0,
+      "en_set_final": 500,
+      "no_limpiables_en_set_final": 0,
+      "techo_alcanzable_medio": 1.0,
+      "familias": {
+        "dispersion": 133,
+        "bloque": 118,
+        "filas": 42,
+        "columnas": 97,
+        "simetrico": 110
+      },
+      "vivos_min": 1,
+      "vivos_max": 72
+    },
+    "test_ood_pattern": {
+      "generados": 250,
+      "descartados_no_limpiables": 0,
+      "en_set_final": 250,
+      "no_limpiables_en_set_final": 0,
+      "techo_alcanzable_medio": 1.0,
+      "familias": {
+        "esquinas": 36,
+        "x_shape": 2,
+        "bordes_laterales": 21,
+        "diagonal": 18,
+        "tunel": 40,
+        "anillo": 26,
+        "tunel_h": 28,
+        "cruz": 26,
+        "ajedrez": 16,
+        "hueco_central": 37
+      },
+      "vivos_min": 3,
+      "vivos_max": 71
+    },
+    "test_ood_diff": {
+      "generados": 200,
+      "descartados_no_limpiables": 1,
+      "en_set_final": 199,
+      "no_limpiables_en_set_final": 0,
+      "techo_alcanzable_medio": 0.9999,
+      "familias": {
+        "denso_bajo": 73,
+        "denso": 57,
+        "casi_lleno": 69
+      },
+      "vivos_min": 40,
+      "vivos_max": 79
+    }
+  }
+}

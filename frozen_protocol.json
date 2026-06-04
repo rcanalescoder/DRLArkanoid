@@ -1,0 +1,132 @@
+{
+  "protocol_version": "v1",
+  "frozen_by_git_commit": "c0d4ba4*",
+  "framework": "torch2.12.0+np2.4.4+py3.13·mps",
+  "device": "mps",
+  "eval": "greedy",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "budgets": [
+    700000,
+    1500000,
+    3000000
+  ],
+  "collapse_threshold": 0.1,
+  "base_recipe": {
+    "conv": true,
+    "scale": 1.0,
+    "curriculum": true,
+    "shaping": true,
+    "timeout_mode": null,
+    "eps_decay": 8000,
+    "tiers": [
+      16,
+      36,
+      60,
+      80
+    ],
+    "envs_per_model": {
+      "dqn": 256,
+      "sac": 256,
+      "worldModel": 128,
+      "worldModelRecurrente": 128,
+      "ppo": 64
+    },
+    "ppo_rollout_L": 256,
+    "timeout_base": "constante MAXP=7200 (decisión del usuario)"
+  },
+  "generator": {
+    "pool_n": 400,
+    "pool_seed": 12345,
+    "split_seed": 999,
+    "train_families": [
+      "dispersion",
+      "filas",
+      "columnas",
+      "bloque",
+      "simetrico"
+    ],
+    "n_train": 280,
+    "n_val": 60
+  },
+  "test_sets": {
+    "test_id": {
+      "n": 500,
+      "familias": {
+        "dispersion": 133,
+        "bloque": 118,
+        "filas": 42,
+        "columnas": 97,
+        "simetrico": 110
+      },
+      "vivos_min": 1,
+      "vivos_max": 72,
+      "sha256_masks": "1e7d8e95687d77e6"
+    },
+    "test_ood_pattern": {
+      "n": 250,
+      "familias": {
+        "esquinas": 36,
+        "x_shape": 2,
+        "bordes_laterales": 21,
+        "diagonal": 18,
+        "tunel": 40,
+        "anillo": 26,
+        "tunel_h": 28,
+        "cruz": 26,
+        "ajedrez": 16,
+        "hueco_central": 37
+      },
+      "vivos_min": 3,
+      "vivos_max": 71,
+      "sha256_masks": "71e74c6071ad6f51"
+    },
+    "test_ood_diff": {
+      "n": 199,
+      "familias": {
+        "denso_bajo": 73,
+        "denso": 57,
+        "casi_lleno": 69
+      },
+      "vivos_min": 40,
+      "vivos_max": 79,
+      "sha256_masks": "7b8d2c5610c1c6a4"
+    }
+  },
+  "metrics_per_run": [
+    "success_rate (+ por bloque ID/OOD y por bucket 10-20/20-40/40-60/60-80)",
+    "success_rate_train",
+    "bricks_cleared_mean",
+    "bricks_cleared_median",
+    "steps_to_clear",
+    "death_rate",
+    "timeout_rate",
+    "reward_no_shaping",
+    "brick_break_heatmap"
+  ],
+  "aggregates": [
+    "mean",
+    "median",
+    "std",
+    "min",
+    "max",
+    "ic95",
+    "collapse_rate",
+    "pct_seeds_gt80"
+  ],
+  "clearability": {
+    "method": "oráculo de seguimiento (cota inferior, determinista por nivel)",
+    "restarts": 6,
+    "timeout": 7200
+  },
+  "notes": {
+    "timeout": "La BASE usa timeout CONSTANTE 7200 (coincide con el código GPU y los números históricos). En consecuencia, la ablación de timeout de C3 será 'proporcional 90×ladrillos' (no 'fijo'), para que siga siendo un cambio real frente a la base.",
+    "honestidad": "Ningún número sin artefacto; multi-semilla obligatorio; fallos/colapsos se reportan; SAC-pure y SAC-critic-hybrid separados; WM = Dyna-Q cinemático, no simulador."
+  },
+  "frozen_hash": "a1ab7ce18d7bad6b"
+}

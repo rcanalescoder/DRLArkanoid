@@ -83,26 +83,45 @@ def split_pool(pool, seed=999):
 #  Entorno Arkanoid VECTORIZADO (N entornos, numpy) — misma fisica que el JS
 # ---------------------------------------------------------------------------
 class VecArkanoid:
-    def __init__(self, n, masks, seed=0):
+    # Hooks opcionales (todos con el comportamiento ACTUAL por defecto, para no romper
+    # los scripts existentes ni la reproducibilidad de las runs ya hechas):
+    #   shaping=True      -> recompensa +0.2 por devolver la bola (la 'r' de tarea NUNCA la incluye)
+    #   timeout_mode=None -> timeout constante MAXP (7200); "prop" -> 90*ladrillos del nivel; int -> constante
+    #   fixed=False       -> cada reset elige una máscara al azar; True -> el entorno i usa SIEMPRE masks[i]
+    # Además registra, sin coste para los llamadores antiguos, datos por episodio terminado en
+    # self.last_eps (causa, recompensa con/sin shaping, posiciones de ladrillos rotos) para el harness.
+    def __init__(self, n, masks, seed=0, shaping=True, timeout_mode=None, fixed=False):
         self.n = n; self.rng = _rng(seed); self.masks = masks  # lista de (mask,fam,vivos)
+        self.shaping = shaping; self.timeout_mode = timeout_mode; self.fixed = fixed
         self.bx = np.zeros(n, np.float32); self.by = np.zeros(n, np.float32)
         self.bvx = np.zeros(n, np.float32); self.bvy = np.zeros(n, np.float32)
         self.pax = np.zeros(n, np.float32); self.alive = np.zeros((n, NUM), np.float32)
         self.steps = np.zeros(n, np.int32); self.combo = np.zeros(n, np.int32)
         self.ini = np.zeros(n, np.int32); self.broken = np.zeros(n, np.int32)
+        self.imask = np.zeros((n, NUM), np.float32)            # máscara inicial (para heatmap de rotos)
+        self.tmax = np.full(n, MAXP, np.int32)                 # timeout por entorno
+        self.rfull = np.zeros(n, np.float32); self.rtask = np.zeros(n, np.float32)
+        self.last_eps = []                                     # episodios terminados en el último step()
         for i in range(n): self._reset_one(i)
 
     def set_masks(self, masks): self.masks = masks
 
+    def _tmax_for(self, vivos):
+        if self.timeout_mode is None: return MAXP             # constante (comportamiento actual)
+        if self.timeout_mode == "prop": return int(max(900, 90 * vivos))  # proporcional a ladrillos
+        return int(self.timeout_mode)                         # constante explícito
+
     def _reset_one(self, i):
-        m = self.masks[self.rng.integers(len(self.masks))][0]
-        self.alive[i] = m
+        m = self.masks[i % len(self.masks)][0] if self.fixed else self.masks[self.rng.integers(len(self.masks))][0]
+        self.alive[i] = m; self.imask[i] = m
         ang = self.rng.uniform(-0.9, 0.9)
         self.bx[i] = self.rng.uniform(0.3, 0.7); self.by[i] = self.rng.uniform(0.55, 0.68)
         self.bvx[i] = math.sin(ang) * V; self.bvy[i] = -math.cos(ang) * V
         self.pax[i] = self.rng.uniform(0.35, 0.65)
         self.steps[i] = 0; self.combo[i] = 0
         self.ini[i] = int(m.sum()); self.broken[i] = 0
+        self.tmax[i] = self._tmax_for(self.ini[i])
+        self.rfull[i] = 0.0; self.rtask[i] = 0.0
 
     def state(self, escala=1.0):
         s = np.empty((self.n, DIM), np.float32)
@@ -114,7 +133,7 @@ class VecArkanoid:
         return s
 
     def step(self, a):
-        n = self.n; r = np.zeros(n, np.float32)
+        n = self.n; r = np.zeros(n, np.float32); rs = np.zeros(n, np.float32)  # r=tarea, rs=shaping
         self.pax += (a.astype(np.float32) - 1) * VEL_PALA
         np.clip(self.pax, ANCHO_PALA / 2, 1 - ANCHO_PALA / 2, out=self.pax)
         self.bx += self.bvx; self.by += self.bvy
@@ -135,7 +154,8 @@ class VecArkanoid:
             vy[sm] = -np.sign(np.where(vy[sm] == 0, -1, vy[sm])) * vymin
             vx[sm] = np.sign(np.where(vx[sm] == 0, 1, vx[sm])) * np.sqrt(np.maximum(0, V ** 2 - vy[sm] ** 2))
             self.bvx[hp] = vx; self.bvy[hp] = vy
-            r[hp] += 0.2; self.combo[hp] = 0
+            if self.shaping: rs[hp] += 0.2          # shaping: NO entra en la recompensa de tarea
+            self.combo[hp] = 0
         # ladrillos
         over = (self.bx[:, None] + R >= _LX) & (self.bx[:, None] - R <= _LX + ANCHO_L) \
              & (self.by[:, None] + R >= _LY) & (self.by[:, None] - R <= _LY + ALTO_L)
@@ -153,14 +173,24 @@ class VecArkanoid:
         # terminal
         self.steps += 1
         cnt = self.alive.sum(1)
-        lost = self.by - R > 1; won = cnt == 0; tout = self.steps >= MAXP
+        lost = self.by - R > 1; won = cnt == 0; tout = self.steps >= self.tmax
         r[lost] -= 1.0; r[won] += 5.0
+        rtot = r + rs                                # devuelta = tarea + shaping (idéntica a antes si shaping=True)
+        self.rfull += rtot; self.rtask += r          # acumuladores por episodio
         done = lost | won | tout
-        info = []
+        info = []; self.last_eps = []
         for i in np.where(done)[0]:
+            cause = "won" if won[i] else ("lost" if lost[i] else "timeout")
+            broken_pos = ((self.imask[i] > 0) & (self.alive[i] <= 0)).astype(np.float32).copy()
+            self.last_eps.append({
+                "env": int(i), "won": bool(won[i]), "broken": int(self.broken[i]),
+                "ini": int(self.ini[i]), "steps": int(self.steps[i]), "cause": cause,
+                "reward_full": float(self.rfull[i]), "reward_task": float(self.rtask[i]),
+                "broken_pos": broken_pos,
+            })
             info.append((bool(won[i]), int(self.broken[i]), int(self.ini[i]), int(self.steps[i])))
             self._reset_one(int(i))
-        return self.state(), r, done, info
+        return self.state(), rtot, done, info
 
 # ---------------------------------------------------------------------------
 #  DQN con encoder conv + rama cinematica (en la GPU)

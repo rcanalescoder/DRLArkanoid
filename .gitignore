@@ -16,3 +16,16 @@ npm-debug.log*
 # Temporales
 /tmp/
 *.tmp
+
+# Python
+__pycache__/
+*.pyc
+
+# Protocolo de honestidad: artefactos pesados/regenerables (se conservan en local).
+# SÍ se versionan: results/test_sets/, results/ledger.csv y frozen_protocol.json.
+results/checkpoints/
+results/runs/
+results/heatmaps/
+results/curves/
+results/plots/
+results/aggregate/
