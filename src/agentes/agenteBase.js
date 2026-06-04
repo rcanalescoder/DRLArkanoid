@@ -5,7 +5,14 @@
 // ============================================================================
 
 import * as tf from "@tensorflow/tfjs";
-import { DIM_ESTADO, NUM_ACCIONES } from "../nucleo/constantes.js";
+import {
+  DIM_ESTADO,
+  NUM_ACCIONES,
+  DIM_CINEMATICA,
+  FILAS_LADRILLOS,
+  COLUMNAS_LADRILLOS,
+  NUM_LADRILLOS,
+} from "../nucleo/constantes.js";
 
 export class AgenteBase {
   constructor(id, hp) {
@@ -17,6 +24,9 @@ export class AgenteBase {
     // gestor y con la de su replay buffer (los agentes la propagan a su buffer).
     this.dimEstado = hp?.dimEstado ?? DIM_ESTADO;
     this.numAcciones = NUM_ACCIONES;
+    // Arquitectura "conv" (Fase 2b/3): las subclases que la soporten ponen this._conv=true
+    // en _construir y usan this._predRed para alimentar el modelo multi-entrada.
+    this._conv = false;
     this.pasosEntorno = 0; // experiencias recogidas
     this.pasosEntrenamiento = 0; // actualizaciones de gradiente realizadas
     this.ultimasMetricas = {};
@@ -70,5 +80,21 @@ export class AgenteBase {
   /** Crea un tensor2d [n, D] a partir de un array plano (no lo libera). */
   _tensorEstados(estadosFlat, n) {
     return tf.tensor2d(estadosFlat, [n, this.dimEstado]);
+  }
+
+  /**
+   * Predicción que soporta arquitectura plana y conv. En conv parte el estado plano
+   * [n, 6+NUM_LADRILLOS] en cinemática [n,6] y matriz de ladrillos [n,F,C,1] (orden
+   * fila-mayor) y alimenta las dos entradas del modelo funcional; en plano predice
+   * directo. Llamar siempre dentro de tf.tidy o del closure de gradiente (gestionan
+   * los tensores intermedios del slice/reshape).
+   */
+  _predRed(red, sT) {
+    if (!this._conv) return red.predict(sT);
+    const n = sT.shape[0];
+    const cin = sT.slice([0, 0], [n, DIM_CINEMATICA]);
+    const matFlat = sT.slice([0, DIM_CINEMATICA], [n, NUM_LADRILLOS]);
+    const mat = matFlat.reshape([n, FILAS_LADRILLOS, COLUMNAS_LADRILLOS, 1]);
+    return red.predict([cin, mat]);
   }
 }

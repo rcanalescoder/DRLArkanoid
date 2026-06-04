@@ -7,10 +7,10 @@
 
 import * as tf from "@tensorflow/tfjs";
 import { AgenteBase } from "./agenteBase.js";
-import { crearMLP, variablesEntrenables, copiarPesos, logSoftmax } from "./redes/constructorRedes.js";
+import { crearMLP, crearRedConv, variablesEntrenables, copiarPesos, logSoftmax } from "./redes/constructorRedes.js";
 import { ReplayBuffer } from "../datos/replayBuffer.js";
 import { pasoGradiente, actualizacionSuave, liberar } from "../nucleo/gestorTensores.js";
-import { ALGORITMOS, SIMBOLOS_ACCION } from "../nucleo/constantes.js";
+import { ALGORITMOS, SIMBOLOS_ACCION, DIM_CINEMATICA, FILAS_LADRILLOS, COLUMNAS_LADRILLOS } from "../nucleo/constantes.js";
 
 export class AgenteSAC extends AgenteBase {
   constructor(hp) {
@@ -20,8 +20,11 @@ export class AgenteSAC extends AgenteBase {
 
   _construir() {
     const { capasOcultas, tasaAprendizajeActor, tasaAprendizajeCritico, tasaAprendizajeAlpha, capacidadBuffer, factorEntropiaObjetivo } = this.hp;
+    this._conv = this.hp.arquitectura === "conv";
     const mk = (nombre, dimSalida, entrenable = true) =>
-      crearMLP({ dimEntrada: this.dimEstado, capasOcultas, dimSalida, entrenable, nombre });
+      this._conv
+        ? crearRedConv({ dimCinematica: DIM_CINEMATICA, filas: FILAS_LADRILLOS, columnas: COLUMNAS_LADRILLOS, capasOcultas, dimSalida, entrenable, nombre })
+        : crearMLP({ dimEntrada: this.dimEstado, capasOcultas, dimSalida, entrenable, nombre });
 
     this.actor = mk("sac_actor", this.numAcciones);
     this.critico1 = mk("sac_q1", this.numAcciones);
@@ -50,7 +53,7 @@ export class AgenteSAC extends AgenteBase {
   }
 
   seleccionarAcciones(estadosFlat, n, { entrenar = true } = {}) {
-    const probs = tf.tidy(() => tf.softmax(this.actor.predict(this._tensorEstados(estadosFlat, n))).dataSync());
+    const probs = tf.tidy(() => tf.softmax(this._predRed(this.actor,this._tensorEstados(estadosFlat, n))).dataSync());
     const acciones = new Int32Array(n);
     const A = this.numAcciones;
     for (let i = 0; i < n; i++) {
@@ -90,10 +93,10 @@ export class AgenteSAC extends AgenteBase {
 
     // --- Objetivo de los críticos (sin gradiente) ---
     const objetivo = tf.tidy(() => {
-      const logitsN = this.actor.predict(s2T);
+      const logitsN = this._predRed(this.actor,s2T);
       const probsN = tf.softmax(logitsN);
       const logpN = logSoftmax(logitsN);
-      const minQN = tf.minimum(this.objetivo1.predict(s2T), this.objetivo2.predict(s2T));
+      const minQN = tf.minimum(this._predRed(this.objetivo1,s2T), this._predRed(this.objetivo2,s2T));
       const alpha = this.logAlpha.exp();
       const vN = probsN.mul(minQN.sub(alpha.mul(logpN))).sum(1); // [B]
       return rT.add(vN.mul(gamma).mul(tf.scalar(1).sub(doneT)));
@@ -103,20 +106,20 @@ export class AgenteSAC extends AgenteBase {
     const lossCriticoT = pasoGradiente(
       this.optCritico,
       () => {
-        const q1 = this.critico1.predict(sT).mul(aOneHot).sum(1);
-        const q2 = this.critico2.predict(sT).mul(aOneHot).sum(1);
+        const q1 = this._predRed(this.critico1,sT).mul(aOneHot).sum(1);
+        const q2 = this._predRed(this.critico2,sT).mul(aOneHot).sum(1);
         return tf.losses.meanSquaredError(objetivo, q1).add(tf.losses.meanSquaredError(objetivo, q2));
       },
       this._varsCritico
     );
 
     // --- Paso actor (Q mínimo detached) ---
-    const minQ = tf.tidy(() => tf.minimum(this.critico1.predict(sT), this.critico2.predict(sT)));
+    const minQ = tf.tidy(() => tf.minimum(this._predRed(this.critico1,sT), this._predRed(this.critico2,sT)));
     const alphaConst = tf.tidy(() => this.logAlpha.exp());
     const lossActorT = pasoGradiente(
       this.optActor,
       () => {
-        const logits = this.actor.predict(sT);
+        const logits = this._predRed(this.actor,sT);
         const probs = tf.softmax(logits);
         const logp = logSoftmax(logits);
         return probs.mul(alphaConst.mul(logp).sub(minQ)).sum(1).mean();
@@ -126,7 +129,7 @@ export class AgenteSAC extends AgenteBase {
 
     // --- Paso temperatura α (probs/logp detached) ---
     const { probsC, logpC, entropia } = tf.tidy(() => {
-      const logits = this.actor.predict(sT);
+      const logits = this._predRed(this.actor,sT);
       const probs = tf.softmax(logits);
       const logp = logSoftmax(logits);
       const H = probs.mul(logp).sum(1).mean().mul(-1).dataSync()[0];
@@ -166,9 +169,9 @@ export class AgenteSAC extends AgenteBase {
     const { probabilidades, q1, q2 } = tf.tidy(() => {
       const sT = this._tensorEstados(estadoFlat, 1);
       return {
-        probabilidades: Array.from(tf.softmax(this.actor.predict(sT)).dataSync()),
-        q1: Array.from(this.critico1.predict(sT).dataSync()),
-        q2: Array.from(this.critico2.predict(sT).dataSync()),
+        probabilidades: Array.from(tf.softmax(this._predRed(this.actor,sT)).dataSync()),
+        q1: Array.from(this._predRed(this.critico1,sT).dataSync()),
+        q2: Array.from(this._predRed(this.critico2,sT).dataSync()),
       };
     });
     let accionGreedy = 0;

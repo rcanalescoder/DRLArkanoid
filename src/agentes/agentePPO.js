@@ -7,10 +7,10 @@
 
 import * as tf from "@tensorflow/tfjs";
 import { AgenteBase } from "./agenteBase.js";
-import { crearMLP, variablesEntrenables, logSoftmax } from "./redes/constructorRedes.js";
+import { crearMLP, crearRedConv, variablesEntrenables, logSoftmax } from "./redes/constructorRedes.js";
 import { RolloutBuffer } from "../datos/rolloutBuffer.js";
 import { pasoGradiente, normalizar, liberar } from "../nucleo/gestorTensores.js";
-import { ALGORITMOS, SIMBOLOS_ACCION } from "../nucleo/constantes.js";
+import { ALGORITMOS, SIMBOLOS_ACCION, DIM_CINEMATICA, FILAS_LADRILLOS, COLUMNAS_LADRILLOS } from "../nucleo/constantes.js";
 
 export class AgentePPO extends AgenteBase {
   constructor(hp) {
@@ -19,19 +19,14 @@ export class AgentePPO extends AgenteBase {
   }
 
   _construir() {
-    const { capasOcultas, tasaAprendizaje } = this.hp;
-    this.actor = crearMLP({
-      dimEntrada: this.dimEstado,
-      capasOcultas,
-      dimSalida: this.numAcciones,
-      nombre: "ppo_actor",
-    });
-    this.critico = crearMLP({
-      dimEntrada: this.dimEstado,
-      capasOcultas,
-      dimSalida: 1,
-      nombre: "ppo_critico",
-    });
+    const { capasOcultas, tasaAprendizaje, arquitectura } = this.hp;
+    this._conv = arquitectura === "conv";
+    const crear = (nombre, dimSalida) =>
+      this._conv
+        ? crearRedConv({ dimCinematica: DIM_CINEMATICA, filas: FILAS_LADRILLOS, columnas: COLUMNAS_LADRILLOS, capasOcultas, dimSalida, nombre })
+        : crearMLP({ dimEntrada: this.dimEstado, capasOcultas, dimSalida, nombre });
+    this.actor = crear("ppo_actor", this.numAcciones);
+    this.critico = crear("ppo_critico", 1);
     this.optimizador = tf.train.adam(tasaAprendizaje);
     this._vars = [...variablesEntrenables(this.actor), ...variablesEntrenables(this.critico)];
     this.rollout = null;
@@ -52,7 +47,7 @@ export class AgentePPO extends AgenteBase {
   seleccionarAcciones(estadosFlat, n, { entrenar = true } = {}) {
     const A = this.numAcciones;
     const probs = tf.tidy(() =>
-      tf.softmax(this.actor.predict(this._tensorEstados(estadosFlat, n))).dataSync()
+      tf.softmax(this._predRed(this.actor,this._tensorEstados(estadosFlat, n))).dataSync()
     );
     const acciones = new Int32Array(n);
 
@@ -71,7 +66,7 @@ export class AgentePPO extends AgenteBase {
     // Entrenamiento on-policy: muestrear de la política y guardar logp y valor.
     this._asegurarRollout(n);
     const valores = tf.tidy(() =>
-      this.critico.predict(this._tensorEstados(estadosFlat, n)).dataSync()
+      this._predRed(this.critico,this._tensorEstados(estadosFlat, n)).dataSync()
     );
     const logps = new Float32Array(n);
     const valoresArr = new Float32Array(n);
@@ -113,7 +108,7 @@ export class AgentePPO extends AgenteBase {
 
     // Bootstrap V(s_T) del estado actual tras el último paso.
     const ultimosValores = tf.tidy(() =>
-      this.critico.predict(this._tensorEstados(this._ultSiguientes, this._numEnvs)).reshape([this._numEnvs]).dataSync()
+      this._predRed(this.critico,this._tensorEstados(this._ultSiguientes, this._numEnvs)).reshape([this._numEnvs]).dataSync()
     );
     this.rollout.calcularVentajas(ultimosValores, gamma, lambdaGae);
     const datos = this.rollout.obtenerAplanado();
@@ -143,7 +138,7 @@ export class AgentePPO extends AgenteBase {
         const lossT = pasoGradiente(
           this.optimizador,
           () => {
-            const logits = this.actor.predict(sMb);
+            const logits = this._predRed(this.actor,sMb);
             const logp = logSoftmax(logits); // [B,A]
             const logpA = logp.mul(aOneHot).sum(1); // [B]
             const ratio = logpA.sub(logpViejoMb).exp();
@@ -152,7 +147,7 @@ export class AgentePPO extends AgenteBase {
             const lossPol = surr1.minimum(surr2).mean().mul(-1);
             const probs = tf.softmax(logits);
             const entropia = probs.mul(logp).sum(1).mean().mul(-1);
-            const valor = this.critico.predict(sMb).reshape([fin - inicio]);
+            const valor = this._predRed(this.critico,sMb).reshape([fin - inicio]);
             const lossVal = valor.sub(retMb).square().mean();
             return lossPol.add(lossVal.mul(coefValor)).sub(entropia.mul(coefEntropia));
           },
@@ -168,11 +163,11 @@ export class AgentePPO extends AgenteBase {
 
     // --- Métricas finales (sin gradiente) sobre todo el rollout ---
     const { entropia, lossValor } = tf.tidy(() => {
-      const logits = this.actor.predict(sAll);
+      const logits = this._predRed(this.actor,sAll);
       const logp = logSoftmax(logits);
       const probs = tf.softmax(logits);
       const H = probs.mul(logp).sum(1).mean().mul(-1).dataSync()[0];
-      const v = this.critico.predict(sAll).reshape([m]);
+      const v = this._predRed(this.critico,sAll).reshape([m]);
       const lv = v.sub(retAll).square().mean().dataSync()[0];
       return { entropia: H, lossValor: lv };
     });
@@ -201,12 +196,12 @@ export class AgentePPO extends AgenteBase {
   obtenerDatosInspeccion(estadoFlat) {
     const { probabilidades, valor, entropia } = tf.tidy(() => {
       const sT = this._tensorEstados(estadoFlat, 1);
-      const logits = this.actor.predict(sT);
+      const logits = this._predRed(this.actor,sT);
       const probs = tf.softmax(logits);
       const logp = logSoftmax(logits);
       return {
         probabilidades: Array.from(probs.dataSync()),
-        valor: this.critico.predict(sT).dataSync()[0],
+        valor: this._predRed(this.critico,sT).dataSync()[0],
         entropia: probs.mul(logp).sum(1).mul(-1).dataSync()[0],
       };
     });

@@ -14,11 +14,11 @@
 
 import * as tf from "@tensorflow/tfjs";
 import { AgenteBase } from "./agenteBase.js";
-import { crearMLP, variablesEntrenables, copiarPesos } from "./redes/constructorRedes.js";
+import { crearMLP, crearRedConv, variablesEntrenables, copiarPesos } from "./redes/constructorRedes.js";
 import { ReplayBuffer } from "../datos/replayBuffer.js";
 import { BufferSecuencias } from "../datos/bufferSecuencias.js";
 import { pasoGradiente, actualizacionSuave, liberar } from "../nucleo/gestorTensores.js";
-import { ALGORITMOS, SIMBOLOS_ACCION } from "../nucleo/constantes.js";
+import { ALGORITMOS, SIMBOLOS_ACCION, DIM_CINEMATICA, FILAS_LADRILLOS, COLUMNAS_LADRILLOS } from "../nucleo/constantes.js";
 
 export class AgenteWorldModelRecurrente extends AgenteBase {
   constructor(hp) {
@@ -29,9 +29,14 @@ export class AgenteWorldModelRecurrente extends AgenteBase {
   _construir() {
     const { capasOcultas, unidadesLSTM, tasaAprendizaje, tasaAprendizajeModelo, capacidadBuffer, capacidadSecuencias } = this.hp;
 
-    // Q-net (igual que DQN): decide las acciones.
-    this.redQ = crearMLP({ dimEntrada: this.dimEstado, capasOcultas, dimSalida: this.numAcciones, nombre: "wmr_q" });
-    this.redQObjetivo = crearMLP({ dimEntrada: this.dimEstado, capasOcultas, dimSalida: this.numAcciones, entrenable: false, nombre: "wmr_q_obj" });
+    // Q-net (igual que DQN): decide las acciones. Conv si arquitectura="conv".
+    this._conv = this.hp.arquitectura === "conv";
+    const crearQ = (nombre, entrenable = true) =>
+      this._conv
+        ? crearRedConv({ dimCinematica: DIM_CINEMATICA, filas: FILAS_LADRILLOS, columnas: COLUMNAS_LADRILLOS, capasOcultas, dimSalida: this.numAcciones, entrenable, nombre })
+        : crearMLP({ dimEntrada: this.dimEstado, capasOcultas, dimSalida: this.numAcciones, entrenable, nombre });
+    this.redQ = crearQ("wmr_q");
+    this.redQObjetivo = crearQ("wmr_q_obj", false);
     copiarPesos(this.redQ, this.redQObjetivo);
 
     // Modelo de dinámica RECURRENTE: secuencia [s ⊕ one-hot(a)] → [Δs, r, doneLogit].
@@ -62,7 +67,7 @@ export class AgenteWorldModelRecurrente extends AgenteBase {
   }
 
   _accionesEpsilon(estadosFlat, n, eps) {
-    const greedy = tf.tidy(() => this.redQ.predict(this._tensorEstados(estadosFlat, n)).argMax(1).dataSync());
+    const greedy = tf.tidy(() => this._predRed(this.redQ,this._tensorEstados(estadosFlat, n)).argMax(1).dataSync());
     const acciones = new Int32Array(n);
     for (let i = 0; i < n; i++)
       acciones[i] = Math.random() < eps ? (Math.random() * this.numAcciones) | 0 : greedy[i];
@@ -122,7 +127,7 @@ export class AgenteWorldModelRecurrente extends AgenteBase {
     if (!m) return;
     const sT = tf.tensor3d(m.s, [B, L, this.dimEstado]);
     const aT = tf.tensor2d(m.a, [B, L], "int32");
-    const aOH = tf.oneHot(aT, this.numAcciones); // [B,L,A]
+    const aOH = tf.oneHot(aT, this.numAcciones, 1, 0, "float32"); // [B,L,A]
     const x = tf.concat([sT, aOH], 2); // [B,L,D+A]
     const dsT = tf.tensor3d(m.ds, [B, L, this.dimEstado]);
     const rT = tf.tensor3d(m.r, [B, L, 1]);
@@ -170,7 +175,7 @@ export class AgenteWorldModelRecurrente extends AgenteBase {
       const acciones = this._accionesEpsilon(s, B, eps);
       const stepX = tf.tidy(() => {
         const sT = tf.tensor2d(s, [B, this.dimEstado]);
-        const aOH = tf.oneHot(tf.tensor1d(acciones, "int32"), this.numAcciones);
+        const aOH = tf.oneHot(tf.tensor1d(acciones, "int32"), this.numAcciones, 1, 0, "float32");
         return tf.concat([sT, aOH], 1).reshape([B, 1, this.dimEstado + this.numAcciones]);
       });
       if (seqT == null) {
@@ -214,15 +219,15 @@ export class AgenteWorldModelRecurrente extends AgenteBase {
     const sT = tf.tensor2d(sFlat, [B, this.dimEstado]);
     const s2T = tf.tensor2d(s2Flat, [B, this.dimEstado]);
     const aT = tf.tensor1d(acciones, "int32");
-    const aOneHot = tf.oneHot(aT, this.numAcciones);
+    const aOneHot = tf.oneHot(aT, this.numAcciones, 1, 0, "float32");
     const rT = tf.tensor1d(recompensas);
     const doneT = tf.tensor1d(Float32Array.from(doneArr));
 
     const objetivo = tf.tidy(() => {
-      const qObj = this.redQObjetivo.predict(s2T);
+      const qObj = this._predRed(this.redQObjetivo,s2T);
       let qSig;
       if (dobleDQN) {
-        const aStar = this.redQ.predict(s2T).argMax(1);
+        const aStar = this._predRed(this.redQ,s2T).argMax(1);
         qSig = qObj.mul(tf.oneHot(aStar, this.numAcciones)).sum(1);
       } else {
         qSig = qObj.max(1);
@@ -233,7 +238,7 @@ export class AgenteWorldModelRecurrente extends AgenteBase {
     const lossT = pasoGradiente(
       this.optQ,
       () => {
-        const qa = this.redQ.predict(sT).mul(aOneHot).sum(1);
+        const qa = this._predRed(this.redQ,sT).mul(aOneHot).sum(1);
         return tf.losses.huberLoss(objetivo, qa);
       },
       this._varsQ
@@ -248,10 +253,10 @@ export class AgenteWorldModelRecurrente extends AgenteBase {
   obtenerDatosInspeccion(estadoFlat) {
     const datos = tf.tidy(() => {
       const sT = this._tensorEstados(estadoFlat, 1);
-      const qValores = Array.from(this.redQ.predict(sT).dataSync());
+      const qValores = Array.from(this._predRed(this.redQ,sT).dataSync());
       let aGreedy = 0;
       for (let i = 1; i < qValores.length; i++) if (qValores[i] > qValores[aGreedy]) aGreedy = i;
-      const aOH = tf.oneHot(tf.tensor1d([aGreedy], "int32"), this.numAcciones);
+      const aOH = tf.oneHot(tf.tensor1d([aGreedy], "int32"), this.numAcciones, 1, 0, "float32");
       const x = tf.concat([sT, aOH], 1).reshape([1, 1, this.dimEstado + this.numAcciones]);
       const out = this.modelo.predict(x).reshape([this.dimEstado + 2]); // [D+2]
       const dsPred = out.slice([0], [this.dimEstado]);

@@ -7,10 +7,10 @@
 
 import * as tf from "@tensorflow/tfjs";
 import { AgenteBase } from "./agenteBase.js";
-import { crearMLP, variablesEntrenables, copiarPesos } from "./redes/constructorRedes.js";
+import { crearMLP, crearRedConv, variablesEntrenables, copiarPesos } from "./redes/constructorRedes.js";
 import { ReplayBuffer } from "../datos/replayBuffer.js";
 import { pasoGradiente, actualizacionSuave, liberar } from "../nucleo/gestorTensores.js";
-import { ALGORITMOS, SIMBOLOS_ACCION } from "../nucleo/constantes.js";
+import { ALGORITMOS, SIMBOLOS_ACCION, DIM_CINEMATICA, FILAS_LADRILLOS, COLUMNAS_LADRILLOS } from "../nucleo/constantes.js";
 
 export class AgenteWorldModel extends AgenteBase {
   constructor(hp) {
@@ -20,8 +20,13 @@ export class AgenteWorldModel extends AgenteBase {
 
   _construir() {
     const { capasOcultas, capasModelo, tasaAprendizaje, tasaAprendizajeModelo, capacidadBuffer } = this.hp;
-    this.redQ = crearMLP({ dimEntrada: this.dimEstado, capasOcultas, dimSalida: this.numAcciones, nombre: "wm_q" });
-    this.redQObjetivo = crearMLP({ dimEntrada: this.dimEstado, capasOcultas, dimSalida: this.numAcciones, entrenable: false, nombre: "wm_q_obj" });
+    this._conv = this.hp.arquitectura === "conv";
+    const crearQ = (nombre, entrenable = true) =>
+      this._conv
+        ? crearRedConv({ dimCinematica: DIM_CINEMATICA, filas: FILAS_LADRILLOS, columnas: COLUMNAS_LADRILLOS, capasOcultas, dimSalida: this.numAcciones, entrenable, nombre })
+        : crearMLP({ dimEntrada: this.dimEstado, capasOcultas, dimSalida: this.numAcciones, entrenable, nombre });
+    this.redQ = crearQ("wm_q");
+    this.redQObjetivo = crearQ("wm_q_obj", false);
     copiarPesos(this.redQ, this.redQObjetivo);
 
     // Modelo de dinámica: entrada (s ⊕ one-hot(a)); salida (Δs, r, doneLogit).
@@ -48,7 +53,7 @@ export class AgenteWorldModel extends AgenteBase {
   }
 
   _accionesEpsilon(estadosFlat, n, eps) {
-    const greedy = tf.tidy(() => this.redQ.predict(this._tensorEstados(estadosFlat, n)).argMax(1).dataSync());
+    const greedy = tf.tidy(() => this._predRed(this.redQ,this._tensorEstados(estadosFlat, n)).argMax(1).dataSync());
     const acciones = new Int32Array(n);
     for (let i = 0; i < n; i++)
       acciones[i] = Math.random() < eps ? (Math.random() * this.numAcciones) | 0 : greedy[i];
@@ -104,7 +109,7 @@ export class AgenteWorldModel extends AgenteBase {
     const sT = tf.tensor2d(m.s, [B, this.dimEstado]);
     const s2T = tf.tensor2d(m.s2, [B, this.dimEstado]);
     const aT = tf.tensor1d(m.a, "int32");
-    const aOneHot = tf.oneHot(aT, this.numAcciones);
+    const aOneHot = tf.oneHot(aT, this.numAcciones, 1, 0, "float32");
     const rT = tf.tensor2d(m.r, [B, 1]);
     const doneT = tf.tensor2d(m.done, [B, 1]);
     const entrada = tf.concat([sT, aOneHot], 1);
@@ -140,7 +145,7 @@ export class AgenteWorldModel extends AgenteBase {
   _modeloPredecir(estadosFlat, acciones, B) {
     return tf.tidy(() => {
       const sT = tf.tensor2d(estadosFlat, [B, this.dimEstado]);
-      const aOneHot = tf.oneHot(tf.tensor1d(acciones, "int32"), this.numAcciones);
+      const aOneHot = tf.oneHot(tf.tensor1d(acciones, "int32"), this.numAcciones, 1, 0, "float32");
       const out = this.modelo.predict(tf.concat([sT, aOneHot], 1));
       const dsPred = out.slice([0, 0], [B, this.dimEstado]);
       const rPred = out.slice([0, this.dimEstado], [B, 1]);
@@ -184,15 +189,15 @@ export class AgenteWorldModel extends AgenteBase {
     const sT = tf.tensor2d(sFlat, [B, this.dimEstado]);
     const s2T = tf.tensor2d(s2Flat, [B, this.dimEstado]);
     const aT = tf.tensor1d(acciones, "int32");
-    const aOneHot = tf.oneHot(aT, this.numAcciones);
+    const aOneHot = tf.oneHot(aT, this.numAcciones, 1, 0, "float32");
     const rT = tf.tensor1d(recompensas);
     const doneT = tf.tensor1d(Float32Array.from(doneArr));
 
     const objetivo = tf.tidy(() => {
-      const qObj = this.redQObjetivo.predict(s2T);
+      const qObj = this._predRed(this.redQObjetivo,s2T);
       let qSig;
       if (dobleDQN) {
-        const aStar = this.redQ.predict(s2T).argMax(1);
+        const aStar = this._predRed(this.redQ,s2T).argMax(1);
         qSig = qObj.mul(tf.oneHot(aStar, this.numAcciones)).sum(1);
       } else {
         qSig = qObj.max(1);
@@ -203,7 +208,7 @@ export class AgenteWorldModel extends AgenteBase {
     const lossT = pasoGradiente(
       this.optQ,
       () => {
-        const qa = this.redQ.predict(sT).mul(aOneHot).sum(1);
+        const qa = this._predRed(this.redQ,sT).mul(aOneHot).sum(1);
         return tf.losses.huberLoss(objetivo, qa);
       },
       this._varsQ
@@ -218,10 +223,10 @@ export class AgenteWorldModel extends AgenteBase {
   obtenerDatosInspeccion(estadoFlat) {
     const datos = tf.tidy(() => {
       const sT = this._tensorEstados(estadoFlat, 1);
-      const qValores = Array.from(this.redQ.predict(sT).dataSync());
+      const qValores = Array.from(this._predRed(this.redQ,sT).dataSync());
       let aGreedy = 0;
       for (let i = 1; i < qValores.length; i++) if (qValores[i] > qValores[aGreedy]) aGreedy = i;
-      const aOneHot = tf.oneHot(tf.tensor1d([aGreedy], "int32"), this.numAcciones);
+      const aOneHot = tf.oneHot(tf.tensor1d([aGreedy], "int32"), this.numAcciones, 1, 0, "float32");
       const out = this.modelo.predict(tf.concat([sT, aOneHot], 1));
       const dsPred = out.slice([0, 0], [1, this.dimEstado]);
       const estadoPredicho = Array.from(sT.add(dsPred).dataSync());
