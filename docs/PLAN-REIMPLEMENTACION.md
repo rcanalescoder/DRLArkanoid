@@ -288,6 +288,15 @@ El usuario pidió usar la GPU (la del M4 Max estaba idle mientras el CPU iba al 
 ⇒ **La GPU sí se usa** (Metal, ~5,5× más rápida). A mismo presupuesto (1.5M) generaliza algo menos (81%
 porque el currículo solo llega a ≤60); pero como 3M cuesta **80s**, alcanza dificultad plena y **supera al
 CPU: 89% test**. Vía recomendada para escalar en Apple Silicon con la misma arquitectura. Ver `gpu/README.md`.
+
+### [Fase 3 — los 5 algoritmos CON VISIÓN (8×10 + conv)] · comparativa
+**Construido:** `AgenteBase._predRed` (helper compartido del split conv). **PPO y SAC** con `arquitectura:"conv"`
+(actor/crítico(s) conv) — model-free directo. **World Model y World Model RNN**: Q-net conv (ven los ladrillos);
+la dinámica MLP/LSTM se mantiene y aprende Δ≈0 en los ladrillos → **fijos en imaginación** (el compromiso del
+plan; predecir su evolución es el caso duro). **Fix backend nativo:** `tf.oneHot` devolvía int32 y rompía los
+`concat([float, oneHot])` de los World Models en tfjs-node → oneHot float32 explícito. Harness `scripts/comparativa.mjs`
+(entrena los 5 con conv en 8×10 + currículo, mide success_rate en test, ranking; resultado incremental por algo).
+Smoke: los 5 construyen, entrenan y evalúan en native sin fugas. **Resultados (1M/algo): [corriendo].**
 *(Nota: con TF.js, la GPU solo en navegador/WebGPU; el lab educativo sigue en JS, y la GPU pesada va por Python-MPS.)*
 
 ### [Fase 0 — HECHA, código] · Puerta 0 medida (4×7, DQN, 40k pasos, Node CPU)
