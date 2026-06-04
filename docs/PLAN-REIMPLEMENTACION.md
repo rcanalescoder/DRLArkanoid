@@ -296,7 +296,23 @@ la dinámica MLP/LSTM se mantiene y aprende Δ≈0 en los ladrillos → **fijos 
 plan; predecir su evolución es el caso duro). **Fix backend nativo:** `tf.oneHot` devolvía int32 y rompía los
 `concat([float, oneHot])` de los World Models en tfjs-node → oneHot float32 explícito. Harness `scripts/comparativa.mjs`
 (entrena los 5 con conv en 8×10 + currículo, mide success_rate en test, ranking; resultado incremental por algo).
-Smoke: los 5 construyen, entrenan y evalúan en native sin fugas. **Resultados (1M/algo): [corriendo].**
+Smoke: los 5 construyen, entrenan y evalúan en native sin fugas.
+
+**Comparativa en GPU (todos los 5 en Metal/MPS, `gpu/comparativa_mps.py`, 1.5M/algo, success_rate test):**
+
+| # | algoritmo | familia | TEST éxito | tiempo |
+|---|---|---|---|---|
+| 1 | **PPO** | model-free actor-crítico | **98%** | 153s |
+| 2 | **DQN** | model-free valor | **64%** | 43s |
+| 3 | World Model RNN | model-based LSTM | 1% | 268s |
+| 4 | SAC | model-free actor-crítico | 1%* | 83s |
+| 5 | World Model | model-based Dyna-Q | 1% | 271s |
+
+⇒ **Los model-free policy-gradient/valor (PPO, DQN) ganan claramente.** *(\*) SAC es muy inestable: otra
+semilla dio **98%** — SAC discreto colapsa o converge según la semilla. Los **World Models (model-based)
+flojean** (1%): su modelo de dinámica tendría que predecir la evolución de los 80 ladrillos (caso duro del
+plan); con la aproximación "ladrillos≈fijos" el Dyna-Q no despega, y son los más lentos. **TODOS usan la GPU**
+(en el harness JS de Node solo hay CPU; los 5 con visión también corren en el navegador vía WebGPU). **Fase 3 cerrada.**
 *(Nota: con TF.js, la GPU solo en navegador/WebGPU; el lab educativo sigue en JS, y la GPU pesada va por Python-MPS.)*
 
 ### [Fase 0 — HECHA, código] · Puerta 0 medida (4×7, DQN, 40k pasos, Node CPU)
