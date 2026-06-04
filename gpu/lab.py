@@ -19,10 +19,13 @@
 #
 #  Uso:
 #    python3 gpu/lab.py testsets [n_id n_ood_pat n_ood_dif]   # A6: construir test sets
+#    python3 gpu/lab.py freeze                                 # Fase B: congelar protocolo (NO re-ejecutar tras congelar)
+#    python3 gpu/lab.py tanda [budgets] [models]              # Fase C/C6: tanda completa (resumible)
+#    python3 gpu/lab.py status                                 # progreso de la tanda C6
 #    python3 gpu/lab.py smoke                                  # PUERTA A: demo A1–A6
 #    python3 gpu/lab.py multiseed <model> <budget> <s0..sk>    # una run multi-semilla
 # ============================================================================
-import os, sys, json, time, csv, hashlib, subprocess
+import os, sys, json, time, csv, glob, hashlib, subprocess
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 import torch
@@ -439,19 +442,37 @@ def _save_heatmap(mat, path, title):
 # ---------------------------------------------------------------------------
 #  A5 — ledger append-only
 # ---------------------------------------------------------------------------
-def ledger_append(row):
-    ensure_dirs(); new = not os.path.exists(LEDGER)
-    with open(LEDGER, "a", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=LEDGER_COLS)
-        if new: w.writeheader()
-        w.writerow({c: row.get(c, "") for c in LEDGER_COLS})
+def ledger_upsert(row):
+    # append-only en espíritu, pero idempotente por run_id: re-ejecutar una run
+    # REEMPLAZA su fila (no duplica) -> "nº filas == nº runs" se mantiene y la tanda es resumible.
+    ensure_dirs(); rows = []
+    if os.path.exists(LEDGER):
+        with open(LEDGER) as f: rows = [r for r in csv.DictReader(f) if r.get("run_id") != row["run_id"]]
+    rows.append(row)
+    with open(LEDGER, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=LEDGER_COLS); w.writeheader()
+        for r in rows: w.writerow({c: r.get(c, "") for c in LEDGER_COLS})
 
 # ---------------------------------------------------------------------------
 #  run_seed: entrena + evalúa los 3 bloques + train + escribe fila de ledger
 # ---------------------------------------------------------------------------
-def run_seed(model, variant, seed, budget, episodes_per_level=3, collapse_thr=0.10):
+def _seed_row_from_disk(model, variant, seed):
+    # reconstruye los success_* de una run ya evaluada (para agregar al saltarla)
+    def load(ts):
+        return json.load(open(os.path.join(DIRS["runs"], f"{model}_{variant}_seed{seed}_{ts}.json")))
+    return {"success_test_id": load("test_id")["success_rate"],
+            "success_test_ood_pattern": load("test_ood_pattern")["success_rate"],
+            "success_test_ood_diff": load("test_ood_diff")["success_rate"],
+            "success_train": load("train")["success_rate"]}
+
+def run_seed(model, variant, seed, budget, episodes_per_level=3, collapse_thr=0.10, skip_if_done=True):
     if not test_sets_exist():
-        raise RuntimeError("no existen los test sets. Ejecuta primero: python3 gpu/lab.py testsets")
+        raise RuntimeError("no existen los test sets. Ejecuta primero: python3 gpu/lab.py freeze")
+    rid = run_id(model, variant, budget, seed)
+    needed = [ckpt_path(model, variant, budget, seed)] + \
+             [os.path.join(DIRS["runs"], f"{model}_{variant}_seed{seed}_{ts}.json") for ts in TEST_NAMES + ["train"]]
+    if skip_if_done and all(os.path.exists(x) for x in needed):
+        return {"run_id": rid, "skipped": True, "row": _seed_row_from_disk(model, variant, seed)}
     tr = train_run(model, variant, seed, budget)
     ev = {ts: eval_run(model, variant, seed, ts, budget, episodes_per_level) for ts in TEST_NAMES}
     ev_train = eval_run(model, variant, seed, "train", budget, max(1, episodes_per_level - 1))
@@ -473,7 +494,7 @@ def run_seed(model, variant, seed, budget, episodes_per_level=3, collapse_thr=0.
            "metrics_path": os.path.relpath(ev["test_id"]["_json_path"], ROOT),
            "heatmap_path": ev["test_id"]["heatmap_path"],
            "curve_path": os.path.relpath(tr["curve_path"], ROOT)}
-    ledger_append(row)
+    ledger_upsert(row)
     return {"row": row, "eval": ev, "eval_train": ev_train, "train": tr}
 
 # ---------------------------------------------------------------------------
@@ -494,10 +515,14 @@ def run_multiseed(model, variant, budget, seeds, episodes_per_level=3, collapse_
     blocks = {}
     for key in ["success_test_id", "success_test_ood_pattern", "success_test_ood_diff", "success_train"]:
         blocks[key] = _agg([r["row"][key] for r in results], collapse_thr)
+    # config_hash: de una run recién entrenada, o del config.json en disco si todas se saltaron
+    chash = next((r["train"]["config_hash"] for r in results if "train" in r), None)
+    if chash is None:
+        cp = os.path.join(DIRS["runs"], f"{run_id(model, variant, budget, seeds[0])}.config.json")
+        chash = json.load(open(cp)).get("config_hash") if os.path.exists(cp) else None
     agg = {"model": model, "variant": variant, "budget": budget, "seeds": seeds,
            "framework": framework(), "git_commit": git_commit(),
-           "collapse_threshold": collapse_thr, "blocks": blocks,
-           "config_hash": results[0]["train"]["config_hash"]}
+           "collapse_threshold": collapse_thr, "blocks": blocks, "config_hash": chash}
     apath = os.path.join(DIRS["aggregate"], f"{model}_{variant}_{budget}.json")
     with open(apath, "w") as f: json.dump(agg, f, indent=2, ensure_ascii=False)
     _plot_curves(model, variant, budget, seeds)
@@ -555,6 +580,46 @@ def _cmd_smoke(argv):
     print(f"\nLedger: {os.path.relpath(LEDGER, ROOT)} ({sum(1 for _ in open(LEDGER))-1} filas)", flush=True)
     print("PUERTA A: artefactos en results/ — revisa antes de Fase B.", flush=True)
 
+MODELS_C6 = ["dqn", "ppo", "sac", "worldModel", "worldModelRecurrente"]
+
+def _cmd_tanda(argv):
+    """Fase C / C6: 5 modelos × semillas × presupuestos del protocolo congelado. Resumible."""
+    if not os.path.exists(FROZEN_PATH):
+        print("falta frozen_protocol.json — congela primero: python3 gpu/lab.py freeze"); return
+    proto = json.load(open(FROZEN_PATH))
+    seeds = proto["seeds"]; thr = proto["collapse_threshold"]
+    budgets = [int(x) for x in argv[0].split(",")] if len(argv) > 0 else proto["budgets"]
+    models = argv[1].split(",") if len(argv) > 1 else MODELS_C6
+    total = len(budgets) * len(models)
+    print(f"=== TANDA C6 · device={A.DEV} · {len(models)} modelos × {len(seeds)} semillas × "
+          f"{len(budgets)} presupuestos = {total*len(seeds)} runs · frozen={proto.get('frozen_hash')} ===", flush=True)
+    print("resumible: salta runs ya completas.\n", flush=True)
+    t_all = time.time(); k = 0
+    for b in budgets:
+        for m in models:
+            k += 1; t = time.time()
+            agg = run_multiseed(m, "base", b, seeds, collapse_thr=thr)
+            blk = agg["blocks"]["success_test_id"]; dt = time.time() - t
+            print(f"[{k}/{total}] {m:<22} @{b//1000}k · TEST-ID mean={blk['mean']*100:4.0f}% "
+                  f"med={blk['median']*100:4.0f}% min={blk['min']*100:3.0f}% max={blk['max']*100:3.0f}% "
+                  f"collapse={blk['collapse_rate']*100:3.0f}% >80={blk['pct_seeds_gt80']*100:3.0f}% · {dt:.0f}s", flush=True)
+    print(f"\nTANDA en {(time.time()-t_all)/60:.0f} min · ledger {sum(1 for _ in open(LEDGER))-1} filas", flush=True)
+
+def _cmd_status(argv):
+    proto = json.load(open(FROZEN_PATH)) if os.path.exists(FROZEN_PATH) else {}
+    seeds = proto.get("seeds", []); budgets = proto.get("budgets", [])
+    expected = len(MODELS_C6) * len(seeds) * len(budgets); done = 0
+    for b in budgets:
+        for m in MODELS_C6:
+            for s in seeds:
+                ev = all(os.path.exists(os.path.join(DIRS["runs"], f"{m}_base_seed{s}_{ts}.json"))
+                         for ts in TEST_NAMES + ["train"])
+                if os.path.exists(ckpt_path(m, "base", b, s)) and ev: done += 1
+    nled = (sum(1 for _ in open(LEDGER)) - 1) if os.path.exists(LEDGER) else 0
+    naggs = len(glob.glob(os.path.join(DIRS["aggregate"], "*.json")))
+    print(f"frozen_hash={proto.get('frozen_hash','?')} · device={A.DEV}")
+    print(f"runs C6 completas: {done}/{expected} · ledger {nled} filas · agregados {naggs}")
+
 def main():
     if len(sys.argv) < 2:
         print(__doc__); return
@@ -563,6 +628,8 @@ def main():
     elif cmd == "freeze":
         proto = freeze()
         print(json.dumps(proto, indent=2, ensure_ascii=False))
+    elif cmd == "tanda": _cmd_tanda(argv)
+    elif cmd == "status": _cmd_status(argv)
     elif cmd == "smoke": _cmd_smoke(argv)
     elif cmd == "multiseed":
         model = argv[0]; budget = int(argv[1]); seeds = [int(x) for x in argv[2:]]
