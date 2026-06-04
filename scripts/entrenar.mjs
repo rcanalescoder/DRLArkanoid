@@ -93,7 +93,7 @@ async function main() {
 
   console.log("────────────────────────────────────────────────────────────");
   console.log(`  RESUMEN ${algo.toUpperCase()} (${dt.toFixed(1)}s, ${(opts.pasos / dt).toFixed(0)} exp/s · Φ=${opts.shaping ? "ON" : "OFF"})`);
-  console.log(`  ▶ CABECERA · success_rate=${(inst.successRate * 100).toFixed(1)}%  ·  ladrillos rotos: ${bInicial.toFixed(2)} → ${bFinal.toFixed(2)} / 28  (mediana actual ${inst.bricksCleared.toFixed(2)})`);
+  console.log(`  ▶ CABECERA · success_rate=${(inst.successRate * 100).toFixed(1)}%  ·  ladrillos rotos: ${bInicial.toFixed(2)} → ${bFinal.toFixed(2)} / ${NUM_LADRILLOS}  (mediana actual ${inst.bricksCleared.toFixed(2)})`);
   console.log(`    [diag] reward ${rInicial.toFixed(2)}→${rFinal.toFixed(2)} · reward_no_shaping=${inst.rewardNoShaping.toFixed(2)} · 1er ladrillo≈${inst.timeToFirstBrick != null ? inst.timeToFirstBrick.toFixed(0) : "—"} pasos · steps_alive≈${inst.stepsAlive.toFixed(0)} · episodios=${inst.episodiosTotales}`);
   console.log(`    tensores=${tf.memory().numTensors}  memoria=${(tf.memory().numBytes / 1048576).toFixed(1)}MB`);
   const dB = bFinal - bInicial;
@@ -101,7 +101,7 @@ async function main() {
   console.log(`  Veredicto (ladrillos): ${veredicto}  (Δ=${dB.toFixed(2)})`);
 
   // --- Evaluación GREEDY (lo que de verdad ha aprendido la política, ε=0) ---
-  // Es la métrica honesta y comparable con el rastreador perfecto (~26 ladr / 38 %).
+  // Métrica honesta de cabecera (sin exploración). En niveles dispersos/variados, el éxito prueba apuntar.
   const gEval = new GestorEntornos({ numHeadless: 48, numVisuales: 0, shaping: opts.shaping, incluirLadrillos: opts.incluirLadrillos });
   const mEval = new RecolectorMetricas();
   let episodiosEval = 0, maxBricks = 0;
@@ -117,8 +117,7 @@ async function main() {
     }
   }
   const ge = mEval.obtenerInstantanea();
-  console.log(`  ▶▶ GREEDY (${episodiosEval} eps, ε=0) · success_rate=${(ge.successRate * 100).toFixed(1)}%  ·  ladrillos=${ge.bricksCleared.toFixed(2)}/28 (máx ${maxBricks})  ·  steps_alive≈${ge.stepsAlive.toFixed(0)}`);
-  console.log(`     referencia rastreador perfecto: ~26/28 · 37.6%`);
+  console.log(`  ▶▶ GREEDY (${episodiosEval} eps, ε=0) · success_rate=${(ge.successRate * 100).toFixed(1)}%  ·  ladrillos=${ge.bricksCleared.toFixed(2)}/${NUM_LADRILLOS} (máx ${maxBricks})  ·  steps_alive≈${ge.stepsAlive.toFixed(0)}`);
   console.log("────────────────────────────────────────────────────────────");
 
   agente.destruir();
