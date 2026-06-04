@@ -11,7 +11,11 @@ export class AgenteBase {
   constructor(id, hp) {
     this.id = id;
     this.hp = hp;
-    this.dimEstado = DIM_ESTADO;
+    // Dimensión de entrada de la red. Por defecto la del modo del proyecto (VISTA → 34).
+    // hp.dimEstado permite emparejar al agente con un gestor en otro modo (p. ej. la
+    // baseline CIEGA → 6) sin tocar el default global. DEBE coincidir con la dim del
+    // gestor y con la de su replay buffer (los agentes la propagan a su buffer).
+    this.dimEstado = hp?.dimEstado ?? DIM_ESTADO;
     this.numAcciones = NUM_ACCIONES;
     this.pasosEntorno = 0; // experiencias recogidas
     this.pasosEntrenamiento = 0; // actualizaciones de gradiente realizadas

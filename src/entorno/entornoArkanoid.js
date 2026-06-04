@@ -12,6 +12,8 @@ import {
   SIMBOLOS_ACCION,
   RECOMPENSAS,
   DIM_ESTADO,
+  INCLUIR_LADRILLOS_DEFECTO,
+  ESCALA_LADRILLOS_DEFECTO,
   CONFIGURACION_ENTORNO as CFG,
 } from "../nucleo/constantes.js";
 
@@ -44,6 +46,23 @@ export class EntornoArkanoid {
   constructor(id, opciones = {}) {
     this.id = id;
     this.shaping = opciones.shaping === true;
+    // VISTA: si true, el estado incluye la ocupación de los ladrillos (Fase 1+).
+    // false = baseline CIEGA (solo cinemática). Por defecto VISTA (objetivo del proyecto).
+    this.incluirLadrillos = opciones.incluirLadrillos ?? INCLUIR_LADRILLOS_DEFECTO;
+    // Patrón inicial de ladrillos: predicado (fila,col)→bool que decide cuáles arrancan
+    // vivos. null = rejilla LLENA (comportamiento por defecto). Usado para EVALUAR en
+    // niveles dispersos (probar que la vista APUNTA, donde sobrevivir ≠ ganar). Semilla
+    // del generador de Fase 2.
+    this.patronLadrillos = opciones.patronLadrillos ?? null;
+    // Proveedor de nivel POR EPISODIO: función () → máscara (Uint8Array[NUM_LADRILLOS], 1=vivo,
+    // orden fila-mayor) que se llama en cada reinicio para variar el nivel (entrenamiento sobre
+    // niveles generados, Fase 2). Tiene prioridad sobre patronLadrillos. null = usa patrón/lleno.
+    this.proveedorNivel = opciones.proveedorNivel ?? null;
+    // Escala de la ocupación de ladrillos en el estado (vivo→escala, roto→0). <1 reduce la
+    // magnitud del bloque de 28 ladrillos para que NO ahogue a las 6 cinemáticas en la 1ª capa
+    // (la supervivencia solo depende de la cinemática). Por defecto 0.25 (MEDIDO: hace despegar
+    // a la vista; con 1.0 no aprende a sobrevivir). 1.0 = ocupación {0,1} pura.
+    this.escalaLadrillos = opciones.escalaLadrillos ?? ESCALA_LADRILLOS_DEFECTO;
     this._rng = opciones.semilla != null ? crearRng(opciones.semilla + id * 7919) : Math.random;
     this.anchoLadrillo =
       (1 - CFG.MARGEN_LADRILLOS_X * 2 - CFG.ESPACIO_LADRILLOS * (COLUMNAS_LADRILLOS - 1)) /
@@ -56,13 +75,20 @@ export class EntornoArkanoid {
   }
 
   reiniciar() {
+    const mask = this.proveedorNivel ? this.proveedorNivel() : null;
     this.ladrillos = [];
     for (let fila = 0; fila < FILAS_LADRILLOS; fila++) {
       for (let col = 0; col < COLUMNAS_LADRILLOS; col++) {
-        this.ladrillos.push({ fila, col, vivo: true });
+        let vivo;
+        if (mask) vivo = mask[fila * COLUMNAS_LADRILLOS + col] === 1;
+        else if (this.patronLadrillos) vivo = !!this.patronLadrillos(fila, col);
+        else vivo = true;
+        this.ladrillos.push({ fila, col, vivo });
       }
     }
-    this.ladrillosVivos = this.ladrillos.length;
+    this.ladrillosVivos = 0;
+    for (const l of this.ladrillos) if (l.vivo) this.ladrillosVivos++;
+    this.ladrillosIniciales = this.ladrillosVivos; // para medir % limpiado en niveles variados
 
     // Pelota: arranca en la mitad inferior moviéndose hacia arriba (a por los
     // ladrillos), con dirección horizontal aleatoria. Magnitud constante.
@@ -102,7 +128,7 @@ export class EntornoArkanoid {
   /** Estado normalizado (~[-1,1]) que recibe la red neuronal. */
   obtenerVectorEstado() {
     const p = this.pelota;
-    return [
+    const v = [
       p.x * 2 - 1,
       p.y * 2 - 1,
       p.vx / CFG.VELOCIDAD_PELOTA,
@@ -110,6 +136,14 @@ export class EntornoArkanoid {
       this.pala.x * 2 - 1,
       limitar((p.x - this.pala.x) * 2, -1, 1),
     ];
+    // VISTA: ocupación de los ladrillos (1 = vivo, 0 = roto) en orden fila-mayor estable
+    // (el array no se compacta al romper, el índice de cada celda no cambia). Le da al
+    // agente lo que necesita para APUNTAR a los ladrillos vivos, no solo sobrevivir.
+    if (this.incluirLadrillos) {
+      const s = this.escalaLadrillos;
+      for (let i = 0; i < this.ladrillos.length; i++) v.push(this.ladrillos[i].vivo ? s : 0);
+    }
+    return v;
   }
 
   estaTerminado() {

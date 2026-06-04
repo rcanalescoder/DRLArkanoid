@@ -47,8 +47,8 @@ export class AgenteWorldModelRecurrente extends AgenteBase {
 
     this.optQ = tf.train.adam(tasaAprendizaje);
     this.optModelo = tf.train.adam(tasaAprendizajeModelo);
-    this.buffer = new ReplayBuffer(capacidadBuffer);
-    this.bufferSec = new BufferSecuencias(capacidadSecuencias);
+    this.buffer = new ReplayBuffer(capacidadBuffer, this.dimEstado);
+    this.bufferSec = new BufferSecuencias(capacidadSecuencias, this.dimEstado);
     this._varsQ = variablesEntrenables(this.redQ);
     this._varsModelo = variablesEntrenables(this.modelo);
     this._errorModelo = 1.0;

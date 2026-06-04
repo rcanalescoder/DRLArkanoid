@@ -15,10 +15,15 @@ export const NUM_ACCIONES = 3;
 export const SIMBOLOS_ACCION = ["←", "·", "→"];
 export const NOMBRES_ACCION = ["Izquierda", "Mantener", "Derecha"];
 
+// --- Geometría de los ladrillos -------------------------------------------
+export const FILAS_LADRILLOS = 4;
+export const COLUMNAS_LADRILLOS = 7;
+export const NUM_LADRILLOS = FILAS_LADRILLOS * COLUMNAS_LADRILLOS; // 4×7 = 28
+
 // --- Dimensión del estado --------------------------------------------------
-// [ pelota.x, pelota.y, pelota.vx, pelota.vy, pala.x, (pelota.x - pala.x) ]
-// Todas las componentes están normalizadas aproximadamente a [-1, 1].
-export const DIM_ESTADO = 6;
+// Parte CINEMÁTICA (siempre presente, 6 valores normalizados ~[-1,1]):
+//   [ pelota.x, pelota.y, pelota.vx, pelota.vy, pala.x, (pelota.x - pala.x) ]
+export const DIM_CINEMATICA = 6;
 export const NOMBRES_ESTADO = [
   "pelota.x",
   "pelota.y",
@@ -28,9 +33,30 @@ export const NOMBRES_ESTADO = [
   "Δ(pelota-pala)",
 ];
 
-// --- Geometría de los ladrillos -------------------------------------------
-export const FILAS_LADRILLOS = 4;
-export const COLUMNAS_LADRILLOS = 7;
+// Parte VISTA (Fase 1+): ocupación de los ladrillos como vector plano de
+// NUM_LADRILLOS valores {0,1} (1 = vivo, 0 = roto), en orden fila-mayor. Es lo que
+// le faltaba al agente para APUNTAR (antes era ciego al campo y solo podía
+// sobrevivir). La baseline CIEGA (solo cinemática, 6) se conserva como contraste
+// pedagógico y se activa con incluirLadrillos=false.
+export const INCLUIR_LADRILLOS_DEFECTO = true;
+
+// Escala del bloque de ocupación de ladrillos en el estado (vivo→escala, roto→0). MEDIDO
+// (Fase 1): con ocupación pura {0,1} (escala 1.0) las 28 entradas AHOGAN a las 6 cinemáticas
+// en la 1ª capa y la vista NO aprende a sobrevivir (atascada ~128 pasos a 600k). Atenuando a
+// 0.25 (≈ iguala la varianza de ambos bloques) la vista DESPEGA: 2209 pasos · 27/28 ladrillos ·
+// 51% a 600k. Es la pieza que hace funcionar la vista. Tunable (grid de la métrica real).
+export const ESCALA_LADRILLOS_DEFECTO = 0.25;
+
+/** Dimensión del vector de estado según el modo de observación. */
+export function dimensionEstado(incluirLadrillos = INCLUIR_LADRILLOS_DEFECTO) {
+  return incluirLadrillos ? DIM_CINEMATICA + NUM_LADRILLOS : DIM_CINEMATICA;
+}
+
+// Dimensión del modo POR DEFECTO del proyecto (Fase 1+: VISTA → 6+28 = 34). La usan
+// los consumidores que no thread-ean el modo (replay buffers por defecto, agentes sin
+// override). El env/gestor/agente que sí lo thread-ean usan la dimensión runtime, de
+// modo que la baseline ciega (6) puede coexistir sin tocar este default.
+export const DIM_ESTADO = dimensionEstado();
 
 // Pasos por episodio POR LADRILLO. REGLA (no negociable): el límite de pasos DEBE
 // escalar con el tamaño de la rejilla. Medido: un viaje pala→ladrillo→pala ≈ 63 pasos
@@ -123,7 +149,10 @@ export const HIPERPARAMETROS = Object.freeze({
     frecuenciaEntrenamiento: 1, // entrenar cada N lotes de experiencia
     epsilonInicial: 1.0,
     epsilonFinal: 0.05,
-    pasosDecaimientoEpsilon: 12000,
+    // Grid de supervivencia (Fase 0.5): decaer ε antes (8000, no 12000) hace que el
+    // agente deje de explorar pronto y practique su política real → sobrevive mucho
+    // mejor (1.7→9.9 ladrillos en ciego). Se mantiene con la vista (re-validar).
+    pasosDecaimientoEpsilon: 8000,
     tau: 0.01, // soft update de la red objetivo
     dobleDQN: true,
     prioritario: false,

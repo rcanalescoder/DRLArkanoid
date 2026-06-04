@@ -39,7 +39,7 @@ export class AgenteSAC extends AgenteBase {
     this.optCritico = tf.train.adam(tasaAprendizajeCritico);
     this.optAlpha = tf.train.adam(tasaAprendizajeAlpha);
 
-    this.buffer = new ReplayBuffer(capacidadBuffer);
+    this.buffer = new ReplayBuffer(capacidadBuffer, this.dimEstado);
     this._varsActor = variablesEntrenables(this.actor);
     this._varsCritico = [...variablesEntrenables(this.critico1), ...variablesEntrenables(this.critico2)];
     this._metr = { temperatura: 0.2, entropia: 0, lossCritico: 0, lossActor: 0 };

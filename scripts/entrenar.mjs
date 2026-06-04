@@ -12,7 +12,7 @@ import { GestorEntornos } from "../src/entorno/gestorEntornos.js";
 import { RecolectorMetricas } from "../src/entrenamiento/metricas.js";
 import { SistemaTrazas } from "../src/nucleo/trazas.js";
 import { Orquestador } from "../src/entrenamiento/orquestador.js";
-import { HIPERPARAMETROS, ALGORITMOS, CONFIGURACION_ENTORNO } from "../src/nucleo/constantes.js";
+import { HIPERPARAMETROS, ALGORITMOS, CONFIGURACION_ENTORNO, dimensionEstado, NUM_LADRILLOS } from "../src/nucleo/constantes.js";
 
 const IMPORTADORES = {
   dqn: () => import("../src/agentes/agenteDQN.js").then((m) => m.AgenteDQN),
@@ -24,12 +24,13 @@ const IMPORTADORES = {
 
 function parseArgs(argv) {
   const algo = argv[2] || "dqn";
-  const opts = { pasos: 200000, envs: null, hp: {}, shaping: false };
+  const opts = { pasos: 200000, envs: null, hp: {}, shaping: false, incluirLadrillos: true };
   for (let i = 3; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--pasos") opts.pasos = +argv[++i];
     else if (a === "--envs") opts.envs = +argv[++i];
     else if (a === "--shaping") opts.shaping = true; // activar Φ (demo del saboteador)
+    else if (a === "--ciego") opts.incluirLadrillos = false; // baseline ciega (6 vars, sin ver ladrillos)
     else if (a === "--hp") {
       const [k, v] = argv[++i].split("=");
       opts.hp[k] = isNaN(+v) ? v === "true" ? true : v === "false" ? false : v : +v;
@@ -51,17 +52,21 @@ async function main() {
 
   const idAlgoritmo = ALGORITMOS[algo.toUpperCase()] ?? algo;
   const hpBase = HIPERPARAMETROS[idAlgoritmo] ?? {};
-  const hp = { ...hpBase, ...opts.hp };
+  // dimEstado emparejado con el modo de observación (VISTA 34 / CIEGO 6); --hp puede
+  // sobreescribirlo a propósito. Debe coincidir con la dim del gestor.
+  const dimEstado = dimensionEstado(opts.incluirLadrillos);
+  const hp = { ...hpBase, dimEstado, ...opts.hp };
   const numHeadless = opts.envs ?? (algo === "ppo" ? 32 : 256);
+  const modoObs = opts.incluirLadrillos ? `VISTA (6+${NUM_LADRILLOS}=${dimEstado})` : `CIEGO (${dimEstado})`;
 
   console.log("════════════════════════════════════════════════════════════");
   console.log(`  Entrenando ${algo.toUpperCase()}  ·  backend=${tf.getBackend()}`);
-  console.log(`  envs=${numHeadless}  pasos=${opts.pasos}  shaping(Φ)=${opts.shaping ? "ON" : "OFF"}`);
+  console.log(`  envs=${numHeadless}  pasos=${opts.pasos}  shaping(Φ)=${opts.shaping ? "ON" : "OFF"}  ·  observación=${modoObs}`);
   console.log(`  hp=${JSON.stringify(hp)}`);
   console.log("════════════════════════════════════════════════════════════");
 
   const Clase = await importar();
-  const gestor = new GestorEntornos({ numHeadless, numVisuales: 0, shaping: opts.shaping });
+  const gestor = new GestorEntornos({ numHeadless, numVisuales: 0, shaping: opts.shaping, incluirLadrillos: opts.incluirLadrillos });
   const agente = new Clase(hp);
   const metricas = new RecolectorMetricas();
   const trazas = new SistemaTrazas();
@@ -97,7 +102,7 @@ async function main() {
 
   // --- Evaluación GREEDY (lo que de verdad ha aprendido la política, ε=0) ---
   // Es la métrica honesta y comparable con el rastreador perfecto (~26 ladr / 38 %).
-  const gEval = new GestorEntornos({ numHeadless: 48, numVisuales: 0, shaping: opts.shaping });
+  const gEval = new GestorEntornos({ numHeadless: 48, numVisuales: 0, shaping: opts.shaping, incluirLadrillos: opts.incluirLadrillos });
   const mEval = new RecolectorMetricas();
   let episodiosEval = 0, maxBricks = 0;
   const KEVAL = 200, nE = 48, topePasos = (CONFIGURACION_ENTORNO.MAX_PASOS_EPISODIO + 5) * Math.ceil(KEVAL / nE) + 200;

@@ -34,7 +34,7 @@ export class AgenteWorldModel extends AgenteBase {
 
     this.optQ = tf.train.adam(tasaAprendizaje);
     this.optModelo = tf.train.adam(tasaAprendizajeModelo);
-    this.buffer = new ReplayBuffer(capacidadBuffer);
+    this.buffer = new ReplayBuffer(capacidadBuffer, this.dimEstado);
     this._varsQ = variablesEntrenables(this.redQ);
     this._varsModelo = variablesEntrenables(this.modelo);
     this._errorModelo = 1.0;

@@ -62,11 +62,19 @@ formular la pregunta de generalización).
   prueba decisiva es la Puerta 1. Si `bricks_cleared` BAJA, el `+0.2` solo no basta para el
   bootstrap de devolver la bola → revisar.*
 
-### Fase 1 — Observación estructurada plana (4×7, MLP)
-1. Estado de ladrillos como **vector plano** concatenado: `6 + 28 = 34` entradas.
-2. MLP `34 → 128 → 128 → 3`, reutilizando DQN (Double DQN + Huber + soft update).
-- **Puerta 1→2:** agente **con vista** sobre 4×7 fijo alcanza **`success_rate` alto**
-  (limpia el nivel de forma fiable). Demuestra que la observación arregla el techo.
+### Fase 1 — Hacer FUNCIONAR la vista (4×7) — vista-only
+Objetivo de la fase: que el agente CON VISTA (34) aprenda a **(a) sobrevivir** y **(b) APUNTAR**
+a los ladrillos vivos, y limpie de forma fiable. Construido: estado = vector plano `6 + 28 = 34`,
+MLP `34 → 128 → 128 → 3` (DQN: Double DQN + Huber + soft update), `εdecay=8000`, reloj `90·filas·cols`.
+- **Problema medido (300k):** la vista sobrevive muy despacio porque las 28 ocupaciones ahogan la
+  cinemática (ver PIVOTE). **Tarea abierta:** equilibrar la codificación para que la supervivencia
+  (cinemática) no quede diluida — candidatos: **escala** de las ocupaciones, **rama cinemática**
+  separada (la de Fase 2 sin conv), o **normalización** de entrada; + presupuesto suficiente.
+  Iterar midiendo la curva de supervivencia/limpieza **de la propia vista** (nunca "no puede").
+- **Puerta 1 (vista-only, sin comparativas):** la VISTA en greedy
+  1. **sobrevive** el episodio y limpia el **4×7 lleno** con `success_rate` alto, y
+  2. limpia **niveles DISPERSOS fijos** (columna izq/der, fila superior, salpicados) con
+     `success_rate` alto → como ahí sobrevivir ≠ ganar, el éxito **prueba que apunta**.
 
 ### Fase 2 — Objetivo: 8×10 + conv + generador + splits + currículum
 1. Rejilla **8×10** (80 celdas). 2. Observación **matriz 2D + conv** (§5.3). 3. **Generador**
@@ -75,9 +83,9 @@ formular la pregunta de generalización).
 - **Puerta 2 (final):** `success_rate` alto en **train Y test** con **gap pequeño**, y el
   **heatmap de roturas** muestra ataque deliberado a zonas con ladrillos vivos.
 
-### Fase 3 — (opcional) Comparativa y baseline ciega
-- Reactivar los 5 algoritmos sobre el mismo encoder conv. Conservar la **versión ciega (6
-  vars)** como baseline pedagógica (contraste ciego/con-vista/con-niveles).
+### Fase 3 — (opcional) Comparativa de los 5 algoritmos CON VISTA
+- Reactivar los 5 algoritmos sobre el mismo encoder con vista (conv en Fase 2). **Sin baseline
+  ciega** (abandonada, ver PIVOTE): la comparativa es entre algoritmos, todos con vista.
 - **Caveat de validación:** DQN/PPO/SAC (model-free) reusan el encoder limpio; los **dos
   World Model (model-based)** tendrían que **predecir la evolución de la rejilla de ladrillos**
   en su modelo de dinámica → problema duro. Opciones: dinámica solo cinemática, o tratarlos
@@ -134,14 +142,112 @@ en el REGISTRO.
 ## RESTRICCIONES TÉCNICAS
 - Navegador + TensorFlow.js (WebGPU→WebGL→CPU), Mac M4 Max. Reutilizar infra: pools
   headless(256)/visual(8), registro, inspectores, detección de fugas, harness Node.
-- Mantener detección de fugas tras añadir conv. Conservar baseline ciega (6 vars).
+- Mantener detección de fugas tras añadir conv. (Baseline ciega ABANDONADA, ver PIVOTE.)
 - Reutilizar el grid search para ajustar **recompensa** y **generador/currículum**, no solo HP.
 - *Cambiar la observación es invasivo* (DIM_ESTADO, obtenerVectorEstado, buffer del gestor,
   entradas de los 5 agentes, replay buffer, inspectores) — preverlo en Fases 1–2.
 
 ---
 
+## ▣▣ PIVOTE [2026-06-04] — SE ABANDONA EL CIEGO. Todo el foco en la VISTA. (LEER PRIMERO)
+Decisión del usuario, asumida como principio: **el agente CIEGO queda abandonado y NO se usa
+como referencia.** Comparar la vista contra el ciego **enturbia** en lugar de aclarar:
+1. El ciego en rejilla LLENA "gana" **sobreviviendo** (la bola rebota por todo) → es un éxito
+   **degenerado**, no el objetivo (apuntar). Medir contra él no dice nada útil.
+2. Su despegue de supervivencia tiene **mucha varianza por semilla** (medido: a 200k unas veces
+   ~85 pasos, el registro viejo reportaba 577 a 150k) → referencia inestable.
+
+**A partir de aquí, una sola cosa importa: hacer que la VISTA funcione** (sobreviva → apunte →
+limpie → generalice). **Ignorar todas las pruebas/números del ciego** de las entradas históricas
+de abajo; se conservan solo como diario de cómo se aprendió el reloj y `εdecay`, NO como metas.
+
+**Lo que medimos AHORA (vista-only, sin comparar con nada):**
+- `success_rate` (greedy) de la VISTA en el **4×7 lleno** (sobrevivir + rematar).
+- `success_rate` (greedy) de la VISTA en **niveles DISPERSOS fijos** (columna, fila, salpicados):
+  con pocos ladrillos, **sobrevivir ≠ ganar → limpiarlos SOLO es posible apuntando**. El propio
+  éxito en disperso ES la prueba de que la vista apunta (autocontenida, no necesita ciego).
+
+**Hallazgo que toca arreglar (medido a 300k, vista-only):** la vista aprende a **sobrevivir muy
+despacio**. Causa: en el MLP plano, las **28 entradas de ocupación (≈1.0) ahogan en magnitud a las
+6 cinemáticas** (∈[-1,1]) en la primera capa → la señal de devolver la bola (que solo depende de
+la cinemática) se diluye. **No es "no puede"; es codificación.** Iteración en curso (ver §Fase 1
+reescrita): equilibrar cinemática vs ladrillos (escala de inputs / rama cinemática / normalización)
++ presupuesto suficiente, midiendo la curva de supervivencia y limpieza **de la propia vista**.
+
+---
+
 ## REGISTRO DE PROGRESO / DECISIONES (actualizar tras cada fase)
+> ⚠️ Entradas de Fase 0/0.5 = **históricas**. Sus números del CIEGO ya NO son referencia (ver PIVOTE).
+
+### [Fase 1 — LA VISTA YA SOBREVIVE] · arreglo = atenuar el bloque de ladrillos (escala 0.25)
+**Problema (medido, vista-only):** con ocupación pura {0,1} (escala 1.0) la vista NO despega —
+atascada en ~128 pasos / 2.6 ladrillos / 0% a 600k. Las 28 ocupaciones (≈1.0) ahogan en magnitud a
+las 6 cinemáticas (∈[-1,1]) en la 1ª capa → la supervivencia (que solo depende de la cinemática) no
+se aprende. **Arreglo:** `escalaLadrillos = 0.25` (vivo→0.25, roto→0; ≈ iguala la varianza de los
+dos bloques). Curva de supervivencia/limpieza (greedy, lleno, mismo presupuesto):
+
+| escala | 100k | 250k | 400k | 600k |
+|---|---|---|---|---|
+| 1.0 (plano) | 68 / 1.4 | 63 / 1.3 | 97 / 2.0 | **128 / 2.6 · 0%** ❌ |
+| **0.25** | 61 / 1.2 | 129 / 2.6 | 1025 / 18.3 | **2209 / 27.0 · 51%** ✅ |
+
+⇒ Atenuar el bloque **hace despegar la vista** (atascada → 51% y subiendo, AHORA CON VISIÓN, no a
+ciegas). Fijado `ESCALA_LADRILLOS_DEFECTO = 0.25` (tunable por grid de la métrica real). Próximo:
+probar que **APUNTA** (eval greedy en niveles dispersos, `scripts/puerta1.mjs`).
+
+### [Fase 1 — PUERTA 1 SUPERADA: la vista APUNTA y generaliza zero-shot] · 84% en dispersos
+Vista (escala 0.25, DQN, 800k, entrenada SOLO en el lleno) evaluada en greedy (`scripts/puerta1.mjs`):
+
+| nivel | ladr | éxito | ladrillos | vive |
+|---|---|---|---|---|
+| lleno 4×7 | 28 | 15% | 13.2/28 | 843 |
+| columna izq | 4 | **95%** | 3.9/4 | 698 |
+| columna der | 4 | **85%** | 3.8/4 | 1258 |
+| fila superior | 7 | **71%** | 6.6/7 | 1523 |
+| dispersos | 6 | **85%** | 5.8/6 | 1016 |
+
+**Dispersos: 84% éxito / 96% ladrillos.** En disperso **sobrevivir ≠ ganar** → el éxito PRUEBA que
+apunta. Y esos patrones **no se entrenaron** (solo el lleno) → ya **generaliza zero-shot**. ✅ El
+OBJETIVO (apuntar + generalizar) se cumple en Fase 1.
+**Matices honestos:** (1) el **lleno (15%)** es *survival-endurance-limited* y de **alta varianza por
+semilla** (el diag dio 51%): limpiar 28 exige aguantar ~1760+ pasos, sub-skill más difícil y tardía
+que apuntar. (2) La vista va **mejor en disperso que en lleno** (apuntar pocos < aguantar 28). ⇒ La
+resistencia en lleno se robustece con **currículum/varios niveles/más pasos** (Fase 2), no es el cuello
+del objetivo.
+**Confirmado (2ª semilla, 1M):** dispersos **77% éxito / 85% ladrillos** (por patrón 58–95%) → apuntar
+robusto entre semillas. Lleno **49%** a 1M (vs 15% a 800k) → confirma que el lleno es alta-varianza y
+**sube con más pasos**. ⇒ Fase 1 cerrada: la vista **apunta y generaliza zero-shot**. A Fase 2.
+
+### [Fase 2a — GENERALIZA en 4×7] · entrenar en niveles VARIADOS → 78% en TEST (gap 6.4)
+Generador `src/entorno/generadorNiveles.js` (familias: dispersión, filas, columnas, bloque, simétrico),
+pool de **400 niveles distintos**, splits DISJUNTOS train 280 / val 60 / test 60 (~12 ladrillos medios).
+Vista (MLP + escala 0.25, DQN, 1M) entrenada en TRAIN (un nivel aleatorio por episodio vía `proveedorNivel`),
+evaluada en greedy (`scripts/fase2a.mjs`):
+
+| | éxito | %ladrillos | vive |
+|---|---|---|---|
+| TRAIN | 84% | 90% | 905 |
+| **TEST (no vistos)** | **78%** | 87% | 971 |
+
+**Gap train−test = 6.4 pts** (pequeño) → **generaliza, no memoriza**. Por familia (test): bloque 96%,
+dispersión 81%, simétrico 80%, columnas 71%, filas 63% (pocas muestras). ⇒ La vista aprende una
+**POLÍTICA GENERAL** que limpia niveles procedurales NO vistos apuntando — el objetivo central, validado
+en 4×7 con flat MLP.
+
+### [Fase 2a (pulido) — CURRÍCULUM sube el test 78% → 86%]
+Currículum fácil→difícil (`scripts/fase2a_curriculum.mjs`): tiers por nº de ladrillos ≤7/≤13/≤20/≤28,
+desbloqueando el siguiente cuando el éxito de entrenamiento supera 0.72 (o tope de pasos). 1.5M, mismo
+generador/splits. Progresión: domina ≤7 a 400k → full (≤28) a 500k → pule el resto. Greedy:
+
+| | TEST éxito | %ladrillos | gap |
+|---|---|---|---|
+| baseline (sin currículum, 1M) | 78% | 87% | 6.4 |
+| **currículum (1.5M)** | **86%** | 96% | **2.5** |
+
+Por familia (test): bloque 96%, dispersión 88%, columnas 84%, simétrico 83%, filas 76%. ⇒ El currículum
+**sube el test 8 pts y baja el gap a 2.5** → política general sólida. **4×7 PULIDO** (objetivo >78% cumplido).
+**Siguiente: Fase 2b** — escalar a 8×10 + encoder conv (matriz de ocupación 2D) + rama cinemática,
+reutilizando generador/splits/currículum.
 
 ### [Fase 0 — HECHA, código] · Puerta 0 medida (4×7, DQN, 40k pasos, Node CPU)
 **Cambios:** `Φ` OFF por defecto (entorno, gestor, app, herramientas; toggle conservado para
@@ -264,16 +370,20 @@ diagnóstico + dar los parámetros) y **se agota aquí**. Seguir puliéndolo NO 
 - Harness con **eval greedy (ε=0)**; **grid que optimiza la métrica real** (`scripts/grid_supervivencia.mjs`).
 - **Rastreador perfecto** como referencia/medidor de viabilidad física.
 
-## ▶▶ ARRANQUE PARA LA NUEVA SESIÓN (empezar aquí)
-La sesión actual está saturada. Continuar en una **sesión nueva, enfocada en la VISTA**. Prompt sugerido:
+## ▶▶ ESTADO ACTUAL Y PRÓXIMOS PASOS (vista-only)
+**Construido (Fase 1):** observación con VISTA (`incluirLadrillos`, vector plano `6+28=34`),
+MLP `34→128→128→3`, DQN con `εdecay=8000`, reloj `90·filas·cols`. Sin fugas, los 5 algoritmos
+arrancan en VISTA. Soporte de **niveles dispersos fijos** para evaluar el apuntado (`patronLadrillos`
+en entorno+gestor). Scripts: `scripts/puerta1.mjs` (vista en lleno+dispersos), `scripts/diag_vista.mjs`.
 
-> «Reparación Arkanoid DRL — continúa desde `docs/PLAN-REIMPLEMENTACION.md` (léelo entero, sobre todo el
-> REGISTRO). Fase 0/0.5 cerrada: el agente ciego ya limpia el 4×7 lleno (56 %) por supervivencia, pero NO
-> apunta. Construye la **Fase 1**: añadir la observación de los ladrillos (vector plano `6+28=34`, MLP
-> `34→128→128→3`, DQN, `εdecay=8000`, reloj ya escalado) sobre el 4×7 fijo y medir la Puerta 1 (¿con vista
-> limpia de forma fiable?). Luego **Fase 2** (8×10 + conv + generador + splits + currículum) para
-> generalización. Respeta los PRINCIPIOS DE TRABAJO del plan: el objetivo manda, verificar cada fase
-> contra el objetivo, y NUNCA "el algoritmo no puede" → iterar (pasos / grid / variaciones).»
+**Abierto (lo que falta para la Puerta 1):** la vista aprende a SOBREVIVIR demasiado despacio (28
+ocupaciones ahogan la cinemática; ver PIVOTE). Iterar hasta que **la vista** sobreviva y limpie
+lleno + dispersos:
+1. Equilibrar la codificación cinemática↔ladrillos: probar **escala** de ocupaciones, **rama
+   cinemática** separada (Dense propio para las 6 antes de concatenar), o **normalización** de entrada.
+2. **Presupuesto suficiente** (la supervivencia despega tarde y con varianza; medir la curva propia).
+3. Cuando la vista limpie dispersos de forma fiable → **Fase 2** (8×10 + conv + generador + splits +
+   currículum) para GENERALIZAR a niveles no vistos.
 
-*(Objetivo real recordatorio: apuntar a los ladrillos vivos y GENERALIZAR a niveles no vistos — eso solo
-llega con la VISTA, que es lo que falta por construir.)*
+**Reglas:** vista-only (ignorar el ciego). El objetivo manda. Nunca "no puede" → iterar
+(pasos / grid de la métrica real / variaciones de codificación-red-currículum).

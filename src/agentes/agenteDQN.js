@@ -38,8 +38,8 @@ export class AgenteDQN extends AgenteBase {
     copiarPesos(this.redPolitica, this.redObjetivo);
     this.optimizador = tf.train.adam(tasaAprendizaje);
     this.buffer = prioritario
-      ? new ReplayPrioritario(capacidadBuffer)
-      : new ReplayBuffer(capacidadBuffer);
+      ? new ReplayPrioritario(capacidadBuffer, { dim: this.dimEstado })
+      : new ReplayBuffer(capacidadBuffer, this.dimEstado);
     this._varsPolitica = variablesEntrenables(this.redPolitica);
     this._tdErrorMedio = 0;
     this._lossMedia = 0;
