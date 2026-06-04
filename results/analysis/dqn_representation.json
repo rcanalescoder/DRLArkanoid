@@ -1,0 +1,158 @@
+{
+  "frozen_hash": "a1ab7ce18d7bad6b",
+  "metric": "success_test_id (greedy)",
+  "note": "Eje único = encoder; resto de receta = base. PPO-base como referencia (modelo a batir).",
+  "por_presupuesto": {
+    "700000": {
+      "base": {
+        "mean": 0.6677,
+        "median": 0.78,
+        "std": 0.2984,
+        "min": 0.1713,
+        "max": 0.926,
+        "n": 5
+      },
+      "flat": {
+        "mean": 0.32,
+        "median": 0.3347,
+        "std": 0.1339,
+        "min": 0.1653,
+        "max": 0.5167,
+        "n": 5
+      },
+      "flat_0.25": {
+        "mean": 0.0076,
+        "median": 0.008,
+        "std": 0.0012,
+        "min": 0.006,
+        "max": 0.0087,
+        "n": 5
+      },
+      "branches": {
+        "mean": 0.5468,
+        "median": 0.594,
+        "std": 0.2198,
+        "min": 0.2327,
+        "max": 0.7487,
+        "n": 5
+      },
+      "ppo_ref": {
+        "mean": 0.9031,
+        "median": 0.9233,
+        "std": 0.0753,
+        "min": 0.788,
+        "max": 0.9813,
+        "n": 5
+      }
+    },
+    "1500000": {
+      "base": {
+        "mean": 0.7733,
+        "median": 0.852,
+        "std": 0.1865,
+        "min": 0.44,
+        "max": 0.8687,
+        "n": 5
+      },
+      "flat": {
+        "mean": 0.5691,
+        "median": 0.5347,
+        "std": 0.1565,
+        "min": 0.3853,
+        "max": 0.764,
+        "n": 5
+      },
+      "flat_0.25": {
+        "mean": 0.0088,
+        "median": 0.0087,
+        "std": 0.0005,
+        "min": 0.008,
+        "max": 0.0093,
+        "n": 5
+      },
+      "branches": {
+        "mean": 0.7767,
+        "median": 0.802,
+        "std": 0.0892,
+        "min": 0.646,
+        "max": 0.8573,
+        "n": 5
+      },
+      "ppo_ref": {
+        "mean": 0.9069,
+        "median": 0.9373,
+        "std": 0.0658,
+        "min": 0.8033,
+        "max": 0.9587,
+        "n": 5
+      }
+    },
+    "3000000": {
+      "base": {
+        "mean": 0.8493,
+        "median": 0.89,
+        "std": 0.1454,
+        "min": 0.6007,
+        "max": 0.9833,
+        "n": 5
+      },
+      "flat": {
+        "mean": 0.7733,
+        "median": 0.794,
+        "std": 0.093,
+        "min": 0.6307,
+        "max": 0.862,
+        "n": 5
+      },
+      "flat_0.25": {
+        "mean": 0.0085,
+        "median": 0.0087,
+        "std": 0.0006,
+        "min": 0.008,
+        "max": 0.0093,
+        "n": 5
+      },
+      "branches": {
+        "mean": 0.7639,
+        "median": 0.8667,
+        "std": 0.3228,
+        "min": 0.1927,
+        "max": 0.976,
+        "n": 5
+      },
+      "ppo_ref": {
+        "mean": 0.8744,
+        "median": 0.8733,
+        "std": 0.0382,
+        "min": 0.8233,
+        "max": 0.9287,
+        "n": 5
+      }
+    }
+  },
+  "gap_conv_vs_noconv_por_presupuesto": [
+    {
+      "budget": 700000,
+      "conv_mean": 0.6677,
+      "mejor_no_conv": 0.5468,
+      "gap_conv_vs_noconv": 0.1209
+    },
+    {
+      "budget": 1500000,
+      "conv_mean": 0.7733,
+      "mejor_no_conv": 0.7767,
+      "gap_conv_vs_noconv": -0.0034
+    },
+    {
+      "budget": 3000000,
+      "conv_mean": 0.8493,
+      "mejor_no_conv": 0.7733,
+      "gap_conv_vs_noconv": 0.076
+    }
+  ],
+  "conclusion": "El gap DQN-PPO es ALGORÍTMICO, no de representación: la MEJOR representación de DQN (DQN-branches=78%) sigue 13 pts por debajo de PPO (91%). El conv ya es la representación óptima de DQN; cambiarla no cierra el hueco.",
+  "notas": [
+    "flat_0.25 colapsa al 100% en los 3 presupuestos -> el encoder flat es muy sensible a la escala de entrada (0.25 ahoga la señal de ladrillos); el conv no sufre esto.",
+    "Orden de representación: conv >= branches > flat. conv gana a bajo (700k) y alto (3M) presupuesto (mejor eficiencia Y mayor techo); branches iguala a conv a 1.5M pero topa más bajo a 3M."
+  ]
+}

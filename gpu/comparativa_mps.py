@@ -34,9 +34,28 @@ class Torso(nn.Module):
         m = s[:, 6:].view(-1, 1, FILAS, COLS); m = F.relu(self.c1(m)); m = F.relu(self.c2(m)); m = m.flatten(1)
         x = torch.cat([k, m], 1); x = F.relu(self.h1(x)); return F.relu(self.h2(x))
 
-class Head(nn.Module):  # torso + cabeza lineal
-    def __init__(self, out):
-        super().__init__(); self.t = Torso(); self.o = nn.Linear(128, out)
+class TorsoFlat(nn.Module):   # FLAT: MLP denso sobre los 86 dims (SIN conv) — C2 'flat' / C3 'sin_conv'
+    def __init__(self):
+        super().__init__()
+        self.h1 = nn.Linear(DIM, 256); self.h2 = nn.Linear(256, 128); self.h3 = nn.Linear(128, 128)
+    def forward(self, s):
+        x = F.relu(self.h1(s)); x = F.relu(self.h2(x)); return F.relu(self.h3(x))
+
+class TorsoBranches(nn.Module):  # BRANCHES: rama cinemática + MLP COMPARTIDO por fila (8×10), sin conv — C2 'branches'
+    def __init__(self):
+        super().__init__()
+        self.kin = nn.Linear(6, 16); self.row = nn.Linear(COLS, 16)
+        self.h1 = nn.Linear(16 + FILAS * 16, 128); self.h2 = nn.Linear(128, 128)
+    def forward(self, s):
+        k = F.relu(self.kin(s[:, :6]))
+        r = F.relu(self.row(s[:, 6:].view(-1, FILAS, COLS))).flatten(1)   # [B,8,10]->[B,8,16]->[B,128]
+        x = torch.cat([k, r], 1); x = F.relu(self.h1(x)); return F.relu(self.h2(x))
+
+TORSOS = {"conv": Torso, "flat": TorsoFlat, "branches": TorsoBranches}
+
+class Head(nn.Module):  # torso (conv por defecto) + cabeza lineal
+    def __init__(self, out, torso="conv"):
+        super().__init__(); self.t = TORSOS[torso](); self.o = nn.Linear(128, out)
     def forward(self, s): return self.o(self.t(s))
 
 class Replay:
@@ -88,13 +107,13 @@ def run_offpolicy(algo, train, pasos, envs=256):
 # ============================ DQN ===========================================
 class DQN:
     name = "dqn"; fam = "model-free · valor"; envs = 256
-    def __init__(self):
-        self.q = Head(3).to(DEV); self.tgt = Head(3).to(DEV); self.tgt.load_state_dict(self.q.state_dict())
-        self.opt = torch.optim.Adam(self.q.parameters(), 8e-4); self.buf = Replay()
+    def __init__(self, torso="conv", eps_decay=8000):
+        self.q = Head(3, torso).to(DEV); self.tgt = Head(3, torso).to(DEV); self.tgt.load_state_dict(self.q.state_dict())
+        self.opt = torch.optim.Adam(self.q.parameters(), 8e-4); self.buf = Replay(); self.eps_decay = eps_decay
     def act(self, s, train=False, frac=0):
         with torch.no_grad(): g = self.q(tens(s)).argmax(1).cpu().numpy()
         if not train: return g
-        eps = max(0.05, 1 + (0.05 - 1) * min(1, frac / 8000))
+        eps = max(0.05, 1 + (0.05 - 1) * min(1, frac / self.eps_decay))
         return np.where(np.random.random(len(g)) < eps, np.random.randint(0, 3, len(g)), g).astype(np.int64)
     def learn(self, steps):
         if self.buf.size() < 2000: return
@@ -149,6 +168,22 @@ class SAC:
             for tp, pp in zip(self.t2.parameters(), self.q2.parameters()): tp.mul_(0.99).add_(0.01 * pp)
     def eval_act(self, s):
         with torch.no_grad(): return self._qpol(tens(s))
+
+# ============================ SAC-pure (actor para conducta y eval) =========
+# C4: el SAC "de libro" — la POLÍTICA es el ACTOR (muestreo en conducta, argmax en
+# eval), NO el crítico. Mismo entrenamiento (learn heredado de SAC). Existe para
+# comparar honestamente con SAC-critic-hybrid (que evita el actor porque colapsa).
+class SACPure(SAC):
+    name = "sac_pure"; fam = "model-free · actor-crítico (SAC puro)"
+    def act(self, s, train=False, frac=0):
+        with torch.no_grad():
+            logits = self.actor(tens(s))
+            if not train:
+                return logits.argmax(1).cpu().numpy()                       # eval greedy del actor
+            p = F.softmax(logits, 1)
+            return torch.multinomial(p, 1).squeeze(1).cpu().numpy().astype(np.int64)  # conducta = muestreo del actor
+    def eval_act(self, s):
+        with torch.no_grad(): return self.actor(tens(s)).argmax(1).cpu().numpy()
 
 # ============================ World Model (Dyna-Q) ==========================
 # Dinámica SOLO CINEMÁTICA: (s[86], onehot(a)) -> (Δcinemática[6], r, doneLogit).

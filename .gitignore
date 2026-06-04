@@ -20,6 +20,8 @@ npm-debug.log*
 # Python
 __pycache__/
 *.pyc
+.venv/
+venv/
 
 # Protocolo de honestidad: artefactos pesados/regenerables (se conservan en local).
 # SÍ se versionan: results/test_sets/, results/ledger.csv y frozen_protocol.json.
@@ -29,3 +31,4 @@ results/heatmaps/
 results/curves/
 results/plots/
 results/aggregate/
+results/*.lock

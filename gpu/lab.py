@@ -24,8 +24,9 @@
 #    python3 gpu/lab.py status                                 # progreso de la tanda C6
 #    python3 gpu/lab.py smoke                                  # PUERTA A: demo A1–A6
 #    python3 gpu/lab.py multiseed <model> <budget> <s0..sk>    # una run multi-semilla
+#    python3 gpu/lab.py runseed <model> <budget> <seed>        # Fase C: una sola unidad (la usa la tanda paralela)
 # ============================================================================
-import os, sys, json, time, csv, glob, hashlib, subprocess
+import os, sys, json, time, csv, glob, hashlib, subprocess, fcntl
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 import torch
@@ -85,21 +86,36 @@ def config_hash(cfg):
 #  Registro de modelos + checkpoints
 # ---------------------------------------------------------------------------
 REG = {"dqn": C.DQN, "sac": C.SAC, "worldModel": C.WorldModel,
-       "worldModelRecurrente": C.WorldModelRNN, "ppo": C.PPO}
+       "worldModelRecurrente": C.WorldModelRNN, "ppo": C.PPO, "sac_pure": C.SACPure}
 
 def variant_cfg(variant):
-    # Solo "base" en Fase A. Devuelve la receta como dict (entra en el config_hash).
-    if variant == "base":
-        return {"conv": True, "scale": 1.0, "curriculum": True, "shaping": True,
-                "timeout_mode": None, "eps_decay": 8000}
-    raise NotImplementedError(
-        f"variante '{variant}': pendiente Fase C (ablación). En Fase A solo existe 'base'.")
+    # La receta entra en el config_hash. 'base' debe quedar EXACTA (idéntica a C6): no añadir claves.
+    base = {"conv": True, "scale": 1.0, "curriculum": True, "shaping": True,
+            "timeout_mode": None, "eps_decay": 8000}
+    if variant == "base": return base
+    # --- C2 representación (eje único = encoder; escala fija salvo flat_0.25) ---
+    if variant == "flat":      return {**base, "conv": False, "encoder": "flat"}
+    if variant == "flat_0.25": return {**base, "conv": False, "encoder": "flat", "scale": 0.25}
+    if variant == "branches":  return {**base, "conv": False, "encoder": "branches"}
+    # --- C3 ablación (un cambio duro por variante, frente a base) ---
+    if variant == "sin_curriculo":        return {**base, "curriculum": False}
+    if variant == "sin_conv":             return {**base, "conv": False, "encoder": "flat"}
+    if variant == "sin_escala":           return {**base, "scale": 0.25}
+    if variant == "sin_shaping":          return {**base, "shaping": False}
+    if variant == "epsdecay_lento":       return {**base, "eps_decay": 40000}
+    if variant == "timeout_proporcional": return {**base, "timeout_mode": "prop"}
+    raise NotImplementedError(f"variante desconocida: {variant}")
 
 def build_model(model, vcfg):
     if model not in REG: raise ValueError(f"modelo desconocido: {model}")
-    if not vcfg["conv"]:
-        raise NotImplementedError("encoder flat (sin_conv/sin_escala): pendiente Fase C")
-    return REG[model]()
+    torso = "conv" if vcfg["conv"] else vcfg.get("encoder", "flat")
+    eps_decay = vcfg.get("eps_decay", 8000)
+    if torso == "conv" and eps_decay == 8000:
+        return REG[model]()                       # receta base EXACTA (C6) — modelo sin tocar
+    # Variantes C2/C3 con encoder/eps alternativos: implementadas para DQN (el foco de C2/C3).
+    if model != "dqn":
+        raise NotImplementedError(f"encoder/eps alternativos solo en dqn; pedido para '{model}'")
+    return C.DQN(torso=torso, eps_decay=eps_decay)
 
 def _modules(algo): return {k: v for k, v in vars(algo).items() if isinstance(v, torch.nn.Module)}
 
@@ -419,7 +435,7 @@ def eval_run(model, variant, seed, test_set, budget, episodes_per_level=3):
     m = _eval_metrics(algo, levels, vcfg, episodes_per_level=episodes_per_level)
     heat = m.pop("_heatmap")
     rid = run_id(model, variant, budget, seed)
-    base = f"{model}_{variant}_seed{seed}_{test_set}"
+    base = f"{model}_{variant}_b{budget}_seed{seed}_{test_set}"
     heat_path = os.path.join(DIRS["heatmaps"], base + ".png")
     _save_heatmap(heat.reshape(FILAS, COLS), heat_path,
                   f"{model} · {variant} · seed{seed} · {test_set}\nladrillos rotos (greedy, {m['n_episodes']} eps)")
@@ -445,21 +461,30 @@ def _save_heatmap(mat, path, title):
 def ledger_upsert(row):
     # append-only en espíritu, pero idempotente por run_id: re-ejecutar una run
     # REEMPLAZA su fila (no duplica) -> "nº filas == nº runs" se mantiene y la tanda es resumible.
-    ensure_dirs(); rows = []
-    if os.path.exists(LEDGER):
-        with open(LEDGER) as f: rows = [r for r in csv.DictReader(f) if r.get("run_id") != row["run_id"]]
-    rows.append(row)
-    with open(LEDGER, "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=LEDGER_COLS); w.writeheader()
-        for r in rows: w.writerow({c: r.get(c, "") for c in LEDGER_COLS})
+    # Lock exclusivo (fichero sidecar) para que la TANDA PARALELA pueda escribir desde
+    # varios procesos sin corromper el CSV. No cambia ningún número: solo serializa el
+    # read-modify-write (sigue siendo idempotente por run_id).
+    ensure_dirs()
+    with open(LEDGER + ".lock", "w") as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        try:
+            rows = []
+            if os.path.exists(LEDGER):
+                with open(LEDGER) as f: rows = [r for r in csv.DictReader(f) if r.get("run_id") != row["run_id"]]
+            rows.append(row)
+            with open(LEDGER, "w", newline="") as f:
+                w = csv.DictWriter(f, fieldnames=LEDGER_COLS); w.writeheader()
+                for r in rows: w.writerow({c: r.get(c, "") for c in LEDGER_COLS})
+        finally:
+            fcntl.flock(lk, fcntl.LOCK_UN)
 
 # ---------------------------------------------------------------------------
 #  run_seed: entrena + evalúa los 3 bloques + train + escribe fila de ledger
 # ---------------------------------------------------------------------------
-def _seed_row_from_disk(model, variant, seed):
+def _seed_row_from_disk(model, variant, seed, budget):
     # reconstruye los success_* de una run ya evaluada (para agregar al saltarla)
     def load(ts):
-        return json.load(open(os.path.join(DIRS["runs"], f"{model}_{variant}_seed{seed}_{ts}.json")))
+        return json.load(open(os.path.join(DIRS["runs"], f"{model}_{variant}_b{budget}_seed{seed}_{ts}.json")))
     return {"success_test_id": load("test_id")["success_rate"],
             "success_test_ood_pattern": load("test_ood_pattern")["success_rate"],
             "success_test_ood_diff": load("test_ood_diff")["success_rate"],
@@ -470,9 +495,9 @@ def run_seed(model, variant, seed, budget, episodes_per_level=3, collapse_thr=0.
         raise RuntimeError("no existen los test sets. Ejecuta primero: python3 gpu/lab.py freeze")
     rid = run_id(model, variant, budget, seed)
     needed = [ckpt_path(model, variant, budget, seed)] + \
-             [os.path.join(DIRS["runs"], f"{model}_{variant}_seed{seed}_{ts}.json") for ts in TEST_NAMES + ["train"]]
+             [os.path.join(DIRS["runs"], f"{model}_{variant}_b{budget}_seed{seed}_{ts}.json") for ts in TEST_NAMES + ["train"]]
     if skip_if_done and all(os.path.exists(x) for x in needed):
-        return {"run_id": rid, "skipped": True, "row": _seed_row_from_disk(model, variant, seed)}
+        return {"run_id": rid, "skipped": True, "row": _seed_row_from_disk(model, variant, seed, budget)}
     tr = train_run(model, variant, seed, budget)
     ev = {ts: eval_run(model, variant, seed, ts, budget, episodes_per_level) for ts in TEST_NAMES}
     ev_train = eval_run(model, variant, seed, "train", budget, max(1, episodes_per_level - 1))
@@ -612,7 +637,7 @@ def _cmd_status(argv):
     for b in budgets:
         for m in MODELS_C6:
             for s in seeds:
-                ev = all(os.path.exists(os.path.join(DIRS["runs"], f"{m}_base_seed{s}_{ts}.json"))
+                ev = all(os.path.exists(os.path.join(DIRS["runs"], f"{m}_base_b{b}_seed{s}_{ts}.json"))
                          for ts in TEST_NAMES + ["train"])
                 if os.path.exists(ckpt_path(m, "base", b, s)) and ev: done += 1
     nled = (sum(1 for _ in open(LEDGER)) - 1) if os.path.exists(LEDGER) else 0
@@ -636,6 +661,13 @@ def main():
         agg = run_multiseed(model, "base", budget, seeds)
         print(json.dumps({k: v for k, v in agg.items() if k != "blocks"}, indent=2, ensure_ascii=False))
         print(json.dumps(agg["blocks"], indent=2, ensure_ascii=False))
+    elif cmd == "runseed":     # una sola unidad (model,budget,seed[,variant]) — la usan las tandas paralelas
+        model = argv[0]; budget = int(argv[1]); seed = int(argv[2]); variant = argv[3] if len(argv) > 3 else "base"
+        res = run_seed(model, variant, seed, budget)
+        r = res["row"]; tag = "SKIP" if res.get("skipped") else "DONE"
+        print(f"{tag} {model}/{variant} b{budget} s{seed} · TEST-ID={r['success_test_id']*100:.1f}% "
+              f"OODp={r['success_test_ood_pattern']*100:.0f}% OODd={r['success_test_ood_diff']*100:.0f}% "
+              f"collapsed={r['collapsed']}", flush=True)
     else:
         print(f"comando desconocido: {cmd}\n{__doc__}")
 

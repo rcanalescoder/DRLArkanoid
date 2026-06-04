@@ -1,0 +1,482 @@
+{
+  "model": "ppo",
+  "frozen_hash": "a1ab7ce18d7bad6b",
+  "framework": "torch2.12.0+np2.4.4+py3.13·mps",
+  "eval": "greedy · eval_seed=777 · 3 eps/nivel (idéntico a C6)",
+  "budgets": {
+    "1500000": {
+      "test_id": {
+        "success_rate": 0.9069,
+        "n_episodes": 7500,
+        "n_fallos": 698,
+        "causa_de_fallo": {
+          "lost": 0.9054,
+          "timeout": 0.0946
+        },
+        "techo_oraculo_medio": 1.0,
+        "frac_sin_romper_en_fallos": 0.709,
+        "por_familia": {
+          "columnas": {
+            "n": 1455,
+            "success_rate": 0.8625,
+            "death_rate": 0.1265,
+            "timeout_rate": 0.011
+          },
+          "filas": {
+            "n": 630,
+            "success_rate": 0.9,
+            "death_rate": 0.0937,
+            "timeout_rate": 0.0063
+          },
+          "dispersion": {
+            "n": 1995,
+            "success_rate": 0.9023,
+            "death_rate": 0.0847,
+            "timeout_rate": 0.013
+          },
+          "simetrico": {
+            "n": 1650,
+            "success_rate": 0.9091,
+            "death_rate": 0.08,
+            "timeout_rate": 0.0109
+          },
+          "bloque": {
+            "n": 1770,
+            "success_rate": 0.9492,
+            "death_rate": 0.0497,
+            "timeout_rate": 0.0011
+          }
+        },
+        "por_bucket_ladrillos": {
+          "60-80": {
+            "n": 180,
+            "success_rate": 0.85,
+            "death_rate": 0.1389,
+            "timeout_rate": 0.0111
+          },
+          "40-60": {
+            "n": 1995,
+            "success_rate": 0.8907,
+            "death_rate": 0.0942,
+            "timeout_rate": 0.015
+          },
+          "20-40": {
+            "n": 3075,
+            "success_rate": 0.8927,
+            "death_rate": 0.0972,
+            "timeout_rate": 0.0101
+          },
+          "10-20": {
+            "n": 2250,
+            "success_rate": 0.9453,
+            "death_rate": 0.0533,
+            "timeout_rate": 0.0013
+          }
+        },
+        "heatmap_fallos": "results/analysis/ppo_fail_heatmap_b1500000_test_id.png"
+      },
+      "test_ood_pattern": {
+        "success_rate": 0.8947,
+        "n_episodes": 3750,
+        "n_fallos": 395,
+        "causa_de_fallo": {
+          "lost": 0.9215,
+          "timeout": 0.0785
+        },
+        "techo_oraculo_medio": 1.0,
+        "frac_sin_romper_en_fallos": 0.7139,
+        "por_familia": {
+          "x_shape": {
+            "n": 30,
+            "success_rate": 0.8667,
+            "death_rate": 0.1333,
+            "timeout_rate": 0.0
+          },
+          "tunel_h": {
+            "n": 420,
+            "success_rate": 0.8762,
+            "death_rate": 0.119,
+            "timeout_rate": 0.0048
+          },
+          "hueco_central": {
+            "n": 555,
+            "success_rate": 0.8775,
+            "death_rate": 0.1171,
+            "timeout_rate": 0.0054
+          },
+          "esquinas": {
+            "n": 540,
+            "success_rate": 0.8815,
+            "death_rate": 0.1,
+            "timeout_rate": 0.0185
+          },
+          "tunel": {
+            "n": 600,
+            "success_rate": 0.89,
+            "death_rate": 0.0983,
+            "timeout_rate": 0.0117
+          },
+          "bordes_laterales": {
+            "n": 315,
+            "success_rate": 0.8984,
+            "death_rate": 0.0921,
+            "timeout_rate": 0.0095
+          },
+          "cruz": {
+            "n": 390,
+            "success_rate": 0.9077,
+            "death_rate": 0.0897,
+            "timeout_rate": 0.0026
+          },
+          "diagonal": {
+            "n": 270,
+            "success_rate": 0.9148,
+            "death_rate": 0.0778,
+            "timeout_rate": 0.0074
+          },
+          "anillo": {
+            "n": 390,
+            "success_rate": 0.9154,
+            "death_rate": 0.0769,
+            "timeout_rate": 0.0077
+          },
+          "ajedrez": {
+            "n": 240,
+            "success_rate": 0.9292,
+            "death_rate": 0.0708,
+            "timeout_rate": 0.0
+          }
+        },
+        "por_bucket_ladrillos": {
+          "60-80": {
+            "n": 150,
+            "success_rate": 0.82,
+            "death_rate": 0.1467,
+            "timeout_rate": 0.0333
+          },
+          "40-60": {
+            "n": 750,
+            "success_rate": 0.8907,
+            "death_rate": 0.1027,
+            "timeout_rate": 0.0067
+          },
+          "20-40": {
+            "n": 2115,
+            "success_rate": 0.8988,
+            "death_rate": 0.0931,
+            "timeout_rate": 0.008
+          },
+          "10-20": {
+            "n": 735,
+            "success_rate": 0.902,
+            "death_rate": 0.0925,
+            "timeout_rate": 0.0054
+          }
+        },
+        "heatmap_fallos": "results/analysis/ppo_fail_heatmap_b1500000_test_ood_pattern.png"
+      },
+      "test_ood_diff": {
+        "success_rate": 0.8616,
+        "n_episodes": 2985,
+        "n_fallos": 413,
+        "causa_de_fallo": {
+          "lost": 0.845,
+          "timeout": 0.155
+        },
+        "techo_oraculo_medio": 0.9999,
+        "frac_sin_romper_en_fallos": 0.804,
+        "por_familia": {
+          "casi_lleno": {
+            "n": 1035,
+            "success_rate": 0.8464,
+            "death_rate": 0.1295,
+            "timeout_rate": 0.0242
+          },
+          "denso": {
+            "n": 855,
+            "success_rate": 0.848,
+            "death_rate": 0.1368,
+            "timeout_rate": 0.0152
+          },
+          "denso_bajo": {
+            "n": 1095,
+            "success_rate": 0.8868,
+            "death_rate": 0.0895,
+            "timeout_rate": 0.0237
+          }
+        },
+        "por_bucket_ladrillos": {
+          "60-80": {
+            "n": 1890,
+            "success_rate": 0.8471,
+            "death_rate": 0.1328,
+            "timeout_rate": 0.0201
+          },
+          "40-60": {
+            "n": 1080,
+            "success_rate": 0.8852,
+            "death_rate": 0.0907,
+            "timeout_rate": 0.0241
+          },
+          "20-40": {
+            "n": 15,
+            "success_rate": 1.0,
+            "death_rate": 0.0,
+            "timeout_rate": 0.0
+          }
+        },
+        "heatmap_fallos": "results/analysis/ppo_fail_heatmap_b1500000_test_ood_diff.png"
+      }
+    },
+    "3000000": {
+      "test_id": {
+        "success_rate": 0.8744,
+        "n_episodes": 7500,
+        "n_fallos": 942,
+        "causa_de_fallo": {
+          "lost": 0.9958,
+          "timeout": 0.0042
+        },
+        "techo_oraculo_medio": 1.0,
+        "frac_sin_romper_en_fallos": 0.6326,
+        "por_familia": {
+          "columnas": {
+            "n": 1455,
+            "success_rate": 0.7973,
+            "death_rate": 0.2021,
+            "timeout_rate": 0.0007
+          },
+          "dispersion": {
+            "n": 1995,
+            "success_rate": 0.8747,
+            "death_rate": 0.1248,
+            "timeout_rate": 0.0005
+          },
+          "simetrico": {
+            "n": 1650,
+            "success_rate": 0.8764,
+            "death_rate": 0.1236,
+            "timeout_rate": 0.0
+          },
+          "filas": {
+            "n": 630,
+            "success_rate": 0.8873,
+            "death_rate": 0.1127,
+            "timeout_rate": 0.0
+          },
+          "bloque": {
+            "n": 1770,
+            "success_rate": 0.9311,
+            "death_rate": 0.0678,
+            "timeout_rate": 0.0011
+          }
+        },
+        "por_bucket_ladrillos": {
+          "20-40": {
+            "n": 3075,
+            "success_rate": 0.8514,
+            "death_rate": 0.1486,
+            "timeout_rate": 0.0
+          },
+          "60-80": {
+            "n": 180,
+            "success_rate": 0.8556,
+            "death_rate": 0.1444,
+            "timeout_rate": 0.0
+          },
+          "40-60": {
+            "n": 1995,
+            "success_rate": 0.8732,
+            "death_rate": 0.1258,
+            "timeout_rate": 0.001
+          },
+          "10-20": {
+            "n": 2250,
+            "success_rate": 0.9084,
+            "death_rate": 0.0907,
+            "timeout_rate": 0.0009
+          }
+        },
+        "heatmap_fallos": "results/analysis/ppo_fail_heatmap_b3000000_test_id.png"
+      },
+      "test_ood_pattern": {
+        "success_rate": 0.8443,
+        "n_episodes": 3750,
+        "n_fallos": 584,
+        "causa_de_fallo": {
+          "lost": 0.9932,
+          "timeout": 0.0068
+        },
+        "techo_oraculo_medio": 1.0,
+        "frac_sin_romper_en_fallos": 0.5568,
+        "por_familia": {
+          "tunel_h": {
+            "n": 420,
+            "success_rate": 0.7548,
+            "death_rate": 0.2452,
+            "timeout_rate": 0.0
+          },
+          "bordes_laterales": {
+            "n": 315,
+            "success_rate": 0.7619,
+            "death_rate": 0.2349,
+            "timeout_rate": 0.0032
+          },
+          "x_shape": {
+            "n": 30,
+            "success_rate": 0.7667,
+            "death_rate": 0.2333,
+            "timeout_rate": 0.0
+          },
+          "hueco_central": {
+            "n": 555,
+            "success_rate": 0.8252,
+            "death_rate": 0.1712,
+            "timeout_rate": 0.0036
+          },
+          "esquinas": {
+            "n": 540,
+            "success_rate": 0.8278,
+            "death_rate": 0.1722,
+            "timeout_rate": 0.0
+          },
+          "anillo": {
+            "n": 390,
+            "success_rate": 0.8538,
+            "death_rate": 0.1462,
+            "timeout_rate": 0.0
+          },
+          "cruz": {
+            "n": 390,
+            "success_rate": 0.8846,
+            "death_rate": 0.1154,
+            "timeout_rate": 0.0
+          },
+          "ajedrez": {
+            "n": 240,
+            "success_rate": 0.8875,
+            "death_rate": 0.1125,
+            "timeout_rate": 0.0
+          },
+          "tunel": {
+            "n": 600,
+            "success_rate": 0.9033,
+            "death_rate": 0.095,
+            "timeout_rate": 0.0017
+          },
+          "diagonal": {
+            "n": 270,
+            "success_rate": 0.9185,
+            "death_rate": 0.0815,
+            "timeout_rate": 0.0
+          }
+        },
+        "por_bucket_ladrillos": {
+          "60-80": {
+            "n": 150,
+            "success_rate": 0.8,
+            "death_rate": 0.2,
+            "timeout_rate": 0.0
+          },
+          "10-20": {
+            "n": 735,
+            "success_rate": 0.8245,
+            "death_rate": 0.1741,
+            "timeout_rate": 0.0014
+          },
+          "20-40": {
+            "n": 2115,
+            "success_rate": 0.8511,
+            "death_rate": 0.1489,
+            "timeout_rate": 0.0
+          },
+          "40-60": {
+            "n": 750,
+            "success_rate": 0.8533,
+            "death_rate": 0.1427,
+            "timeout_rate": 0.004
+          }
+        },
+        "heatmap_fallos": "results/analysis/ppo_fail_heatmap_b3000000_test_ood_pattern.png"
+      },
+      "test_ood_diff": {
+        "success_rate": 0.8536,
+        "n_episodes": 2985,
+        "n_fallos": 437,
+        "causa_de_fallo": {
+          "lost": 0.9954,
+          "timeout": 0.0046
+        },
+        "techo_oraculo_medio": 0.9999,
+        "frac_sin_romper_en_fallos": 0.6407,
+        "por_familia": {
+          "casi_lleno": {
+            "n": 1035,
+            "success_rate": 0.8367,
+            "death_rate": 0.1614,
+            "timeout_rate": 0.0019
+          },
+          "denso": {
+            "n": 855,
+            "success_rate": 0.8596,
+            "death_rate": 0.1404,
+            "timeout_rate": 0.0
+          },
+          "denso_bajo": {
+            "n": 1095,
+            "success_rate": 0.8648,
+            "death_rate": 0.1352,
+            "timeout_rate": 0.0
+          }
+        },
+        "por_bucket_ladrillos": {
+          "60-80": {
+            "n": 1890,
+            "success_rate": 0.8471,
+            "death_rate": 0.1519,
+            "timeout_rate": 0.0011
+          },
+          "40-60": {
+            "n": 1080,
+            "success_rate": 0.8648,
+            "death_rate": 0.1352,
+            "timeout_rate": 0.0
+          },
+          "20-40": {
+            "n": 15,
+            "success_rate": 0.8667,
+            "death_rate": 0.1333,
+            "timeout_rate": 0.0
+          }
+        },
+        "heatmap_fallos": "results/analysis/ppo_fail_heatmap_b3000000_test_ood_diff.png"
+      }
+    }
+  },
+  "conclusion_headline_1.5M": [
+    {
+      "test_set": "test_id",
+      "spread_familias": 0.087,
+      "techo_oraculo": 1.0,
+      "frac_sin_romper_en_fallos": 0.709,
+      "exito_60_80": 0.85,
+      "veredicto": "TECHO de control de PPO: niveles limpiables (oráculo 100%), fallo uniforme por pérdida TEMPRANA de bola (deja 71% sin romper), peor en 60-80 ladr. (85%); no mejora con presupuesto -> meseta de la política, no de los datos"
+    },
+    {
+      "test_set": "test_ood_pattern",
+      "spread_familias": 0.062,
+      "techo_oraculo": 1.0,
+      "frac_sin_romper_en_fallos": 0.7139,
+      "exito_60_80": 0.82,
+      "veredicto": "TECHO de control de PPO: niveles limpiables (oráculo 100%), fallo uniforme por pérdida TEMPRANA de bola (deja 71% sin romper), peor en 60-80 ladr. (82%); no mejora con presupuesto -> meseta de la política, no de los datos"
+    },
+    {
+      "test_set": "test_ood_diff",
+      "spread_familias": 0.04,
+      "techo_oraculo": 0.9999,
+      "frac_sin_romper_en_fallos": 0.804,
+      "exito_60_80": 0.8471,
+      "veredicto": "TECHO de control de PPO: niveles limpiables (oráculo 100%), fallo uniforme por pérdida TEMPRANA de bola (deja 80% sin romper), peor en 60-80 ladr. (85%); no mejora con presupuesto -> meseta de la política, no de los datos"
+    }
+  ]
+}

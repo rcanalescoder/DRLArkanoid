@@ -5,7 +5,7 @@
 > y el tag de git `protocolo-v1`. El protocolo vinculante está en
 > `docs/PROTOCOLO-ejecucion-honesta.md` (re-pégalo al nuevo Claude como instrucción).
 
-_Última actualización: 2026-06-04 · commit base `9844120` · tag `protocolo-v1`._
+_Última actualización: 2026-06-04 (Sesión 4) · **Fase C COMPLETA** en Apple M3 Ultra · commit base `9844120` · tag `protocolo-v1`._
 
 ---
 
@@ -15,7 +15,25 @@ _Última actualización: 2026-06-04 · commit base `9844120` · tag `protocolo-v
 |---|---|
 | **A — Infraestructura de honestidad** | ✅ COMPLETA y verificada (PUERTA A pasada, 6/6 checks) |
 | **B — Congelado del protocolo** | ✅ COMPLETA (PUERTA B: existe `frozen_protocol.json` + tag `protocolo-v1`) |
-| **C — Experimentos** | ⏳ NO empezada. La **calibración** (medir coste real antes de la tanda) quedó pendiente al decidir el traspaso. |
+| **C — Experimentos** | ✅ COMPLETA (C1–C6) con infra paralela nueva (K=24). Artefactos en `results/analysis/`. Pendiente: PUERTA C (revisión) y Fase D (opcional). |
+
+## Fase C — COMPLETA (Sesión 4, M3 Ultra · infra paralela)
+- **Infra nueva**: venv clavado al congelado (`requirements.txt`); `gpu/bench_concurrency.py` (pico
+  concurrencia K=24, GPU-bound); `gpu/tanda_par.py` (work-queue K=24, resumible, ledger con lock fcntl);
+  fix de naming de artefactos (incluyen budget → no se sobrescriben); encoders flat/branches +
+  `variant_cfg` (ADITIVO, base intacto `config_hash=87db7e354ae3`); generadores de análisis
+  `report_c6.py`, `c1_ppo_failures.py`, `c2_representation.py`, `c3_ablation.py`, `c4_sac.py`,
+  `c5_world_models.py`. Bitácora narrativa: `pasosrealizados.txt` (cap. 10).
+- **C6** (75/75 runs, 64 min, 0 fallos, 6 colapsos) → `results/ledger.csv`, `results/analysis/tabla_c6.{md,csv}`.
+  Headline @1.5M (TEST-ID): PPO 91 · DQN 77 · SAC-hybrid 61 · WM 55 · WM-RNN 35. A 3M, PPO/DQN/SAC ~85–91%.
+- **C1** `ppo_failures.json`: residual de PPO = techo de CONTROL (no datos/representación/física).
+- **C2** `dqn_representation.json`: gap DQN-PPO ALGORÍTMICO (conv ya es la mejor rep de DQN; aún < PPO).
+- **C3** `ablation.csv`: escala 1.0 = ingrediente crítico (−76 al pasar a 0.25); el shaping HACE DAÑO
+  (+8 al quitarlo); inversión histórica del rol de la escala 0.25.
+- **C4** `sac_variants.json`: SAC-pure ≥ SAC-critic-hybrid en los 3 presupuestos y colapsa menos → la
+  premisa "el actor SAC colapsa" no se sostiene.
+- **C5** `wm_variants.json`: WM cinemático topa ~55% << model-free; el LSTM no aporta (MSE dinámico = MLP).
+- **Síntesis honesta**: `results/analysis/hallazgos.md`. **Pendiente**: PUERTA C, Fase D (opcional), commit.
 
 ## Decisiones ya tomadas (congeladas — no re-decidir)
 

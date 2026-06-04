@@ -1,0 +1,137 @@
+{
+  "frozen_hash": "a1ab7ce18d7bad6b",
+  "framework": "torch2.12.0+np2.4.4+py3.13·mps",
+  "naming": "Dyna-Q con modelo dinámico CINEMÁTICO (NO simulador del juego); ladrillos fijos en imaginación",
+  "rendimiento_c6_test_id": {
+    "worldModel": {
+      "700000": {
+        "mean": 0.3252,
+        "median": 0.2687,
+        "std": 0.169,
+        "min": 0.2073,
+        "max": 0.624,
+        "n": 5
+      },
+      "1500000": {
+        "mean": 0.554,
+        "median": 0.65,
+        "std": 0.2121,
+        "min": 0.28,
+        "max": 0.7853,
+        "n": 5
+      },
+      "3000000": {
+        "mean": 0.5607,
+        "median": 0.708,
+        "std": 0.3402,
+        "min": 0.1413,
+        "max": 0.8773,
+        "n": 5
+      }
+    },
+    "worldModelRecurrente": {
+      "700000": {
+        "mean": 0.5444,
+        "median": 0.5987,
+        "std": 0.24,
+        "min": 0.2827,
+        "max": 0.804,
+        "n": 5
+      },
+      "1500000": {
+        "mean": 0.3525,
+        "median": 0.196,
+        "std": 0.2183,
+        "min": 0.19,
+        "max": 0.606,
+        "n": 5
+      },
+      "3000000": {
+        "mean": 0.3966,
+        "median": 0.42,
+        "std": 0.2172,
+        "min": 0.0847,
+        "max": 0.6607,
+        "n": 5
+      }
+    }
+  },
+  "error_modelo_dinamico_mse": {
+    "worldModel": {
+      "700000": {
+        "dyn_kin_mse_mean": 0.024865,
+        "n_seeds": 5,
+        "per_seed": [
+          0.024994,
+          0.024626,
+          0.024676,
+          0.024616,
+          0.025415
+        ]
+      },
+      "1500000": {
+        "dyn_kin_mse_mean": 0.024552,
+        "n_seeds": 5,
+        "per_seed": [
+          0.024636,
+          0.024226,
+          0.024799,
+          0.025092,
+          0.024005
+        ]
+      },
+      "3000000": {
+        "dyn_kin_mse_mean": 0.024001,
+        "n_seeds": 5,
+        "per_seed": [
+          0.024051,
+          0.024054,
+          0.024151,
+          0.023848,
+          0.023903
+        ]
+      }
+    },
+    "worldModelRecurrente": {
+      "700000": {
+        "dyn_kin_mse_mean": 0.025407,
+        "n_seeds": 5,
+        "per_seed": [
+          0.026247,
+          0.025181,
+          0.025046,
+          0.025596,
+          0.024963
+        ]
+      },
+      "1500000": {
+        "dyn_kin_mse_mean": 0.025059,
+        "n_seeds": 5,
+        "per_seed": [
+          0.024717,
+          0.025819,
+          0.024189,
+          0.025297,
+          0.025273
+        ]
+      },
+      "3000000": {
+        "dyn_kin_mse_mean": 0.024268,
+        "n_seeds": 5,
+        "per_seed": [
+          0.024339,
+          0.024398,
+          0.024497,
+          0.024216,
+          0.023887
+        ]
+      }
+    }
+  },
+  "comparacion_dinamica": [
+    "@700k: MSE_LSTM/MSE_MLP = 1.02x (similar)",
+    "@1500k: MSE_LSTM/MSE_MLP = 1.02x (similar)",
+    "@3000k: MSE_LSTM/MSE_MLP = 1.01x (similar)"
+  ],
+  "conclusion": "Los WM cinematicos topan bajo (MLP ~56%, RNN ~54%) frente a model-free (~85-88%): el techo lo pone la DINAMICA SOLO-CINEMATICA (ladrillos congelados en imaginacion), no el modelo. Hipotesis \"el LSTM predice peor la cinematica\" REFUTADA: MSE_LSTM ~= MSE_MLP (~1.02x). La recurrencia no aporta y anade varianza; el no-monotono del RNN es sobre todo ruido de semilla."
+}

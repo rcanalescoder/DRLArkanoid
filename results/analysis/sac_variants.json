@@ -1,0 +1,73 @@
+{
+  "frozen_hash": "a1ab7ce18d7bad6b",
+  "metric": "success_test_id (greedy)",
+  "naming": "sac = SAC-critic-hybrid (política del crítico soft); sac_pure = SAC con el ACTOR",
+  "por_presupuesto": {
+    "700000": {
+      "sac_critic_hybrid": {
+        "mean": 0.0427,
+        "median": 0.0107,
+        "std": 0.0672,
+        "min": 0.0067,
+        "max": 0.162,
+        "collapse_rate": 0.8,
+        "n": 5
+      },
+      "sac_pure": {
+        "mean": 0.2513,
+        "median": 0.0553,
+        "std": 0.3723,
+        "min": 0.0093,
+        "max": 0.8893,
+        "collapse_rate": 0.6,
+        "n": 5
+      }
+    },
+    "1500000": {
+      "sac_critic_hybrid": {
+        "mean": 0.6141,
+        "median": 0.6107,
+        "std": 0.3805,
+        "min": 0.012,
+        "max": 0.9673,
+        "collapse_rate": 0.2,
+        "n": 5
+      },
+      "sac_pure": {
+        "mean": 0.8659,
+        "median": 0.918,
+        "std": 0.1137,
+        "min": 0.672,
+        "max": 0.9487,
+        "collapse_rate": 0.0,
+        "n": 5
+      }
+    },
+    "3000000": {
+      "sac_critic_hybrid": {
+        "mean": 0.882,
+        "median": 0.8927,
+        "std": 0.0868,
+        "min": 0.7473,
+        "max": 0.966,
+        "collapse_rate": 0.0,
+        "n": 5
+      },
+      "sac_pure": {
+        "mean": 0.9135,
+        "median": 0.97,
+        "std": 0.1031,
+        "min": 0.7467,
+        "max": 0.9953,
+        "collapse_rate": 0.0,
+        "n": 5
+      }
+    }
+  },
+  "comparacion": [
+    "@700k: hybrid 4% vs pure 25% (hybrid -21 pts; colapsos pure 60%, hybrid 80%)",
+    "@1500k: hybrid 61% vs pure 87% (hybrid -25 pts; colapsos pure 0%, hybrid 20%)",
+    "@3000k: hybrid 88% vs pure 91% (hybrid -3 pts; colapsos pure 0%, hybrid 0%)"
+  ],
+  "conclusion": "SAC-pure (actor) IGUALA O SUPERA al híbrido del crítico en los 3 presupuestos y colapsa menos o igual (a 1.5M: pure 0% vs hybrid 20% de colapso). La premisa histórica 'el actor SAC discreto colapsa, por eso se usa el crítico' NO se sostiene bajo el protocolo congelado + multi-semilla: el híbrido era una sobre-corrección innecesaria. Aun así se reportan AMBOS por separado y con nombre honesto."
+}

@@ -1,0 +1,15 @@
+# Entorno Python del proyecto DRL Arkanoid (trabajo GPU/MPS).
+# Fijado EXACTAMENTE a las versiones del protocolo congelado (frozen_protocol.json):
+#   framework = torch2.12.0+np2.4.4+py3.13·mps
+# Así, el framework() registrado en cada fila del ledger coincide con el de la
+# máquina de congelado -> máxima comparabilidad entre runs/máquinas.
+#
+# Reproducir el entorno (recomendado: uv):
+#   uv venv --python 3.13 .venv
+#   uv pip install --python .venv/bin/python -r requirements.txt
+# Para reproducción byte-a-byte de TODA la cadena de dependencias: requirements-lock.txt
+#
+# Dependencias directas del harness (gpu/*.py solo importa torch, numpy, matplotlib):
+torch==2.12.0
+numpy==2.4.4
+matplotlib==3.10.6

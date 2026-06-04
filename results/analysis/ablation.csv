@@ -1,0 +1,8 @@
+variante,ingrediente_quitado,mean,median,std,collapse_rate,delta_vs_base_pts,n
+base,— (receta completa),0.7733,0.852,0.1865,0.0,0.0,5
+sin_escala,escala 1.0 (pasa a 0.25),0.0084,0.0087,0.0004,1.0,-76.5,5
+timeout_proporcional,timeout constante (pasa a prop.),0.5382,0.5793,0.2402,0.0,-23.5,5
+sin_conv,conv (encoder espacial),0.5691,0.5347,0.1565,0.0,-20.4,5
+epsdecay_lento,ε-decay rápido (pasa a 40k),0.7477,0.7753,0.1412,0.0,-2.6,5
+sin_curriculo,currículo fácil→difícil,0.7545,0.79,0.1666,0.0,-1.9,5
+sin_shaping,shaping (+0.2 por devolver bola),0.8531,0.8147,0.1226,0.0,8.0,5
