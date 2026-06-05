@@ -35,6 +35,44 @@ Un cuaderno divulgativo de **72 páginas** en castellano que explica, paso a pas
 
 ---
 
+## 🏆 El resultado — ahora limpian niveles que nunca vieron
+
+La pregunta no era *«¿el agente sobrevive?»*, sino **«¿se pasa niveles que no ha visto nunca?»**. Con la tarea bien planteada y un **protocolo congelado** (generador de niveles sellado con hash, conjuntos de test disjuntos, **5 semillas** por configuración), varios agentes pasan de **no limpiar nada** a **resolver la mayoría de los niveles de test**.
+
+<p align="center"><img src="docs/assets/v2/f1_conquista.png" width="820" alt="De ciego (0%) a visión (hasta 91%)" /><br/>
+<sub><b>La conquista.</b> Antes (ciego, solo cinemática): 0% en niveles dispersos. Después (visión + encoder convolucional 8×10, TEST-ID @1,5M, media de 5 semillas): PPO 91%, SAC 87%, DQN 77%, World Model 55%, WM-RNN 35%.</sub></p>
+
+**Tabla comparativa** — evaluación *greedy* (sin exploración) en TEST, media de 5 semillas, presupuesto 1,5 M de pasos; en **negrita**, el mejor de cada columna:
+
+| Modelo / variante | TEST-ID | OOD-patrón | OOD-dificultad | Colapsos | Lectura |
+|---|:--:|:--:|:--:|:--:|---|
+| **PPO** | **91%** | **89%** | **86%** | 0% | El mejor y el más fiable. |
+| SAC (actor puro) | 87% | 84% | 68% | 0% | El actor sí funciona. |
+| DQN | 77% | 74% | 64% | 0% | Necesita presupuesto; estable. |
+| SAC (crítico híbrido) | 61% | 60% | 51% | 20% | Bimodal: a veces colapsa. |
+| World Model (Dyna-Q) | 55% | 53% | 42% | 0% | Techo ~55%. |
+| World Model RNN | 35% | 29% | 27% | 0% | El LSTM no ayuda aquí. |
+
+> Todas las cifras salen de `results/ledger.csv` (160 runs reales). «Colapsos» = % de semillas por debajo del 10% de éxito. «OOD» = niveles fuera de la distribución de entrenamiento (patrones o dificultades nuevas).
+
+**El hallazgo que importa.** Una ablación (quitar **un** ingrediente cada vez, partiendo de la receta de DQN al 77%) revela que lo que desbloqueó el problema **no fue el algoritmo, sino la formulación**:
+
+- **Ver los ladrillos** con la escala correcta es *el* ingrediente crítico: atenuar esa señal hunde el éxito del 77% al **1%**.
+- El **encoder convolucional** (sesgo espacial sobre la rejilla) vale ~20 puntos frente a una lista plana.
+- Un **reloj justo** (timeout proporcional al nº de ladrillos, no constante) suma ~23 puntos.
+- Sorpresa honesta: **quitar el *reward shaping* mejora** (+8 puntos) — confirmó que esa «ayuda» saboteaba el objetivo real.
+
+> **En una frase:** de 0% (ciego) a **91% en niveles no vistos** (PPO), con 0 colapsos y todas las semillas por encima del 80%. Lo que resolvió el Arkanoid fueron **decisiones de formulación** —qué ve el agente, cuánto tiempo tiene, cómo se mide—, no un algoritmo más sofisticado.
+
+### 🎮 …y ahora puedes verlo jugar
+
+Una tercera pestaña, **Jugar**, pone a los modelos **ya entrenados** (persistidos en `public/modelos/`, generados con `npm run zoo`) a pasar niveles de **test no vistos** en directo, en modo *greedy*. Velocidad ajustable (cámara lenta ↔ rápida), un modelo a pantalla grande o los cinco en paralelo, marcador de niveles superados, y un botón **Regenerar** para reentrenarlos en tu propio navegador.
+
+<p align="center"><img src="docs/assets/v2/app_jugar.png" width="820" alt="La pestaña Jugar: los cinco modelos jugando en paralelo" /><br/>
+<sub>Los cinco modelos jugando a la vez, cada uno su nivel de test: bajo cada tablero, su tasa de niveles superados (✓ ganadas/partidas) y el % de ladrillos de la partida en curso.</sub></p>
+
+---
+
 ## ✨ Características
 
 - **5 algoritmos de RL reales** con redes neuronales (no simulaciones): DQN, PPO, SAC discreto, un World Model (Dyna-Q) y un **World Model recurrente** (Dyna-Q + LSTM).
@@ -42,6 +80,7 @@ Un cuaderno divulgativo de **72 páginas** en castellano que explica, paso a pas
 - **Arquitectura desacoplada**: cientos de entornos *headless* generan los datos; unos pocos *visuales* se dibujan ejecutando la misma política.
 - **UI adaptativa**: las métricas, las curvas y el **inspector** cambian según el algoritmo seleccionado.
 - **Pestaña Comparativa** (*benchmark*): entrena los cinco con el mismo presupuesto y los evalúa en modo **greedy** (sin exploración) sobre partidas nuevas; dashboard con curvas superpuestas, tabla de métricas y veredicto.
+- **Pestaña Jugar** (*model zoo*): modelos pre-entrenados y **persistidos** (`public/modelos/`, vía `npm run zoo`) que juegan **niveles de test no vistos** en greedy; velocidad ajustable (cámara lenta ↔ rápida), uno a pantalla grande o los cinco en paralelo, marcador de niveles, y **re-entrenamiento en el navegador**.
 - **Búsqueda de hiperparámetros en vivo** (*grid search*): un pop-up prueba varias combinaciones entrenando un agente aislado por cada una, las ordena por recompensa en tiempo real y permite **aplicar la ganadora** al laboratorio con un clic.
 - **Sistema de trazas** estructuradas para monitorización (recompensa, pérdida, exploración, throughput, tensores activos).
 - **Sin fugas de memoria**: recuento de tensores constante durante todo el entrenamiento (verificado).
