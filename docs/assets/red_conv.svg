@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 360" font-family="-apple-system,Segoe UI,sans-serif">
+  <rect width="1000" height="360" fill="#ffffff"/>
+
+  <!-- ===== RAMA A: matriz de ocupación 8x10 -> encoder conv ===== -->
+  <text x="105" y="28" text-anchor="middle" font-size="13" fill="#11181f" font-weight="700">Rama de visión</text>
+  <!-- mini rejilla 10x8 -->
+  <g>
+    <rect x="22" y="40" width="166" height="104" rx="8" fill="#f4effe" stroke="#c9b8f2"/>
+    <!-- celdas: 10 col x 8 fil, 12px -->
+    <g>
+      <!-- fila 0 -->
+      <rect x="34" y="52" width="12" height="9" fill="#7c3aed"/><rect x="47" y="52" width="12" height="9" fill="#7c3aed"/><rect x="60" y="52" width="12" height="9" fill="#e6dbfa"/><rect x="73" y="52" width="12" height="9" fill="#7c3aed"/><rect x="86" y="52" width="12" height="9" fill="#7c3aed"/><rect x="99" y="52" width="12" height="9" fill="#7c3aed"/><rect x="112" y="52" width="12" height="9" fill="#e6dbfa"/><rect x="125" y="52" width="12" height="9" fill="#7c3aed"/><rect x="138" y="52" width="12" height="9" fill="#7c3aed"/><rect x="151" y="52" width="12" height="9" fill="#7c3aed"/>
+      <!-- fila 1 -->
+      <rect x="34" y="62" width="12" height="9" fill="#7c3aed"/><rect x="47" y="62" width="12" height="9" fill="#e6dbfa"/><rect x="60" y="62" width="12" height="9" fill="#7c3aed"/><rect x="73" y="62" width="12" height="9" fill="#7c3aed"/><rect x="86" y="62" width="12" height="9" fill="#7c3aed"/><rect x="99" y="62" width="12" height="9" fill="#e6dbfa"/><rect x="112" y="62" width="12" height="9" fill="#7c3aed"/><rect x="125" y="62" width="12" height="9" fill="#7c3aed"/><rect x="138" y="62" width="12" height="9" fill="#e6dbfa"/><rect x="151" y="62" width="12" height="9" fill="#7c3aed"/>
+      <!-- fila 2-7 (patron) -->
+      <rect x="34" y="72" width="12" height="9" fill="#e6dbfa"/><rect x="47" y="72" width="12" height="9" fill="#7c3aed"/><rect x="60" y="72" width="12" height="9" fill="#7c3aed"/><rect x="73" y="72" width="12" height="9" fill="#e6dbfa"/><rect x="86" y="72" width="12" height="9" fill="#7c3aed"/><rect x="99" y="72" width="12" height="9" fill="#7c3aed"/><rect x="112" y="72" width="12" height="9" fill="#7c3aed"/><rect x="125" y="72" width="12" height="9" fill="#e6dbfa"/><rect x="138" y="72" width="12" height="9" fill="#7c3aed"/><rect x="151" y="72" width="12" height="9" fill="#7c3aed"/>
+      <rect x="34" y="82" width="12" height="9" fill="#7c3aed"/><rect x="47" y="82" width="12" height="9" fill="#7c3aed"/><rect x="60" y="82" width="12" height="9" fill="#e6dbfa"/><rect x="73" y="82" width="12" height="9" fill="#7c3aed"/><rect x="86" y="82" width="12" height="9" fill="#e6dbfa"/><rect x="99" y="82" width="12" height="9" fill="#7c3aed"/><rect x="112" y="82" width="12" height="9" fill="#7c3aed"/><rect x="125" y="82" width="12" height="9" fill="#7c3aed"/><rect x="138" y="82" width="12" height="9" fill="#7c3aed"/><rect x="151" y="82" width="12" height="9" fill="#e6dbfa"/>
+      <rect x="34" y="92" width="12" height="9" fill="#7c3aed"/><rect x="47" y="92" width="12" height="9" fill="#7c3aed"/><rect x="60" y="92" width="12" height="9" fill="#7c3aed"/><rect x="73" y="92" width="12" height="9" fill="#e6dbfa"/><rect x="86" y="92" width="12" height="9" fill="#7c3aed"/><rect x="99" y="92" width="12" height="9" fill="#7c3aed"/><rect x="112" y="92" width="12" height="9" fill="#e6dbfa"/><rect x="125" y="92" width="12" height="9" fill="#7c3aed"/><rect x="138" y="92" width="12" height="9" fill="#7c3aed"/><rect x="151" y="92" width="12" height="9" fill="#7c3aed"/>
+      <rect x="34" y="102" width="12" height="9" fill="#e6dbfa"/><rect x="47" y="102" width="12" height="9" fill="#7c3aed"/><rect x="60" y="102" width="12" height="9" fill="#7c3aed"/><rect x="73" y="102" width="12" height="9" fill="#7c3aed"/><rect x="86" y="102" width="12" height="9" fill="#7c3aed"/><rect x="99" y="102" width="12" height="9" fill="#e6dbfa"/><rect x="112" y="102" width="12" height="9" fill="#7c3aed"/><rect x="125" y="102" width="12" height="9" fill="#7c3aed"/><rect x="138" y="102" width="12" height="9" fill="#7c3aed"/><rect x="151" y="102" width="12" height="9" fill="#7c3aed"/>
+      <rect x="34" y="112" width="12" height="9" fill="#7c3aed"/><rect x="47" y="112" width="12" height="9" fill="#7c3aed"/><rect x="60" y="112" width="12" height="9" fill="#e6dbfa"/><rect x="73" y="112" width="12" height="9" fill="#7c3aed"/><rect x="86" y="112" width="12" height="9" fill="#7c3aed"/><rect x="99" y="112" width="12" height="9" fill="#7c3aed"/><rect x="112" y="112" width="12" height="9" fill="#7c3aed"/><rect x="125" y="112" width="12" height="9" fill="#e6dbfa"/><rect x="138" y="112" width="12" height="9" fill="#7c3aed"/><rect x="151" y="112" width="12" height="9" fill="#7c3aed"/>
+      <rect x="34" y="122" width="12" height="9" fill="#7c3aed"/><rect x="47" y="122" width="12" height="9" fill="#e6dbfa"/><rect x="60" y="122" width="12" height="9" fill="#7c3aed"/><rect x="73" y="122" width="12" height="9" fill="#7c3aed"/><rect x="86" y="122" width="12" height="9" fill="#7c3aed"/><rect x="99" y="122" width="12" height="9" fill="#7c3aed"/><rect x="112" y="122" width="12" height="9" fill="#e6dbfa"/><rect x="125" y="122" width="12" height="9" fill="#7c3aed"/><rect x="138" y="122" width="12" height="9" fill="#7c3aed"/><rect x="151" y="122" width="12" height="9" fill="#7c3aed"/>
+    </g>
+    <!-- kernel 3x3 resaltado -->
+    <rect x="59" y="71" width="39" height="31" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+    <text x="105" y="138" text-anchor="middle" font-size="11" fill="#6b3fb8">matriz de ocupación 8×10 (80)</text>
+  </g>
+  <!-- flecha -> conv -->
+  <line x1="192" y1="92" x2="226" y2="92" stroke="#9aa3b2" stroke-width="2"/><polygon points="226,88 234,92 226,96" fill="#9aa3b2"/>
+  <!-- bloque conv (mapas de rasgos apilados) -->
+  <rect x="246" y="58" width="120" height="70" rx="8" fill="#eef2ff" stroke="#9db4f0"/>
+  <rect x="258" y="50" width="96" height="60" rx="5" fill="#dbe6ff" stroke="#9db4f0"/>
+  <rect x="252" y="54" width="96" height="60" rx="5" fill="#cdddff" stroke="#7ea0ec"/>
+  <text x="300" y="86" text-anchor="middle" font-size="12" fill="#1f3a8a" font-weight="700">Encoder conv</text>
+  <text x="300" y="102" text-anchor="middle" font-size="10.5" fill="#3a55a0">filtros 16 → 32</text>
+  <text x="300" y="140" text-anchor="middle" font-size="11" fill="#3a55a0">detecta formas de ladrillos</text>
+
+  <!-- ===== RAMA B: cinematica ===== -->
+  <text x="105" y="208" text-anchor="middle" font-size="13" fill="#11181f" font-weight="700">Rama cinemática</text>
+  <rect x="22" y="220" width="166" height="86" rx="8" fill="#eff6ff" stroke="#bcd4f6"/>
+  <g fill="#2563eb">
+    <circle cx="48" cy="246" r="6"/><circle cx="48" cy="268" r="6"/><circle cx="48" cy="290" r="6"/>
+    <circle cx="72" cy="246" r="6"/><circle cx="72" cy="268" r="6"/><circle cx="72" cy="290" r="6"/>
+  </g>
+  <text x="150" y="252" text-anchor="middle" font-size="10.5" fill="#1f3a8a">pelota x,y</text>
+  <text x="150" y="270" text-anchor="middle" font-size="10.5" fill="#1f3a8a">vel. vx,vy</text>
+  <text x="150" y="288" text-anchor="middle" font-size="10.5" fill="#1f3a8a">pala, Δ</text>
+  <text x="105" y="322" text-anchor="middle" font-size="11" fill="#1f3a8a">6 números</text>
+
+  <!-- flechas hacia concatenar -->
+  <line x1="366" y1="92" x2="430" y2="150" stroke="#9aa3b2" stroke-width="2"/><polygon points="426,142 433,154 421,151" fill="#9aa3b2"/>
+  <line x1="188" y1="263" x2="430" y2="200" stroke="#9aa3b2" stroke-width="2"/><polygon points="424,196 433,196 428,206" fill="#9aa3b2"/>
+
+  <!-- ===== concatenar ===== -->
+  <rect x="436" y="120" width="74" height="110" rx="8" fill="#f3f4f6" stroke="#cdd3dc"/>
+  <text x="473" y="170" text-anchor="middle" font-size="13" fill="#374151" font-weight="700">⊕</text>
+  <text x="473" y="190" text-anchor="middle" font-size="10.5" fill="#4b5563">concatenar</text>
+  <text x="473" y="204" text-anchor="middle" font-size="10.5" fill="#4b5563">rasgos</text>
+
+  <!-- ===== MLP ===== -->
+  <line x1="510" y1="175" x2="540" y2="175" stroke="#9aa3b2" stroke-width="2"/><polygon points="540,171 548,175 540,179" fill="#9aa3b2"/>
+  <rect x="552" y="138" width="104" height="74" rx="8" fill="#f4effe" stroke="#c9b8f2"/>
+  <text x="604" y="172" text-anchor="middle" font-size="12" fill="#5b21b6" font-weight="700">Densa 128</text>
+  <text x="604" y="190" text-anchor="middle" font-size="10.5" fill="#6b3fb8">ReLU</text>
+  <line x1="656" y1="175" x2="678" y2="175" stroke="#9aa3b2" stroke-width="2"/><polygon points="678,171 686,175 678,179" fill="#9aa3b2"/>
+  <rect x="690" y="138" width="104" height="74" rx="8" fill="#f4effe" stroke="#c9b8f2"/>
+  <text x="742" y="172" text-anchor="middle" font-size="12" fill="#5b21b6" font-weight="700">Densa 128</text>
+  <text x="742" y="190" text-anchor="middle" font-size="10.5" fill="#6b3fb8">ReLU</text>
+
+  <!-- ===== salida ===== -->
+  <line x1="794" y1="175" x2="816" y2="175" stroke="#9aa3b2" stroke-width="2"/><polygon points="816,171 824,175 816,179" fill="#9aa3b2"/>
+  <g>
+    <circle cx="842" cy="140" r="11" fill="#0c9f6e"/><circle cx="842" cy="175" r="11" fill="#0c9f6e"/><circle cx="842" cy="210" r="11" fill="#0c9f6e"/>
+    <text x="860" y="144" font-size="13" fill="#11181f" font-weight="700">← izquierda</text>
+    <text x="860" y="179" font-size="13" fill="#11181f" font-weight="700">· mantener</text>
+    <text x="860" y="214" font-size="13" fill="#11181f" font-weight="700">→ derecha</text>
+  </g>
+  <text x="842" y="246" text-anchor="middle" font-size="11" fill="#0a7a55" font-weight="600">3 acciones · Q(s,a) o π(a|s)</text>
+
+  <text x="500" y="346" text-anchor="middle" font-size="11" fill="#8a909b">Dos ramas (visión + cinemática) → concatenar → dos capas densas → una salida por acción</text>
+</svg>

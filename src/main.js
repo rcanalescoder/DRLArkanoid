@@ -11,6 +11,7 @@ import "./css/componentes.css";
 import "./css/juego.css";
 import "./css/metricas.css";
 import "./css/inspectores.css";
+import "./css/arena.css";
 
 import * as tf from "@tensorflow/tfjs";
 import "@tensorflow/tfjs-backend-webgpu"; // registra el backend WebGPU (Metal/MPS)

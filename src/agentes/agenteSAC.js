@@ -189,6 +189,10 @@ export class AgenteSAC extends AgenteBase {
     };
   }
 
+  obtenerRedAccion() {
+    return this.actor;
+  }
+
   reiniciar() {
     this.destruir();
     this.pasosEntorno = 0;

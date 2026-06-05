@@ -8,6 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "entrenar": "node scripts/entrenar.mjs",
+    "zoo": "node scripts/generarZoo.mjs",
+    "pdf": "node scripts/generarPDF.mjs",
     "verificar": "node scripts/verificarTodo.mjs"
   },
   "keywords": [

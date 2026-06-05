@@ -362,3 +362,164 @@ SAC-pure = el ACTOR para conducta (muestreo) y eval (argmax); SAC-critic-hybrid 
 #   C5:         .venv/bin/python gpu/c5_world_models.py
 #   C4:         .venv/bin/python gpu/tanda_par.py 700000,1500000,3000000 sac_pure ; .venv/bin/python gpu/c4_sac.py
 #   Estado:     .venv/bin/python gpu/lab.py status
+
+
+# ============================================================================
+#  CAPÍTULO 11 — CIERRE DE INTEGRIDAD (app ↔ PDF ↔ datos)  (Sesión 5, 2026-06-05)
+#  Objetivo: que TODO sea coherente. El app JS evolucionó a 8×10/visión/conv pero
+#  arrastraba textos y capturas de la era ciega 4×7/6-variables.
+# ============================================================================
+
+## 11.1 — App: la "SI de información" reconciliada
+- El app JS ES 8×10 (80 ladrillos), estado de 86 (6 cinemáticos + matriz de ocupación 8×10),
+  encoder CONV, timeout proporcional (90/ladrillo → 7200). La baseline ciega (6) se conserva
+  como contraste (incluirLadrillos=false).
+- `src/datos/infoContenido.js` estaba OBSOLETO (decía "6 números / 28 / 4×7 / red 6→128→128→3").
+  Reconciliado: 6→86 (visión), 28→80, 4×7→8×10, red→encoder conv, timeout 600→proporcional.
+- Inspector: ANTES solo una "i" en el título (y el texto de ayuda se ignoraba). AHORA cada campo
+  (Q(s,a), ε, TD-error, Buffer, V(s), α, entropía, doble crítico, modelo dinámica, planning) tiene
+  su ficha rica; título enlaza a la ficha del algoritmo. Nuevas entradas: qValores, valorEstado,
+  unidadesLSTM (esta última estaba ROTA en WM-RNN). Verificado en navegador (0 errores, modales con scroll).
+- Contador de ladrillos: "/28" fijo → dinámico (rotos/iniciales del nivel, p.ej. /80).
+- Commits: 841c0e4 (info por campo) · 80fca79 (reconciliación SI + contador).
+
+## 11.2 — PDF v2: texto reconciliado + capturas
+- `docs/report_v2.html`: corregidas ~15 referencias de realidad ACTUAL (6 números→visión 86, 28→80,
+  4×7→8×10, "limpiar 28"→"limpiar el nivel/80") y restos de la tesis falsa. Se CONSERVAN, a propósito,
+  las referencias HISTÓRICAS del arco (agente ciego: 6 variables, ~2/28, "28 ladrillos·600·imposible",
+  "era flat 4×7") porque cuentan el viaje.
+- Capturas: `panel_juego.jpg` (tablero 8×10, contador /80) e `inspector_dqn.jpg` (info por campo)
+  REGENERADAS desde el app actual (Chrome headless + recorte).
+  PENDIENTE (honesto): el resto de capturas del lab (curvas, métricas con valores, overview, controles)
+  siguen mostrando el 4×7 y/o requieren una sesión ENTRENADA en vivo (WebGPU) para re-capturarse
+  limpiamente — no es automatizable headless (un Chrome nuevo arranca sin entrenar y en CPU).
+- PDF regenerado: docs/Arkanoid-DRL-Learning-Lab-v2.pdf.
+
+
+# ============================================================================
+#  CAPÍTULO 12 — MEJORAS DE APP + PEDAGOGÍA + PDF v2 REGENERADO  (Sesión 6, 2026-06-05)
+# ============================================================================
+
+## 12.1 — App: 4 arreglos de runtime (verificados en navegador)
+- Quitada la caja "Motivación del laboratorio" y el panel "Replay buffer conceptual"
+  (index.html + aplicacion.js: fuera import/instancia/configurar de ReplayConceptual).
+- Pausa entre episodios UNIFICADA a ~0.5s por TIEMPO (gestorEntornos.tickHoldVisual: 500ms,
+  antes 45 frames). Medido: 523-554ms, idéntico en todos los modelos y velocidades.
+- Fluidez WM/RNN: el cuello NO era el entrenamiento por-lote ni pasoVisual (ambos ~baratos),
+  sino que un lote de WM/RNN con planning tarda ~100-120ms y, síncrono, congelaba la pantalla
+  CADA frame (7-9 fps). Solución en aplicacion._tick: animar (pasoVisual+render, ~12ms) en CADA
+  frame y, tras un lote que excede OBJETIVO_FRAME_MS(33), saltar _deudaFrames de entrenamiento.
+  Resultado: frame MEDIANO 11-14ms (antes ~130ms); DQN/PPO/SAC siguen entrenando cada frame.
+- Fugas al cambiar de modelo: cambiarAlgoritmo es async, espera el lote en vuelo (_loteEnCurso)
+  antes de destruir() + dispose, y loguea traza "[cambio→id] tensores X→Y · Z MB". Medido:
+  2 ciclos por los 5 modelos → tensores acotados (14-39), sin crecimiento. Sin colapso.
+- NOTA: rAF NO dispara en el preview headless (document.hidden). Verificado conduciendo _tick
+  con un driver setTimeout (window.__drl.app / .tf).
+
+## 12.2 — "SI de información" del app: pedagogía a fondo (infoContenido.js, 55 entradas)
+- lab: reescrita a 7 secciones (qué es, el juego Arkanoid, la restricción 8×10/80 ladrillos,
+  el bucle, los 5 algoritmos, los botones, cómo usarlo) + fórmula + ficha técnica. Scroll real.
+- rewardMedio100: + "Cómo se calcula" (retorno G=Σr, componentes, media móvil 100, el ·100) +
+  "La teoría: es el objetivo del RL" (J(π)=E[Σγᵗrₜ]) + fórmula + ejemplo.
+- + fórmulas de cálculo en loss (Huber/Bellman), entropia (H=−Σp·log p), tasaExito100.
+- Verificado: modal abre, con scroll, render correcto (lab 7 secc / reward 4 secc).
+
+## 12.3 — PDF v2: contenido enriquecido (report_v2.html)
+- Cap.2 (El primer intento): origen del juego (Breakout Atari 1976 → Arkanoid Taito 1986) y el
+  hito de DeepMind (DQN, 49 juegos Atari desde píxeles, ~50M fotogramas/juego ≈ 38 días, Nature
+  2015). Nuestra 1ª modelización: solo cinemática (ciega a ladrillos), timeout 600; no funcionó.
+- Cap.4 (El arreglo): explicitadas las DOS opciones para "ver" (A: píxeles como DeepMind;
+  B: matriz de ocupación 8×10 estructurada → elegimos B) + generador de niveles con conjuntos
+  disjuntos train/validación/test.
+- Fundamentos "La red que usamos": reescrita a la arquitectura REAL de dos ramas (visión conv
+  sobre 8×10 + rama cinemática → concatenar → 128/128 → 3) con NUEVO diagrama assets/red_conv.svg
+  (el viejo red_neuronal.svg mostraba la red ciega de 6 entradas, quedaba obsoleto) + explicación
+  a fondo de qué es una convolución (filtros que detectan las estructuras de ladrillos).
+
+## 12.4 — Regeneración del PDF: Chrome 148 rompió --print-to-pdf
+- Chrome se autoactualizó a 148; "Printing failed" en el doc completo (~90 págs): el motor
+  rasteriza todo el documento en UNA superficie → OOM del renderer (la 1ª mitad sí imprimía).
+- Workaround robusto: pipeline CDP (node v25, WebSocket/fetch nativos, /tmp/cdp_print.js) que
+  imprime por RANGOS de 20 páginas (Page.printToPDF + pageRanges) y fusiona con pypdfium2.
+- Además, 31 imágenes de docs/assets reducidas a ≤1200px (panel_juego.jpg era 1716×2422,
+  "gigante"): bajan memoria y mejoran maquetación. 0 assets faltantes.
+- PDF final: docs/Arkanoid-DRL-Learning-Lab-v2.pdf — 91 páginas, ~7,7 MB. Verificado por render.
+
+
+# ============================================================================
+#  CAPÍTULO 13 — NUEVA PESTAÑA "🎮 JUGAR": ZOO DE MODELOS PERSISTIDO  (Sesión 6, 2026-06-05)
+# ============================================================================
+
+## 13.1 — Motivación y decisión de diseño
+- Faltaba el "ver jugar de verdad": entrenar (Laboratorio) y benchmark (Comparativa) ya estaban,
+  pero no había dónde poner a los modelos ENTRENADOS a pasar niveles. Problema de fondo: NO había
+  persistencia de modelos (el agente vive en memoria; la Comparativa entrena y destruye).
+- Decidido (con el usuario): model zoo PERSISTIDO. Separar "entrenar = didáctico" de
+  "jugar = el resultado". Modelos entrenados UNA vez, offline en Node (tfjs-node), guardados como
+  assets versionados en public/modelos/; la app los carga al instante. Botón "Regenerar" reentrena
+  in-app y guarda en IndexedDB (override local) sin backend ni tocar los assets.
+- Arquitectura: CONV canónica (dim 86, 8×10 + rama cinemática), la MISMA de las gráficas
+  (scripts/comparativa.mjs). NO se toca la Fase C congelada: son artefactos nuevos.
+
+## 13.2 — Hallazgo clave que abarató todo
+- Para JUGAR, los 5 agentes reducen a UNA red feedforward + argMax: DQN→redPolitica, PPO→actor,
+  SAC→actor, WM→redQ, WM-RNN→redQ. El LSTM del WM-RNN NO juega (solo imagina en entrenamiento).
+  → no hay que reconstruir el agente entero; basta cargar esa red y envolverla.
+
+## 13.3 — Piezas implementadas
+- AgenteBase.obtenerRedAccion() + override en los 5 agentes (la red de acción a guardar/cargar).
+- scripts/generarZoo.mjs (+ npm "zoo"): replica el protocolo canónico de comparativa.mjs (conv,
+  niveles variados del pool semilla 12345, currículo por tiers 16/36/60/80, escala 1.0) y guarda
+  red.save('file://public/modelos/<id>') + manifiesto.json (dimEstado, escala, semillas de niveles,
+  métricas eval greedy en test). Flags --pasos/--envs/--algos.
+- src/agentes/agenteReproductor.js: envoltorio minimalista (extiende AgenteBase, hereda _predRed),
+  detecta conv por red.inputs.length>1, seleccionarAcciones greedy. Sin optimizador/buffer.
+- src/ui/cargadorZoo.js: carga IndexedDB→asset (fallback), overridesGuardados(), regenerarModelo()
+  (entrena conv in-app + guarda en indexeddb://drl-zoo-<id>), borrarOverride().
+- src/ui/arena.js: la pestaña. Selector con métricas, modo "uno grande" / "los 5 en paralelo",
+  velocidad 0.25×–8× (acumulador fraccional: cámara lenta Y rápida sin tocar física), marcador
+  (niveles superados/perdidas/timeout/racha/éxito sesión/ladrillos), botón Regenerar con progreso.
+  Juega niveles de TEST no vistos (mismo pool del manifiesto). Bucle rAF propio, activo solo con la
+  pestaña visible.
+- index.html + aplicacion.js: 3ª pestaña; _conectarPestanas() generalizado a N vistas;
+  arena.activar()/desactivar() según visibilidad. CSS src/css/arena.css. INFO: arenaJugar +
+  arenaVelocidad en infoContenido.js.
+
+## 13.4 — Verificación (navegador, preview WebGPU)
+- Zoo de humo (--pasos 2000, los 5): genera public/modelos/<id>/{model.json,weights.bin} + manifiesto.
+  351.667 params/modelo (conv). Pipeline OK end-to-end.
+- Arena carga los 5 (fuente "oficial"), sin errores de consola. Mecánica validada conduciendo el
+  bucle a mano (rAF pausado en preview headless, document.hidden): 8000 pasos → 91 partidas, acciones
+  {0,1,2}, hasta 15 ladrillos, 1 nivel ganado (¡con modelo de humo!).
+- Controles OK: velocidad (1×/4×), modo "uno"↔"todos" (5 canvas), marcadores por modelo. Cambio de
+  pestaña: desactiva el bucle (rAF=0) y 0 fugas de tensores (74→74).
+- PENDIENTE del usuario: correr `npm run zoo` SIN --pasos (default 600k, o el que prefiera en el M3
+  Ultra) para los modelos BUENOS antes de versionar public/modelos/ (los de humo juegan mal).
+
+## 13.5 — Documentación (PDF v2 regenerado) + pipeline reproducible + zoo largo lanzado
+- report_v2.html: nueva sección "LA APP · TERCERA PESTAÑA · 🎮 Jugar" antes de la Conclusión (banda
+  b-green). Explica: modelos proporcionados PERSISTIDOS (zoo conv), captura de la pestaña, control de
+  velocidad lenta/rápida, re-entreno in-app (IndexedDB) y NOTA de portabilidad Apple Silicon → otras
+  arquitecturas (modelos TF.js portables; tfjs-node x64/ARM; tfjs-node-gpu solo Linux+CUDA; la app
+  elige WebGPU→WebGL→CPU sola).
+- Captura: scripts/capturarJugar.mjs (CDP: lanza Chrome headless con user-data-dir aislado, navega
+  CONTROLADO esperando loadEventFired —si no, "context destroyed"—, activa la pestaña, conduce el
+  juego, Page.captureScreenshot) → docs/assets/v2/app_jugar.png (1440px, reducida con sips). WebGPU
+  funcionó incluso en headless.
+- PDF REPRODUCIBLE DESDE EL REPO (antes el script vivía en /tmp): scripts/generarPDF.mjs (CDP
+  printToPDF por rangos de 20 + break al exceder) + scripts/_merge_pdf.py (pypdf, fusión sin
+  recomprimir). npm "pdf". pypdf/pypdfium2/Pillow instalados en .venv con uv (no había pip).
+  PDF final: 94 páginas (antes 91), 8,25 MB. Verificado por render (págs 85-86: sección Jugar con
+  captura + nota Apple Silicon).
+- Robustez nocturna: generarZoo escribe el manifiesto INCREMENTAL (tras cada modelo) → si la corrida
+  larga se corta, refleja lo ya entrenado.
+- Throughput medido: DQN conv 50k pasos en 9,5s (~5.500 pasos/s, tfjs-node nativo multihilo).
+- Lanzada corrida LARGA en segundo plano (npm run zoo --pasos 1500000, los 5, conv; 1,5M = presupuesto
+  oficial de la tesis) para los modelos finales por la mañana. Estimado ~1,5-2,5h (WM/RNN más lentos).
+- RESULTADO del zoo (1,5M, eval greedy en test, 60 niveles no vistos): SAC 76% · PPO 60% · DQN 10% ·
+  World Model 1% · World Model RNN 0% éxito (model-free >> model-based, coherente con la comparativa de
+  la tesis). Tiempos: DQN 263s · PPO 1032s · SAC 664s · WM 1575s · WM-RNN 2005s (~95 min total).
+- Marcador del modo "5 en paralelo" cambiado a TASA ✓ganadas/partidas (JUSTA: los que pierden rápido
+  juegan muchísimas más partidas, así que el conteo absoluto engañaba — WM mostraba "✓14" pareciendo el
+  mejor siendo el peor; ahora muestra 0/72). Captura regenerada con los modelos finales y PDF final
+  regenerado (94 págs, 8,28 MB), verificado por render (pág 85, sección Jugar con la captura real).

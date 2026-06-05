@@ -66,6 +66,17 @@ export class AgenteBase {
     return { ...this.ultimasMetricas };
   }
 
+  /**
+   * Red feedforward que produce la acción (greedy = argMax de su salida). Es lo
+   * ÚNICO que hace falta para JUGAR: la guarda el zoo (offline) y la carga el
+   * reproductor (navegador). Las subclases la sobreescriben devolviendo su red
+   * de política / Q. No incluye optimizador, buffer ni redes objetivo.
+   * @returns {import("@tensorflow/tfjs").LayersModel|null}
+   */
+  obtenerRedAccion() {
+    return null;
+  }
+
   /** Notifica el fin de un episodio en un entorno (opcional). */
   finEpisodio(_idEntorno) {}
 

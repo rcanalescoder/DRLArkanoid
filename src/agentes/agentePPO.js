@@ -223,6 +223,10 @@ export class AgentePPO extends AgenteBase {
     return { ...this.ultimasMetricas, rolloutProgreso: this._metr.rolloutProgreso };
   }
 
+  obtenerRedAccion() {
+    return this.actor;
+  }
+
   reiniciar() {
     this.destruir();
     this.pasosEntorno = 0;

@@ -185,6 +185,10 @@ export class AgenteDQN extends AgenteBase {
     };
   }
 
+  obtenerRedAccion() {
+    return this.redPolitica;
+  }
+
   reiniciar() {
     this.destruir();
     this.pasosEntorno = 0;

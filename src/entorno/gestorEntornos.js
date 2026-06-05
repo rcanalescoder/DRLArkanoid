@@ -165,14 +165,18 @@ export class GestorEntornos {
    * ~45 frames mostrando el motivo y luego reinicia.
    */
   tickHoldVisual() {
+    // Hold por TIEMPO (~0.5s), no por frames: así la pausa al perder/ganar es la misma
+    // para todos los modelos y velocidades, aunque el frame rate baje (p.ej. WM/RNN).
+    const ahora = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+    const HOLD_MS = 500;
     const n = this.numVisuales;
     for (let i = 0; i < n; i++) {
       const env = this.visuales[i];
       if (env.estaTerminado()) {
-        env._holdVisual = (env._holdVisual || 0) + 1;
-        if (env._holdVisual >= 45) {
+        if (!env._holdHasta) env._holdHasta = ahora + HOLD_MS;
+        if (ahora >= env._holdHasta) {
           env.reiniciar();
-          env._holdVisual = 0;
+          env._holdHasta = 0;
         }
         this._escribirEstado(env, this._estadosVisuales, i);
       }

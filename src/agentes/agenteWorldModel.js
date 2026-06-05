@@ -247,6 +247,10 @@ export class AgenteWorldModel extends AgenteBase {
     };
   }
 
+  obtenerRedAccion() {
+    return this.redQ;
+  }
+
   reiniciar() {
     this.destruir();
     this.pasosEntorno = 0;

@@ -1,0 +1,79 @@
+{
+  "generadoEn": "2026-06-05T02:21:09.112Z",
+  "pasos": 1500000,
+  "dimEstado": 86,
+  "arquitectura": "conv",
+  "escalaLadrillos": 1,
+  "incluirLadrillos": true,
+  "niveles": {
+    "semillaPool": 12345,
+    "semillaSplit": 999,
+    "split": {
+      "train": 0.7,
+      "val": 0.15
+    },
+    "n": 400
+  },
+  "modelos": [
+    {
+      "id": "dqn",
+      "nombre": "DQN",
+      "color": "#2563eb",
+      "familia": "model-free · valor",
+      "params": 351667,
+      "pasos": 1500000,
+      "evalExito": 0.105,
+      "evalLadrillos": 0.20942717579166573,
+      "evalReward": 7.151500000000003,
+      "evalEpisodios": 200
+    },
+    {
+      "id": "ppo",
+      "nombre": "PPO",
+      "color": "#7c3aed",
+      "familia": "model-free · actor-crítico",
+      "params": 351667,
+      "pasos": 1500000,
+      "evalExito": 0.605,
+      "evalLadrillos": 0.8806517106659483,
+      "evalReward": 50.47600000000003,
+      "evalEpisodios": 200
+    },
+    {
+      "id": "sac",
+      "nombre": "SAC",
+      "color": "#db2777",
+      "familia": "model-free · actor-crítico",
+      "params": 351667,
+      "pasos": 1500000,
+      "evalExito": 0.765,
+      "evalLadrillos": 0.9749565663962728,
+      "evalReward": 60.87900000000006,
+      "evalEpisodios": 200
+    },
+    {
+      "id": "worldModel",
+      "nombre": "World Model",
+      "color": "#0891b2",
+      "familia": "model-based · Dyna-Q",
+      "params": 351667,
+      "pasos": 1500000,
+      "evalExito": 0.01,
+      "evalLadrillos": 0.08195391597500876,
+      "evalReward": 1.2819999999999996,
+      "evalEpisodios": 200
+    },
+    {
+      "id": "worldModelRecurrente",
+      "nombre": "World Model RNN",
+      "color": "#0c9f6e",
+      "familia": "model-based · LSTM",
+      "params": 351667,
+      "pasos": 1500000,
+      "evalExito": 0,
+      "evalLadrillos": 0.08703666975926456,
+      "evalReward": 1.4910891089108909,
+      "evalEpisodios": 202
+    }
+  ]
+}

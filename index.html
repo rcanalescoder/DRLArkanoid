@@ -27,19 +27,11 @@
         </div>
       </header>
 
-      <!-- ===================== BANNER MOTIVACIÓN ===================== -->
-      <div class="banner-info">
-        <span class="ic">i</span>
-        <div><b>Motivación del laboratorio.</b> Esta interfaz está pensada como guía de estudio: no solo muestra al agente
-          jugando, también el <b>mecanismo interno</b>. Por eso hay un icono de información (ℹ) junto a cada grupo y cada
-          dato importante. <b>Pulsa cualquier <span class="info" data-info="lab">i</span></b> para abrir una ficha completa
-          que explica qué es, por qué importa y, cuando aplica, su fórmula y sus datos.</div>
-      </div>
-
       <!-- ===================== PESTAÑAS ===================== -->
       <nav class="tabs" id="tabsVista">
         <button class="tab activo" data-vista="laboratorio">🧪 Laboratorio</button>
         <button class="tab" data-vista="comparativa">🏁 Comparativa de modelos</button>
+        <button class="tab" data-vista="jugar">🎮 Jugar</button>
       </nav>
 
       <div id="vistaLaboratorio" class="vista">
@@ -176,14 +168,6 @@
         </div>
       </section>
 
-      <!-- ===================== REPLAY BUFFER CONCEPTUAL ===================== -->
-      <section class="panel" id="seccionReplay">
-        <div class="seccion-titulo">🗃️ Replay buffer (conceptual)
-          <span class="info" data-info="replayPanel">i</span>
-          <span class="suave" style="text-transform: none; letter-spacing: 0">— experiencias y su recompensa</span></div>
-        <div id="replayConceptual"></div>
-      </section>
-
       <section class="panel">
         <div class="seccion-titulo">🎓 Las familias de algoritmos del laboratorio
           <span class="info" data-info="familias">i</span></div>
@@ -193,6 +177,9 @@
 
       <!-- ===================== VISTA COMPARATIVA ===================== -->
       <div id="vistaComparativa" class="vista oculta"></div>
+
+      <!-- ===================== VISTA JUGAR ===================== -->
+      <div id="vistaJugar" class="vista oculta"></div>
     </div>
 
     <script type="module" src="/src/main.js"></script>

@@ -7,7 +7,7 @@
 import { bus, EVENTOS } from "../nucleo/busEventos.js";
 import { ALGORITMOS, POOL } from "../nucleo/constantes.js";
 import { listarAlgoritmos, obtenerAlgoritmo, crearAgente } from "../nucleo/registroAlgoritmos.js";
-import { fijarLineaBase } from "../nucleo/gestorTensores.js";
+import { fijarLineaBase, estadoMemoria } from "../nucleo/gestorTensores.js";
 import { GestorEntornos } from "../entorno/gestorEntornos.js";
 import { RecolectorMetricas } from "../entrenamiento/metricas.js";
 import { trazas } from "../nucleo/trazas.js";
@@ -19,9 +19,9 @@ import { PanelMetricas } from "./panelMetricas.js";
 import { CurvasEntrenamiento } from "./curvasEntrenamiento.js";
 import { PanelTransicion } from "./panelTransicion.js";
 import { ResumenConceptual } from "./resumenConceptual.js";
-import { ReplayConceptual } from "./replayConceptual.js";
 import { GridSearch } from "./gridSearch.js";
 import { Comparativa } from "./comparativa.js";
+import { Arena } from "./arena.js";
 
 export class Aplicacion {
   constructor() {
@@ -31,6 +31,11 @@ export class Aplicacion {
     this.envSeleccionado = 0;
     this.shaping = false; // Φ OFF por defecto (saboteaba el objetivo; ver plan §2)
     this._ultInspeccion = 0;
+    this.PRESUPUESTO_MS = 12;   // tope para APILAR lotes ligeros (DQN/PPO/SAC) por frame
+    this.OBJETIVO_FRAME_MS = 33; // ~30 fps objetivo: si un lote lo excede, se saltan frames de entrenamiento (solo animación) para que la pantalla siga fluida
+    this._deudaFrames = 0;      // nº de frames de "respiro" pendientes (solo animar, sin entrenar) tras un lote pesado (WM/RNN)
+    this._loteEnCurso = null;   // promesa del lote en vuelo: se espera antes de destruir el agente (evita carrera al cambiar de modelo)
+    this._reconstruyendo = false;
     // Hiperparámetros sobreescritos sobre los de por defecto (los aplica el grid
     // search al "usar la mejor combinación"). Se reinician al cambiar de algoritmo.
     this.hpOverride = {};
@@ -69,6 +74,7 @@ export class Aplicacion {
       tabs: $("tabsVista"),
       vistaLaboratorio: $("vistaLaboratorio"),
       vistaComparativa: $("vistaComparativa"),
+      vistaJugar: $("vistaJugar"),
     };
     this.ctx = this.dom.canvas.getContext("2d");
   }
@@ -112,7 +118,6 @@ export class Aplicacion {
       this.envSeleccionado = i;
       this.dom.envSeleccionado.textContent = `env ${i}`;
     });
-    this.replay = new ReplayConceptual(document.getElementById("replayConceptual"));
 
     this._construirChips();
     this._conectarControles();
@@ -138,6 +143,9 @@ export class Aplicacion {
       reanudar: () => this._reanudar(),
       estaCorriendo: () => this.corriendo,
     });
+
+    // Pestaña "Jugar": arena donde los modelos entrenados del zoo juegan en greedy.
+    this.arena = new Arena({ contenedor: this.dom.vistaJugar });
     this._conectarPestanas();
 
     fijarLineaBase();
@@ -148,6 +156,7 @@ export class Aplicacion {
 
   _construirAgente() {
     const def = obtenerAlgoritmo(this.idAlgoritmo);
+    this._deudaFrames = 0; // el coste por lote cambia con el modelo; empezar sin deuda arrastrada
     this.agente = crearAgente(this.idAlgoritmo, this.hpOverride);
     this.orquestador = new Orquestador({
       gestor: this.gestor,
@@ -164,12 +173,16 @@ export class Aplicacion {
     this.panelMetricas.configurar(def);
     this.curvas.configurar(this.idAlgoritmo);
     this.resumen.configurar(def);
-    this.replay.configurar(def);
   }
 
-  cambiarAlgoritmo(id) {
+  async cambiarAlgoritmo(id) {
     if (id === this.idAlgoritmo) return;
     this._pausar();
+    this._reconstruyendo = true;
+    // Esperar el lote en vuelo: NO destruir el agente a media ejecución (evita ops sobre
+    // tensores ya liberados, errores y fugas de tensores por cambio de modelo).
+    if (this._loteEnCurso) { try { await this._loteEnCurso; } catch (e) {} }
+    const antes = estadoMemoria();
     this.agente?.destruir();
     this.metricas.reiniciar();
     this.panelMetricas.reiniciar();
@@ -180,6 +193,11 @@ export class Aplicacion {
     this._construirAgente();
     this._marcarChipActivo();
     fijarLineaBase();
+    this._reconstruyendo = false;
+    const d = estadoMemoria();
+    // Traza de control de fugas: tras un cambio limpio, el nº de tensores debe quedar
+    // estable entre cambios (no crecer). Si crece a cada cambio, hay basura sin liberar.
+    console.log(`[cambio→${id}] tensores ${antes.numTensores} → ${d.numTensores} · ${d.megabytes} MB`);
   }
 
   /**
@@ -187,9 +205,11 @@ export class Aplicacion {
    * principal: los mezcla con los actuales y recrea el agente desde cero,
    * conservando el estado de ejecución (si entrenaba, sigue entrenando).
    */
-  aplicarHiperparametros(override = {}, reanudar = this.corriendo) {
+  async aplicarHiperparametros(override = {}, reanudar = this.corriendo) {
     this.hpOverride = { ...this.hpOverride, ...override };
     this._pausar();
+    this._reconstruyendo = true;
+    if (this._loteEnCurso) { try { await this._loteEnCurso; } catch (e) {} }
     this.agente?.destruir();
     this.metricas.reiniciar();
     this.panelMetricas.reiniciar();
@@ -197,12 +217,15 @@ export class Aplicacion {
     this.gestor.reiniciarTodos();
     this._construirAgente();
     fijarLineaBase();
+    this._reconstruyendo = false;
     if (reanudar) this._reanudar();
   }
 
-  reiniciar() {
+  async reiniciar() {
     const estabaCorriendo = this.corriendo;
     this.corriendo = false; // detener el bucle un instante mientras reconstruimos
+    this._reconstruyendo = true;
+    if (this._loteEnCurso) { try { await this._loteEnCurso; } catch (e) {} }
     this.agente.reiniciar();
     this.metricas.reiniciar();
     this.panelMetricas.reiniciar();
@@ -211,6 +234,7 @@ export class Aplicacion {
     this.orquestador.pasoGlobal = 0;
     this.orquestador._ultimoRegistro = 0;
     fijarLineaBase();
+    this._reconstruyendo = false;
     // Conservar el estado: si estaba entrenando, sigue entrenando (no se congela).
     if (estabaCorriendo) this._reanudar();
     else this._pausar();
@@ -286,14 +310,22 @@ export class Aplicacion {
 
   _conectarPestanas() {
     if (!this.dom.tabs) return;
+    const vistas = {
+      laboratorio: this.dom.vistaLaboratorio,
+      comparativa: this.dom.vistaComparativa,
+      jugar: this.dom.vistaJugar,
+    };
     this.dom.tabs.addEventListener("click", (e) => {
       const tab = e.target.closest(".tab");
       if (!tab) return;
       const vista = tab.dataset.vista;
       this.dom.tabs.querySelectorAll(".tab").forEach((t) =>
         t.classList.toggle("activo", t === tab));
-      this.dom.vistaLaboratorio.classList.toggle("oculta", vista !== "laboratorio");
-      this.dom.vistaComparativa.classList.toggle("oculta", vista !== "comparativa");
+      for (const [nombre, el] of Object.entries(vistas))
+        if (el) el.classList.toggle("oculta", nombre !== vista);
+      // La Arena tiene su propio bucle de animación: arrancarlo solo cuando es visible.
+      if (vista === "jugar") this.arena?.activar();
+      else this.arena?.desactivar();
     });
   }
 
@@ -344,10 +376,33 @@ export class Aplicacion {
   }
 
   async _tick() {
-    if (this.corriendo && this.orquestador) {
-      for (let i = 0; i < this.velocidad; i++) await this.orquestador.ejecutarLote();
-      // La animación avanza tantos pasos como la velocidad → fast-forward visual
-      // sin tocar la física ni el modelo (solo se ven más pasos por segundo).
+    if (this.corriendo && this.orquestador && !this._reconstruyendo) {
+      // PANTALLA SIEMPRE FLUIDA. La animación (pasoVisual + render, ~12 ms) corre en
+      // CADA frame; el entrenamiento se reparte por tiempo. Un solo lote de World Model
+      // o RNN (planning + LSTM, con stalls de dataSync en WebGPU) tarda ~100 ms y es
+      // síncrono: entrenarlo en cada frame congelaría la pantalla (lo que el usuario veía
+      // como "va lentísimo"). Por eso, tras un bloque de entrenamiento que excede el
+      // objetivo de frame, nos saltamos unos frames (solo animación) y la pantalla se
+      // mantiene a ~30 fps. DQN/PPO/SAC (lotes ligeros) siguen entrenando en cada frame.
+      // Guardamos el lote en vuelo para esperarlo antes de destruir el agente al cambiar
+      // de modelo (evita ops sobre tensores ya liberados → errores y fugas).
+      if (this._deudaFrames > 0) {
+        this._deudaFrames--; // frame de respiro: solo animar, no entrenar
+      } else {
+        const t0 = performance.now();
+        this._loteEnCurso = (async () => {
+          let k = 0;
+          do { await this.orquestador.ejecutarLote(); k++; }
+          while (k < this.velocidad && performance.now() - t0 < this.PRESUPUESTO_MS);
+        })();
+        try { await this._loteEnCurso; } finally { this._loteEnCurso = null; }
+        // Si el entrenamiento excedió el objetivo de frame, repartir el coste saltando
+        // los próximos frames (auto-ajuste: DQN→0, WM/RNN→3-4 frames de respiro).
+        const dt = performance.now() - t0;
+        this._deudaFrames = Math.min(8, Math.max(0, Math.round(dt / this.OBJETIVO_FRAME_MS) - 1));
+      }
+      // La animación avanza `velocidad` pasos por frame → fast-forward visual sin tocar
+      // la física ni el modelo (solo se ven más pasos por segundo).
       this.orquestador.pasoVisual(this.velocidad);
     }
     this._render();

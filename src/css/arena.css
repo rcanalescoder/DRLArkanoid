@@ -1,0 +1,193 @@
+/* ============================================================================
+   arena.css — pestaña "🎮 Jugar" (arena de modelos entrenados)
+   ============================================================================ */
+
+.arena-intro {
+  color: var(--texto-suave);
+  font-size: 13px;
+  max-width: 70ch;
+  margin-top: 4px;
+}
+.arena-meta {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--texto-tenue);
+  font-family: var(--mono);
+}
+.arena-aviso {
+  margin-top: 12px;
+  background: var(--ambar-soft);
+  border: 1px solid #f6dcb3;
+  color: #92500a;
+  padding: 10px 13px;
+  border-radius: var(--radio-s);
+  font-size: 12.5px;
+}
+.arena-aviso code {
+  font-family: var(--mono);
+  background: #fff;
+  padding: 1px 6px;
+  border-radius: 5px;
+  border: 1px solid #f0dcb8;
+}
+.arena-cargando {
+  padding: 32px;
+  text-align: center;
+  color: var(--texto-tenue);
+}
+
+/* --- Controles --- */
+.arena-controles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 26px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--borde-suave);
+}
+.arena-modo { display: flex; gap: 8px; }
+.am-modo.activo {
+  background: var(--azul-soft);
+  border-color: var(--acento);
+  color: var(--acento);
+  box-shadow: 0 0 0 1px var(--acento);
+}
+.arena-velocidad { display: flex; align-items: center; gap: 10px; }
+.av-et { font-size: 12px; color: var(--texto-suave); display: inline-flex; align-items: center; gap: 5px; }
+.av-botones {
+  display: inline-flex;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-s);
+  overflow: hidden;
+}
+.btn-vel {
+  border: none;
+  border-right: 1px solid var(--borde);
+  background: #fff;
+  color: var(--texto-suave);
+  padding: 7px 11px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: var(--mono);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.btn-vel:last-child { border-right: none; }
+.btn-vel:hover { background: var(--azul-soft); color: var(--acento); }
+.btn-vel.activo { background: var(--acento); color: #fff; }
+.arena-acciones { display: flex; gap: 8px; margin-left: auto; }
+
+/* --- Zona de juego --- */
+.arena-zona { margin-top: 16px; }
+
+.arena-uno { display: flex; flex-direction: column; gap: 14px; }
+.arena-selector { display: flex; flex-wrap: wrap; gap: 8px; }
+.arena-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  border: 1px solid var(--borde);
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--texto);
+}
+.arena-chip:hover { border-color: #b9c9f0; background: #fafbff; }
+.arena-chip.activo { border-color: var(--acento); background: var(--azul-soft); box-shadow: 0 0 0 1px var(--acento); }
+.ac-pt { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.ac-met { font-size: 11px; font-weight: 500; color: var(--texto-tenue); }
+.chip-ov, .at-fuente, .al-fuente {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--acento-2);
+  background: var(--violeta-soft);
+  border-radius: 6px;
+  padding: 1px 6px;
+  margin-left: 6px;
+}
+
+.arena-juego-grande {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: flex-start;
+}
+.arena-canvas-cont {
+  background: #060912;
+  border-radius: 14px;
+  padding: 8px;
+  box-shadow: var(--sombra-suave);
+  line-height: 0;
+}
+.arena-canvas-cont.mini { border-radius: 10px; padding: 5px; }
+.arena-canvas-cont canvas { display: block; border-radius: 8px; }
+
+/* --- Panel lateral (marcador) --- */
+.arena-lateral { flex: 1; min-width: 260px; }
+.al-cab { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+.al-pt { width: 11px; height: 11px; border-radius: 50%; }
+.al-eval { font-size: 12.5px; color: var(--texto-suave); margin: 8px 0 4px; }
+.al-eval b { color: var(--texto); }
+
+.arena-marcador {
+  margin-top: 10px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-s);
+  overflow: hidden;
+}
+.am-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 13px;
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+.am-fila:nth-child(odd) { background: var(--fondo-elevado); }
+.am-val { font-family: var(--mono); font-weight: 700; color: var(--texto); }
+.am-val .grande, b.grande { font-size: 20px; color: var(--exito); }
+
+/* --- Regenerar --- */
+.arena-regen { margin-top: 14px; }
+.regen-prog { margin-top: 10px; }
+.regen-barra { height: 8px; background: var(--fondo-elevado); border-radius: 5px; overflow: hidden; border: 1px solid var(--borde); }
+.regen-rel { height: 100%; width: 0; background: var(--acento-2); transition: width 0.2s ease; }
+.regen-txt { font-size: 11.5px; color: var(--texto-tenue); font-family: var(--mono); margin: 6px 0; }
+.btn-link {
+  background: none; border: none; color: var(--texto-tenue);
+  font-size: 11.5px; cursor: pointer; text-decoration: underline; padding: 4px 0;
+}
+.btn-link:hover { color: var(--acento); }
+
+/* --- Modo "todos en paralelo" --- */
+.arena-rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 14px;
+}
+.arena-tarjeta {
+  background: var(--fondo-panel);
+  border: 1px solid var(--borde);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: var(--sombra-suave);
+}
+.at-cab { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 13.5px; margin-bottom: 8px; }
+.at-pt { width: 9px; height: 9px; border-radius: 50%; }
+.arena-tarjeta .arena-canvas-cont { display: inline-block; }
+.at-stats {
+  margin-top: 9px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--texto-suave);
+  letter-spacing: -0.01em;
+}
+.at-stats .ok { color: var(--exito); font-weight: 700; }
+.at-stats .ko { color: var(--error); font-weight: 700; }
+.at-stats .to { color: var(--alerta); font-weight: 700; }
