@@ -63,11 +63,10 @@ V3_COVER = """
 
 def main():
     chapters_file = sys.argv[1]
-    with io.open('docs/report_v2.html', encoding='utf-8') as f:
-        v2 = f.read()
-    # cabecera = todo hasta justo antes de </style>
-    cut = v2.index('</style>')
-    head = v2[:cut]
+    # Cabecera/CSS base (extraida del v2). El report_v2.html ya no vive en docs/, asi que
+    # la cabecera (todo hasta justo antes de </style>) queda congelada en .claude/head_v2.html.
+    with io.open('.claude/head_v2.html', encoding='utf-8') as f:
+        head = f.read()
     with io.open(chapters_file, encoding='utf-8') as f:
         chapters = f.read()
     out = head + V3_CSS + '</style>\n</head>\n<body>\n' + V3_COVER + '\n' + chapters + '\n</body>\n</html>\n'
