@@ -1,0 +1,110 @@
+<p class="pregunta">Hemos llegado al final. Empezamos con un agente que parecía aprender y no ganaba, y terminamos con una política que limpia niveles que nunca había visto. Entre un punto y otro hay un libro entero de intuiciones, fórmulas, código y experimentos. Antes de cerrar, conviene detenerse y preguntar: ¿qué nos llevamos de verdad? ¿Cuál era la lección, más allá de los nombres de los algoritmos? Y, para quien quiera reproducirlo o seguir, ¿dónde está todo y bajo qué condiciones se puede volver a montar?</p>
+<figure><img src="assets/vis_arco_final.svg" alt="El viaje completo: del agente ciego (0%) al diagnóstico de los tres muros, la receta, los fundamentos, los cinco algorit"><figcaption>El viaje completo: del agente ciego (0%) al diagnóstico de los tres muros, la receta, los fundamentos, los cinco algoritmos, la medición honesta y PPO al 91% reproducible.</figcaption></figure>
+
+<figure><img src="assets/vis_lecciones_finales.svg" alt="Las cuatro lecciones para llevarse: medir en lo no visto, recompensa ≠ éxito, la formulación pesa más que el algoritmo, "><figcaption>Las cuatro lecciones para llevarse: medir en lo no visto, recompensa ≠ éxito, la formulación pesa más que el algoritmo, y a veces quitar (el shaping Φ) mejora.</figcaption></figure>
+
+
+<p>Este último capítulo no introduce nada nuevo. Es un cierre en cuatro partes. Primero, <b>lo que nos llevamos</b>: la síntesis del viaje y la tesis que lo recorre entero. Después, un <b>glosario</b> con los términos clave del libro, para tener a mano una definición breve de cada uno. Luego, <b>cómo está organizado el código</b>, para que cualquiera pueda reentrenar respetando el protocolo. Y por último, la <b>licencia</b>. Termina, como cada capítulo, con una pista para quien quiera ir más lejos.</p>
+
+<h3 class="sub">Lo que nos llevamos</h3>
+
+<p>El arco del libro es una sola historia contada con datos. Arrancamos con un agente <b>ciego</b>: veía solo seis valores cinemáticos (las posiciones y velocidades de la pala y la bola), jugaba sobre una rejilla fija de <span class="mono">4×7</span> ladrillos y disponía de un tiempo por partida <i>constante</i> de 600 pasos, daba igual cuántos ladrillos quedaran. Ese agente sacaba un <b>0 % de éxito</b> en niveles dispersos —los que tienen pocos ladrillos sueltos— y solo alcanzaba un <b>56 %</b> en la rejilla completamente llena. Y ese 56 % no era buena señal, sino una <i>supervivencia degenerada</i>: el agente no aprendía a limpiar el nivel, aprendía a mantener la bola en juego el máximo tiempo posible y a esperar que algún ladrillo cayera de rebote. Parecía aprender; no ganaba.</p>
+
+<p>Lo que vino después no fue cambiar de algoritmo, sino <b>reformular la tarea</b>. Cambiamos seis cosas a la vez, y todas apuntaban a lo mismo: dejar de pedirle al agente que sobreviviera y empezar a pedirle que <i>resolviera</i>. Le dimos un <b>reloj proporcional</b> (90 pasos por ladrillo, en vez de un tope fijo), de modo que un nivel con tres ladrillos no diera el mismo tiempo que uno con treinta. Le <b>quitamos el <i>shaping</i></b>, esa recompensa de ayuda <span class="mono">&Phi;</span> que premiaba acercar la pala a la bola y que, en la práctica, le enseñaba a perseguir la pelota en lugar de a ganar. Le dimos una <b>observación en matriz <span class="mono">8×10</span></b> —un mapa real de dónde está cada ladrillo— en lugar de seis números. Le pusimos un <b>encoder convolucional</b> para leer esa matriz como quien lee una imagen. <b>Escalamos la señal</b> de entrada para que la red no tuviera que pelear con magnitudes dispares. Y montamos un <b>currículo</b> con un <b>generador de niveles</b>, para que practicara con variedad y no se aprendiera de memoria un único tablero.</p>
+
+<p>El resultado de esa reformulación es el dato que da sentido a todo el libro: con la nueva tarea, <b>PPO alcanzó un 91 % de éxito en niveles que nunca había visto</b> —media de cinco semillas, evaluación <i>greedy</i> (siempre la acción más probable, sin azar), cero colapsos de entrenamiento y el 100 % de las semillas por encima del 80 %—, y lo logró con un presupuesto modesto de 1,5 millones de pasos. El mismo agente que sacaba 0 % en dispersos.</p>
+
+<div class="caja caja-juego"><div class="ch">Traducción al juego</div>
+<p>Imagina dos profesores con el mismo alumno. El primero le pone siempre el mismo examen, le da puntos por «estar cerca de la respuesta» y le concede el mismo tiempo tenga el examen tres preguntas o treinta. El alumno aprende a parecer aplicado: rellena hueco, sobrevive a la hora, saca un aprobado raspado en el examen lleno y un cero en cualquier otro. El segundo profesor cambia el examen cada vez, solo puntúa respuestas <i>correctas</i> y ajusta el tiempo al número de preguntas. Con ese segundo profesor —y exactamente el mismo alumno— las notas se disparan en exámenes nunca vistos. No cambió el alumno: cambió cómo se le planteaba la tarea.</p>
+</div>
+
+<p>De ahí sale la <b>tesis central</b> del libro, y conviene enunciarla sin rodeos: <b>el cuello de botella nunca fue el algoritmo, ni el cómputo, sino la formulación de la tarea</b>. Probamos cinco familias muy distintas —valor, política, máxima entropía, modelo del mundo y modelo con memoria— y ninguna resolvió el problema mientras la tarea estuvo mal planteada. En cuanto la replanteamos, varias empezaron a funcionar. Si la pieza que faltaba hubiera sido «el algoritmo correcto», una de esas familias habría brillado sola desde el principio. No ocurrió. Lo que movió la aguja fue qué veía el agente, cómo se le repartía la recompensa y cuánto tiempo se le daba por partida.</p>
+
+<p>El cuadro final, con todos los algoritmos sobre la formulación buena, ordena el estudio:</p>
+
+<table class="compare">
+<tr><th>Algoritmo</th><th>Éxito en niveles no vistos</th><th>Nota</th></tr>
+<tr><td><b>PPO</b></td><td><b>91 %</b> (a 1,5M)</td><td>El mejor y el más fiable: 0 colapsos, 100 % de semillas &gt;80 %</td></tr>
+<tr><td><b>SAC</b> (puro)</td><td>87 %</td><td>Muy estable, pero el más caro de entrenar</td></tr>
+<tr><td><b>DQN</b></td><td>77 % → 85 % (a 3M)</td><td>El cimiento; mejora con más presupuesto</td></tr>
+<tr><td><b>SAC</b> (híbrido)</td><td>61 %</td><td>La variante híbrida no compensó</td></tr>
+<tr><td><b>World Model</b></td><td>55 %</td><td>Techo por <i>model bias</i>: aprende a jugar a su maqueta, no al juego</td></tr>
+<tr><td><b>WM-RNN</b></td><td>35 %</td><td>La memoria añadió coste y exigió explorar más sin pagar en éxito</td></tr>
+</table>
+
+<p>Si hay que destilar el viaje en cuatro lecciones que sobreviven a este Arkanoid concreto, son estas:</p>
+
+<div class="defs">
+<dt>Medir en lo no visto</dt><dd>Un éxito alto en los niveles de entrenamiento no dice casi nada. La pregunta honesta es cómo se comporta el agente en niveles que <b>nunca vio</b>. Todo el salto del 0 % al 91 % solo significa algo porque el 91 % se midió fuera del entrenamiento. Generalizar, no memorizar.</dd>
+<dt>Recompensa ≠ éxito</dt><dd>Lo que el agente <i>optimiza</i> (la recompensa acumulada) y lo que nosotros <i>queremos</i> (limpiar el nivel) son cosas distintas. El agente ciego maximizaba supervivencia y nos engañaba con un 56 %. Si la recompensa premia lo que no es el objetivo, el agente aprenderá lo que no queríamos, con toda la diligencia del mundo.</dd>
+<dt>La forma de los datos importa</dt><dd>La <b>escala</b> de las entradas, el <b>reloj</b> proporcional y la <b>convolución</b> sobre la matriz <span class="mono">8×10</span> no son adornos: fueron parte decisiva del salto. Darle al agente una buena representación del problema pesa tanto como el método de aprendizaje.</dd>
+<dt>Quitar puede mejorar</dt><dd>Retirar el <i>shaping</i> <span class="mono">&Phi;</span> —una ayuda bienintencionada— <b>mejoró</b> el resultado, porque esa ayuda enseñaba la conducta equivocada. Menos ingeniería de recompensa, mejor objetivo. Y, sobre todo: <b>medir en vez de suponer</b>. Cada una de estas afirmaciones se sostiene en números de la tabla, no en intuiciones.</dd>
+</div>
+
+<div class="caja caja-limite"><div class="ch">Qué no demuestra</div>
+<p>Nada de esto demuestra que PPO sea «el mejor algoritmo» en abstracto, ni que el <i>shaping</i> sea siempre malo, ni que los modelos del mundo no sirvan. Demuestra algo más modesto y más útil: <b>sobre esta formulación concreta</b> del Arkanoid, con este protocolo de medida, este fue el orden que salió. Cambiar la tarea podría cambiar el ranking. La lección transferible no es un ganador, es un método: formula con cuidado, mide en lo no visto y no confundas la recompensa con el objetivo.</p>
+</div>
+
+<h3 class="sub">Glosario</h3>
+
+<p>Los términos que han ido apareciendo a lo largo del libro, con una definición breve. No sustituye a los capítulos —donde cada idea se desarrolla con ejemplos—, sino que sirve de recordatorio rápido.</p>
+
+<div class="defs">
+<dt>Agente</dt><dd>El que aprende y decide. En nuestro caso, la red neuronal que controla la pala.</dd>
+<dt>Entorno</dt><dd>El mundo con el que interactúa el agente: el juego del Arkanoid, que responde a las acciones y devuelve estados y recompensas.</dd>
+<dt>Estado</dt><dd>La situación completa del entorno en un instante (posiciones, velocidades, ladrillos presentes).</dd>
+<dt>Observación</dt><dd>Lo que el agente <i>ve</i> del estado. Puede ser todo el estado o solo una parte; aquí, la cinemática más la matriz <span class="mono">8×10</span>.</dd>
+<dt>Acción</dt><dd>Lo que el agente puede hacer. En el Arkanoid, tres: mover la pala a la izquierda, mantenerla o moverla a la derecha.</dd>
+<dt>Recompensa</dt><dd>La señal numérica que el entorno da tras cada acción. Lo que el agente intenta maximizar a la larga.</dd>
+<dt>Episodio</dt><dd>Una partida completa, desde el saque inicial hasta que se pierde la bola o se limpia el nivel.</dd>
+<dt>Política</dt><dd>La estrategia del agente: la función <span class="mono">&pi;(a|s)</span> que, dado un estado, indica qué acción tomar (o con qué probabilidad).</dd>
+<dt>Valor V</dt><dd><span class="mono">V(s)</span>: cuánta recompensa total se espera obtener a partir de un estado, siguiendo la política actual.</dd>
+<dt>Valor Q</dt><dd><span class="mono">Q(s,a)</span>: cuánta recompensa total se espera tras tomar la acción <span class="mono">a</span> en el estado <span class="mono">s</span> y seguir luego la política.</dd>
+<dt>Retorno</dt><dd>La suma de recompensas futuras de un episodio, normalmente con descuento. Es la cantidad que de verdad se quiere maximizar.</dd>
+<dt>Descuento &gamma;</dt><dd>Factor entre 0 y 1 que pondera el futuro: las recompensas lejanas valen menos que las inmediatas. Controla cuánto «mira a largo plazo» el agente.</dd>
+<dt>MDP</dt><dd>Proceso de decisión de Markov: el marco formal de estados, acciones, recompensas y transiciones donde el futuro depende solo del estado presente.</dd>
+<dt>POMDP</dt><dd>MDP <i>parcialmente observable</i>: el agente no ve el estado completo, solo una observación. Justifica añadir memoria.</dd>
+<dt>Bellman</dt><dd>La ecuación que relaciona el valor de un estado con el de los siguientes: el valor de hoy es la recompensa inmediata más el valor descontado de mañana. Cimiento de casi todo.</dd>
+<dt>TD-error</dt><dd>Error de diferencia temporal: la discrepancia entre lo que el agente <i>predijo</i> que valdría un estado y lo que <i>resultó</i> ser. La señal con la que se corrige.</dd>
+<dt>On-policy</dt><dd>Aprender solo de datos generados por la política actual (PPO). Las experiencias caducan en cuanto la política cambia.</dd>
+<dt>Off-policy</dt><dd>Aprender también de experiencia pasada, jugada por versiones anteriores (DQN, SAC). Permite reutilizar datos.</dd>
+<dt>Replay</dt><dd>Memoria de repetición: el almacén de transiciones pasadas que los métodos off-policy reutilizan para entrenar muchas veces.</dd>
+<dt>Red objetivo</dt><dd>Copia «congelada» de la red que se actualiza despacio, usada en DQN para dar estabilidad a las predicciones de valor.</dd>
+<dt>&epsilon;-greedy</dt><dd>Regla de exploración: con probabilidad <span class="mono">&epsilon;</span> se actúa al azar y, el resto del tiempo, se toma la mejor acción conocida.</dd>
+<dt>Entropía</dt><dd>Medida de cuán «repartida» está la política entre acciones. Premiarla fomenta explorar y no encasillarse demasiado pronto.</dd>
+<dt>Convolución</dt><dd>Operación que lee una matriz por zonas locales, como quien reconoce formas en una imagen. Lo que usa el encoder para leer la rejilla <span class="mono">8×10</span>.</dd>
+<dt>Shaping &Phi;</dt><dd>Recompensa de ayuda añadida a la del entorno para guiar el aprendizaje. En este libro, quitarla mejoró el resultado.</dd>
+<dt>Generalización / OOD</dt><dd>Capacidad de rendir en situaciones <i>fuera de distribución</i> (out-of-distribution): niveles no vistos en el entrenamiento. La prueba honesta de aprendizaje.</dd>
+<dt>GREEDY</dt><dd>Modo de evaluación sin azar: se elige siempre la acción más probable. Así se mide lo que el agente <i>de verdad</i> ha aprendido.</dd>
+<dt>Colapso</dt><dd>Desplome brusco del rendimiento durante el entrenamiento, del que a veces no se recupera. PPO tuvo cero.</dd>
+<dt>Protocolo congelado</dt><dd>El conjunto fijo de reglas de evaluación (semillas, presupuestos, niveles de test) que no se toca, para que las comparaciones sean justas.</dd>
+</div>
+
+<h3 class="sub">Cómo está organizado el código</h3>
+
+<p>Todo lo que se ha contado es reproducible. El código vive en el repositorio público <span class="mono">github.com/rcanalescoder/DRLArkanoid</span>, y los experimentos se rigen por un <b>protocolo congelado</b> cuya identidad se sella en un hash: <span class="mono">frozen_hash a1ab7ce18d7bad6b</span>. Ese hash es la garantía de que las comparaciones del libro se hicieron todas bajo las mismas reglas; cambiar las reglas cambiaría el hash.</p>
+
+<p>El protocolo fija las condiciones de medida. Cada configuración se entrena con <b>5 semillas</b> distintas —para no confundir un buen resultado con una inicialización afortunada— y bajo tres <b>presupuestos</b> de cómputo: <span class="mono">700k</span>, <span class="mono">1,5M</span> y <span class="mono">3M</span> de pasos. Los resultados de todas las ejecuciones se vuelcan a un único registro, <span class="mono">results/ledger.csv</span>, que recoge los <b>160 runs</b> del estudio. Cada fila es un experimento con su semilla, su presupuesto, su algoritmo y sus métricas; las tablas de los capítulos no son más que lecturas de ese fichero.</p>
+
+<p>El marco técnico es <span class="mono">torch 2.12.0</span> con <span class="mono">numpy 2.4.4</span> sobre <span class="mono">Python 3.13</span>, ejecutado en <b>MPS</b> —el backend de cómputo de Apple— sobre un <b>Apple M3 Ultra</b>. No hace falta ese hardware concreto para reproducir el estudio: cualquiera puede clonar el repositorio, instalar el entorno y <b>reentrenar respetando el protocolo</b>. Si se mantienen las semillas, los presupuestos y las reglas de evaluación selladas en el hash, los números deberían ser comparables con los del libro. Esa es justamente la idea de un protocolo congelado: que el resultado no dependa de quién, cuándo ni en qué máquina se ejecutó.</p>
+
+<div class="caja caja-curiosos"><div class="ch">Para curiosos</div>
+<p>¿Por qué tantos runs? Sale de multiplicar: varios algoritmos × 5 semillas × 3 presupuestos × las variantes de cada familia. Ese producto es lo que da las 160 ejecuciones del <span class="mono">ledger.csv</span>. La disciplina de registrarlo <i>todo</i> en un solo fichero, fila a fila, es lo que permite que una afirmación como «PPO hace 91 %» se pueda rastrear hasta las cinco filas concretas que la sostienen. Sin ese registro, los porcentajes del libro serían creíbles; con él, son verificables.</p>
+</div>
+
+<h3 class="sub">Licencia</h3>
+
+<p>Este proyecto —código y libro— se publica bajo licencia <b>MIT</b>: puede usarse, copiarse, modificarse y redistribuirse libremente, incluso con fines comerciales, conservando el aviso de copyright. Es la licencia más permisiva de uso común, elegida precisamente para que cualquiera pueda partir de aquí.</p>
+
+<p>Autor: <b>Roberto Canales Mora</b>, con Claude. Web del autor: <span class="mono">www.robertocanales.com</span>. Repositorio: <span class="mono">github.com/rcanalescoder/DRLArkanoid</span>.</p>
+
+<div class="takeaway"><div class="t">Quédate con esto</div><div class="bd">
+<p>El viaje fue de un agente <b>ciego</b> que sacaba <b>0 %</b> en niveles dispersos —y un engañoso 56 % de pura supervivencia en la rejilla llena— a un <b>PPO con 91 %</b> de éxito en niveles <b>nunca vistos</b>. Lo que desbloqueó ese salto no fue el algoritmo ni más cómputo, sino <b>reformular la tarea</b>: reloj proporcional, fuera el <i>shaping</i> <span class="mono">&Phi;</span>, observación <span class="mono">8×10</span>, encoder convolucional, escala y currículo. Cuatro lecciones perduran: <b>medir en lo no visto</b>, recordar que <b>recompensa ≠ éxito</b>, cuidar la <b>forma de los datos</b> (escala, reloj, convolución) y aceptar que a veces <b>quitar mejora</b> —y, sobre todo, <b>medir en vez de suponer</b>. Todo es reproducible: repositorio público, protocolo congelado <span class="mono">a1ab7ce18d7bad6b</span>, 5 semillas, 160 runs en <span class="mono">ledger.csv</span>, bajo licencia MIT.</p>
+</div></div>
+
+
+<figure><img src="assets/vis_glosario_mapa.svg" alt="El glosario como sistema, no como lista: los términos agrupados por familias (entorno, recompensa, valor/política, redes"><figcaption>El glosario como sistema, no como lista: los términos agrupados por familias (entorno, recompensa, valor/política, redes, algoritmos, medición).</figcaption></figure>
+
+<figure><img src="assets/vis_codigo_resultado.svg" alt="El ciclo reproducible cerrado: del repositorio al entorno, el entrenamiento, la evaluación, el ledger, las figuras y, fi"><figcaption>El ciclo reproducible cerrado: del repositorio al entorno, el entrenamiento, la evaluación, el ledger, las figuras y, finalmente, este libro.</figcaption></figure>
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>Si este libro despertó las ganas de seguir, estas son las lecturas que conviene tener a mano. El texto de referencia, base de casi todo lo que aquí se contó en versión intuitiva, es <b>Sutton &amp; Barto, <i>«Reinforcement Learning: An Introduction»</i></b> (2.ª ed., 2018): MDP, Bellman, TD, on/off-policy y gradiente de política, con rigor y claridad. Sobre la familia de valor, el artículo fundacional de Deep RL es <b>DQN</b> (Mnih et al., <i>Nature</i> 2015), que combinó <span class="mono">Q-learning</span>, replay y red objetivo; su corrección del sesgo optimista llegó con <b>Double DQN</b> (van Hasselt et al., 2016). Sobre la familia de política, los dos pilares de este estudio: <b>PPO</b> (Schulman et al., 2017) con su objetivo sustituto recortado, apoyado en la estimación de ventaja <b>GAE</b> (Schulman et al., 2016). En máxima entropía, <b>SAC</b> (Haarnoja et al., 2018) y su adaptación a acciones discretas, <b>SAC discreto</b> (Christodoulou, 2019), la que aquí se empleó. La raíz de los modelos del mundo está en <b>Dyna</b> (Sutton, 1991), que ya mezclaba experiencia real e imaginaria. Y, transversal a todo, un recordatorio metodológico imprescindible: <b>la evaluación estadística en Deep RL</b> (Agarwal et al., 2021, <i>«Deep RL at the Edge of the Statistical Precipice»</i>), que argumenta por qué reportar medias sobre pocas semillas engaña y propone alternativas robustas —exactamente el espíritu de las 5 semillas y el protocolo congelado de este trabajo. Como <b>direcciones abiertas</b>, lo que no se exploró y promete: <i>prioritized replay</i> (muestrear las transiciones más informativas), retornos <i>n-step</i> (interpolar entre TD y Monte Carlo), <i>distributional RL</i> (aprender la distribución del retorno, no solo su media) y mejores <i>world models</i> que recorten el <i>model bias</i> que aquí impuso el techo del 55 %. El mapa está dibujado; queda mucho terreno por andar.</p></div>

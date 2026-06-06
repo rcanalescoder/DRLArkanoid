@@ -523,3 +523,81 @@ SAC-pure = el ACTOR para conducta (muestreo) y eval (argmax); SAC-critic-hybrid 
   juegan muchísimas más partidas, así que el conteo absoluto engañaba — WM mostraba "✓14" pareciendo el
   mejor siendo el peor; ahora muestra 0/72). Captura regenerada con los modelos finales y PDF final
   regenerado (94 págs, 8,28 MB), verificado por render (pág 85, sección Jugar con la captura real).
+
+## Sesión (2026-06-06): report v3 — recuperar y SUPERAR la v2
+
+- DIAGNÓSTICO: la v3 había ido a peor. Solo Parte I (acababa en "Entrenar una red"); 8 imágenes (la
+  v2 tenía ~55); ortografía rota en 3 estilos a la vez (913 entidades HTML + secciones sin acentos:
+  "ano"→"año", "perdida"→"pérdida", "tambien", "asi"…); sin métricas de tiempo. Plan persistente en
+  docs/plan_mejoras_report_v3.md (3 ejes + doble pista de lectura).
+- DECISIONES (usuario): tiempo = solo coste-en-pasos (sin wall-clock, sin reentrenar); pipeline = "en
+  origen" (fuente de capítulos + assemble_v3.py; NUNCA editar report_v3.html a mano); libro completo
+  I+II; + bloques rojos "Y ahora, para expertos" en CADA tema (doble pista júnior/avanzado).
+- ORTOGRAFÍA — .claude/fix_orto.py (reproducible, idempotente): entidades→UTF-8 + lista blanca de
+  palabras sin homógrafo + interrogativos seguros (¿que→¿qué, por que→por qué) + reparación de nombres
+  de clase CSS (formula/limite van SIN tilde) + blindaje de rutas src/href (transicion.jpg no se
+  acentúa). Resultado: 3.124 vocales acentuadas + 156 ñ; 0 residuales.
+- MÉTRICAS — .claude/gen_metrics.py desde results/ledger.csv (100% datos reales; reproduce las cifras
+  oficiales del protocolo congelado): docs/assets/m_eficiencia.png (éxito vs budget 700k/1,5M/3M = el
+  eje coste/cómputo), m_ablacion.png (Δ por ingrediente: escala −76,5 · timeout −23,5 · conv −20,4 ·
+  sin_shaping +8,0), m_convergencia.png (success_rate_eval vs pasos, 6 modelos) + tabla maestra.
+- PARTE II — 11 capítulos nuevos (subagentes con la HOJA DE DATOS congelada, sin inventar cifras): DQN,
+  PPO, SAC, World Model, WM-RNN, los cinco cara a cara, qué dicen los datos, ablación, cómo se midió,
+  jugar, cierre+glosario+código. Cada uno con sus gráficas (gridcard/curvas/inspector/app) y su bloque
+  experto. Ficheros fuente .claude/p2_*.html.
+- DOBLE PISTA — 27 bloques rojos .experto (16 Parte I via .claude/pe_part1.html + insert_pe.py; 11
+  Parte II). CSS nuevo en assemble_v3.py; portada reescrita con acentos.
+- PARTE I — +5 diagramas conceptuales recuperados (dg_paradigmas, transicion, dg_valor, dg_entropia,
+  replay_conceptual) via insert_fig.py.
+- PARIDAD GRÁFICA con v2 (.claude/insert_fig2.py): añadidas las 11 imágenes de la v2 que faltaban
+  (app_intro_1/2, curvas_vacias, dg_dado, dg_estocastica, grid_dqn, v2/f2_curvas, v2/f4_dificultad,
+  v2/heat_dqn, v2/heat_ppo, v2/heat_colapso), cada una en su sección y antes de su bloque experto.
+  v3 ⊇ v2: 60 imágenes distintas (las 57 de v2 + 3 métricas nuevas); 0 imágenes de v2 sin incluir.
+- TAMAÑO IMÁGENES (PDF-safe): CSS en assemble_v3.py — `figure img` con `max-height:800px` (cabe en A4
+  útil ~1017px; con `break-inside:avoid` las figuras no desbordan página) y los rasters (jpg/png) NO se
+  amplían por encima de su tamaño nativo (heatmaps de 450px quedan nítidos y centrados). Las 3 `.figura`
+  de p2_cinco normalizadas a `<figure>`. Verificado en navegador: altura máx = 800px, 0 imágenes sobre
+  805px. Antes había retratos de 1116–1422px que habrían desbordado página en el PDF.
+- RESULTADO: docs/report_v3.html = 28 secciones (17 Parte I + 11 Parte II), 60 imágenes distintas /
+  63 refs <img> (de 8 iniciales), 27 bloques expertos, HTML balanceado (0 errores), todas existen y
+  cargan (verificado en navegador). Render verificado
+  (portada + CSS computado del bloque rojo). PIPELINE reproducible: build_chapters → fix_orto →
+  insert_pe → insert_fig2 → build_book → fix_orto → assemble_v3.
+- PDF v3 GENERADO: scripts/generarPDF.mjs ahora parametrizado (`node generarPDF.mjs [report] [salida]`,
+  v2 por defecto) y RANGOS extendidos de 200→400 (con 200 truncaba: el libro v3 tiene 203 págs y se
+  cortaba a mitad del capítulo de cierre). Comando:
+  `node scripts/generarPDF.mjs docs/report_v3.html docs/Arkanoid-DRL-Learning-Lab-v3.pdf`.
+  RESULTADO: docs/Arkanoid-DRL-Learning-Lab-v3.pdf = 203 págs, 10,35 MB (el v3 viejo eran 3,34 MB,
+  Parte I sola). Verificado con pypdfium2: portada con acentos OK, gráfica m_eficiencia y capturas se
+  ven, termina en glosario + licencia MIT + lecturas (Sutton) + web; 0 páginas en blanco al final;
+  imágenes capadas a 800px (ninguna desborda la página A4).
+
+## Sesión (2026-06-06): lote visual (integración de propuesta_visual.md de ChatGPT)
+
+- DIAGNÓSTICO de cobertura visual (medido mapeando figcaption→página del PDF): las 50 primeras págs
+  solo tenían 5 figuras en 4 págs; desiertos de 21 págs (diagnóstico tres muros) y 14 págs (sobrevivir).
+- INTEGRACIÓN: leída propuesta_visual.md (~70 visuales, naming V-parte-cap-num, 3 familias, P0/P1/P2,
+  paleta). Reconciliada con lo ya existente (≈30 ya estaban) → construidos los NUEVOS que llenan los
+  desiertos. NADA se quitó; solo se añadió.
+- GENERADORES NUEVOS (reproducibles): .claude/gen_visuals.py → 21 infografías SVG vectoriales
+  (vis_*.svg: niveles_lectura, leyenda_cajas, coreografia, roadmap, personajes, salto_0_91, bucle,
+  humano_agente, escalera, lleno_disperso, split_datos, tres_examenes, ciego_ojos, tres_muros, shaping,
+  receta, mdp_pomdp, v_q, dos_ramas, taxonomia, lecciones_finales). .claude/gen_visuals_data.py → 7
+  gráficas (m_trampa_56, m_reloj, m_epsilon_decay, m_recompensa_exito, m_descomp_recompensa, m_retorno,
+  m_semillas [datos reales del ledger]). Integración: .claude/insert_fig3.py (posición top/end por sección).
+- RESULTADO: report_v3.html = 88 imágenes distintas / 91 refs (de 60). Primeras 50 págs: figuras en 16
+  págs (antes 4). Peor desierto: 7 págs (antes 21); desiertos de 14 y 21 eliminados. HTML balanceado.
+- PDF regenerado: docs/Arkanoid-DRL-Learning-Lab-v3.pdf = 213 págs, ~11 MB; verificado por render que las
+  infografías nuevas (tres_muros pág45, escalera pág23, taxonomia pág167) salen nítidas (SVG=vector).
+- PENDIENTE (lote 2, P1/P2 de la propuesta): más diagramas de mecanismo en fundamentos (Bellman-puente,
+  TD-error, replay-libreta, Polyak), fichas por algoritmo en Parte III (PPO-prudencia, SAC-balanza,
+  Dyna real-vs-imaginado), pipeline experimental/sello protocolo en IV, y mapa de glosario/árbol repo en V.
+- LOTE 2 COMPLETADO (todo el documento): +22 esquemas SVG (.claude/gen_visuals2.py: transicion_atomo,
+  done_terminales, bellman_puente, td_error, dilema, replay_objetivo, conv_kernel, loss_gradiente, flujo_dqn,
+  ppo_prudencia, sac_balanza, sac_variantes, real_imaginado, wm_memoria, ficha_cinco, eleccion, protocolo_sello,
+  pipeline_exp, curvas_galeria, arco_final, glosario_mapa, codigo_resultado), integrados con insert_fig4.py en
+  fundamentos (2.x) y Parte III/IV/V. report_v3.html = 110 imágenes distintas / 113 refs (de 8 al inicio del proyecto).
+  TOPE DE TAMAÑO VERIFICADO en navegador: max-height 800px, altura máx renderizada = 800px, 0 imágenes por encima
+  → ninguna desborda la página A4. PDF: 222 págs, 13,4 MB, completo (termina en glosario/licencia/Sutton); lote 2
+  verificado por render (ficha_cinco pág180, bellman_puente pág93). Desiertos: peor racha 7 págs (era 21); las
+  primeras 50 págs tienen figura en 16 págs (eran 4). Quedan desiertos cortos (4-7 págs) en pasajes muy densos de texto.

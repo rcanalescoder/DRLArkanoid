@@ -13,8 +13,9 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const RAIZ = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const REPORT = resolve(RAIZ, "docs/report_v2.html");
-const OUT = resolve(RAIZ, "docs/Arkanoid-DRL-Learning-Lab-v2.pdf");
+// Acepta argumentos opcionales: node generarPDF.mjs [report.html] [salida.pdf] (por defecto, v2).
+const REPORT = resolve(RAIZ, process.argv[2] || "docs/report_v2.html");
+const OUT = resolve(RAIZ, process.argv[3] || "docs/Arkanoid-DRL-Learning-Lab-v2.pdf");
 const TMP = "/tmp/zoo_pdf";
 const DBG = 9222;
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -22,7 +23,7 @@ const PY = resolve(RAIZ, ".venv/bin/python");
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const RANGOS = [];
-for (let a = 1; a <= 200; a += 20) RANGOS.push(`${a}-${a + 19}`);
+for (let a = 1; a <= 400; a += 20) RANGOS.push(`${a}-${a + 19}`);  // se corta solo al exceder el total
 
 rmSync(TMP, { recursive: true, force: true });
 mkdirSync(TMP, { recursive: true });

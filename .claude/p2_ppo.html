@@ -1,0 +1,156 @@
+<p class="pregunta">¿Y si en lugar de aprender cuánto vale cada jugada, aprendiéramos directamente a jugar?</p>
+<figure><img src="assets/vis_ppo_prudencia.svg" alt="Por qué «proximal»: una actualización agresiva puede romper la política; PPO da pasos pequeños y recorta el cambio para "><figcaption>Por qué «proximal»: una actualización agresiva puede romper la política; PPO da pasos pequeños y recorta el cambio para mantener el ratio en la banda [0,8–1,2]. Prudencia que paga (el mejor resultado).</figcaption></figure>
+
+
+<p>Hasta ahora la familia de algoritmos que hemos visto razonaba de forma indirecta. Estimaba un número —el valor de cada acción en cada estado— y la conducta salía de ahí como un subproducto: «si esta acción vale más que las otras, la tomo». PPO da un giro distinto. No pregunta «¿cuánto vale moverse a la derecha?»; pregunta «¿con qué probabilidad debería moverme a la derecha?», y ajusta esa probabilidad directamente. Es la diferencia entre llevar una tabla de precios en la cabeza y, sencillamente, tener una intuición afinada de qué hacer en cada momento.</p>
+
+<p>Este capítulo importa porque PPO fue, en nuestros experimentos, <b>el algoritmo que mejor rindió y el más fiable</b>: 91 % de éxito en niveles de test con la misma distribución que el entrenamiento, cero colapsos y, además, el más eficiente en datos. Pero conviene decirlo desde el principio para no confundir el mérito: como veremos al final, lo que de verdad desbloqueó el problema no fue elegir PPO, sino haber <i>formulado</i> bien la tarea. PPO brilla porque el terreno ya estaba bien preparado.</p>
+
+<figure><img src="assets/gridcard_ppo.svg"/><figcaption>Ficha resumen de PPO: familia (por política), tipo de aprendizaje (on-policy), y sus piezas características —actor, crítico y el recorte— que iremos desgranando en este capítulo.</figcaption></figure>
+
+<h3 class="sub">Aprender la política, no el valor</h3>
+
+<p>Llamamos <span class="term">política</span> a la función que decide qué hace el agente. En su versión más útil no es una regla rígida sino una <i>distribución de probabilidad</i>: dado un estado <span class="mono">s</span>, devuelve con qué probabilidad tomar cada acción <span class="mono">a</span>. La escribimos así:</p>
+
+<div class="formula">π<sub>θ</sub>(a | s)</div>
+
+<div class="defs">
+<dt>π</dt><dd>la política: el «cerebro» que reparte probabilidad entre las acciones.</dd>
+<dt>θ</dt><dd>los parámetros (los pesos de la red neuronal) que definen esa política. Aprender es ajustar θ.</dd>
+<dt>a | s</dt><dd>la acción <span class="mono">a</span> condicionada al estado <span class="mono">s</span> en el que estamos.</dd>
+</div>
+
+<p>Un método <span class="term">por política</span> (en inglés, <i>policy-based</i>) modifica θ para que las acciones que han salido bien ganen probabilidad y las que han salido mal la pierdan. No hay ninguna tabla de valores intermedia que consultar: la decisión <i>es</i> la salida de la red. Frente al enfoque por valor, esto tiene dos ventajas que nos interesan. Primero, maneja con naturalidad la incertidumbre: una política puede decir «70 % izquierda, 30 % derecha» en una situación ambigua, en vez de comprometerse en seco. Segundo, el objetivo que optimiza está mucho más cerca de lo que de verdad queremos —jugar bien— que de un número auxiliar.</p>
+
+<div class="caja caja-formula"><div class="ch">Antes de la fórmula</div>
+<p>La idea de fondo del aprendizaje por política es el llamado <i>gradiente de política</i>: empuja los parámetros en la dirección que aumenta la probabilidad de las acciones que obtuvieron buenos resultados, en proporción a lo buenos que fueron. El problema clásico de esa receta es que da pasos descontrolados: una racha afortunada puede disparar una probabilidad hasta romper todo lo aprendido. PPO es, esencialmente, <b>ese gradiente de política con un freno de seguridad</b>. Ese freno es el «recorte» que da nombre al método (<i>Proximal</i> = próximo: no te alejes demasiado de donde estabas).</p>
+</div>
+
+<h3 class="sub">Actor y crítico: dos voces en la misma red</h3>
+
+<p>PPO es un método <span class="term">actor-crítico</span>. Conviven dos roles. El <b>actor</b> es la política: mira el estado y propone probabilidades de acción. El <b>crítico</b> estima un valor <span class="mono">V(s)</span>: «desde este estado, ¿qué cabe esperar de aquí al final?». El actor decide; el crítico le dice si lo que está pasando es mejor o peor de lo previsto, y esa comparación es justamente la señal que afina al actor. Sin crítico, el actor solo sabría el resultado final de la partida, una señal pobre y ruidosa; con crítico, recibe en cada paso una valoración de si va por buen camino.</p>
+
+<p>En nuestra implementación, ambas voces salen del <b>mismo tronco</b> de red. Recordemos la arquitectura de dos ramas que ya describimos: una rama convolucional (capas de 16 y 32 filtros) lee la matriz <span class="mono">8×10</span> de ladrillos, una rama densa procesa los 6 valores cinemáticos (posiciones y velocidades), ambas se concatenan y pasan por dos capas de <span class="mono">128</span> unidades con activación ReLU. La novedad de PPO está en la <b>salida</b>, que se bifurca:</p>
+
+<div class="caja caja-juego"><div class="ch">Traducción al juego</div>
+<p>La cabeza del actor produce <b>3 números</b> —una probabilidad para cada acción: mover la pala a la izquierda, quedarse quieta, mover a la derecha— que suman 1. La cabeza del crítico produce <b>1 número</b>: el valor estimado <span class="mono">V(s)</span> del estado actual. El mismo «cuerpo» de la red sirve a las dos cabezas, de modo que las características visuales aprendidas (dónde quedan ladrillos, por dónde va la bola) las comparten quien decide y quien evalúa.</p>
+</div>
+
+<h3 class="sub">On-policy: por qué PPO no recicla experiencias</h3>
+
+<p>Aquí aparece una diferencia de fondo con los métodos por valor. PPO es <span class="term">on-policy</span>: aprende <b>solo</b> de datos recogidos con la política actual. Cada vez que mejora θ, las experiencias viejas —generadas por una versión anterior del agente— quedan obsoletas y se descartan. No hay memoria de repetición (<i>replay buffer</i>) que vuelva a usar partidas antiguas una y otra vez.</p>
+
+<p>¿Por qué esta «austeridad»? Porque el recorte de PPO razona sobre <i>cuánto ha cambiado la política respecto a la que generó los datos</i>. Esa comparación solo tiene sentido si los datos son recientes. Reutilizar trayectorias muy viejas mediría un cambio enorme y carente de significado. La consecuencia práctica es un ciclo muy ordenado: <b>(1)</b> jugar un tramo con la política actual —el <i>rollout</i>—, <b>(2)</b> exprimir ese tramo con varias pasadas de aprendizaje, <b>(3)</b> tirar los datos y volver a jugar.</p>
+
+<div class="caja caja-error"><div class="ch">Error común</div>
+<p>Pensar que «on-policy» significa que PPO desperdicia datos y por eso debería ser menos eficiente. En la práctica ocurrió lo contrario: fue el algoritmo <b>más eficiente en datos</b> de los que probamos (ya alcanzaba 90 % de éxito con solo 700 000 pasos). La clave es que, dentro de cada rollout, PPO reaprovecha el mismo lote varias veces (4 épocas) antes de descartarlo. No es despilfarro; es exprimir bien lo fresco y no aferrarse a lo rancio.</p>
+</div>
+
+<h3 class="sub">El corazón de PPO: el ratio y el recorte</h3>
+
+<p>Toda la maquinaria gira en torno a una pregunta sencilla: <i>tras mirar lo que pasó, ¿cuánto debería cambiar la probabilidad de una acción?</i> PPO mide ese cambio con un cociente, el <span class="term">ratio de probabilidad</span>:</p>
+
+<div class="formula">r<sub>t</sub> = π<sub>θ</sub>(a<sub>t</sub> | s<sub>t</sub>) / π<sub>θ_old</sub>(a<sub>t</sub> | s<sub>t</sub>)</div>
+
+<div class="defs">
+<dt>π<sub>θ</sub></dt><dd>la política nueva, la que estamos ajustando ahora mismo.</dd>
+<dt>π<sub>θ_old</sub></dt><dd>la política con la que se jugó el rollout (la «vieja», congelada para este lote de datos).</dd>
+<dt>r<sub>t</sub></dt><dd>el ratio. Si vale 1, no ha cambiado nada; 1,2 significa que la acción es ahora un 20 % más probable; 0,8, un 20 % menos.</dd>
+</div>
+
+<p>Ese ratio se multiplica por la <span class="term">ventaja</span> <span class="mono">A<sub>t</sub></span>, que indica si la acción tomada salió mejor (<span class="mono">A&gt;0</span>) o peor (<span class="mono">A&lt;0</span>) de lo que el crítico esperaba. Si una acción tuvo ventaja positiva, queremos subir su probabilidad; si fue negativa, bajarla. Hasta aquí, gradiente de política clásico. El problema: nada impide que <span class="mono">r<sub>t</sub></span> se dispare y la política pegue un volantazo. La solución de PPO es <b>recortar el ratio</b> a una banda estrecha, en nuestro caso <span class="mono">[0,8 ; 1,2]</span> (es decir, ε = 0,2), y quedarse con el resultado más conservador.</p>
+
+<figure><img src="assets/dg_ppo_clip.svg"/><figcaption>El recorte de PPO. Mientras el ratio se mantiene dentro de la banda [0,8 ; 1,2] el aprendizaje fluye normal; en cuanto la política intenta alejarse demasiado de la versión que generó los datos, la función se aplana y deja de premiar ese movimiento. Es un tope, no un empujón.</figcaption></figure>
+
+<div class="caja caja-juego"><div class="ch">Traducción al juego</div>
+<p>Imagina que en cierto estado la pala estaba quieta justo cuando la bola venía hacia ese lado, y rebotó rompiendo varios ladrillos: la ventaja fue claramente positiva. El gradiente quiere subir mucho la probabilidad de «quedarse quieta» en estados parecidos. El recorte responde: «sube, pero como mucho hasta un 20 % más que antes». Así, una sola jugada afortunada no convierte al agente en un fanático de la quietud que ignora todo lo demás. Aprende sin sobrerreaccionar.</p>
+</div>
+
+<h3 class="sub">Mini-ejemplo: el recorte en tres números</h3>
+
+<p>Pongamos cifras concretas. Supongamos una acción con ventaja positiva <span class="mono">A = +1</span>.</p>
+
+<p><b>Caso moderado.</b> La política nueva quiere hacer la acción un 15 % más probable: <span class="mono">r = 1,15</span>. Está dentro de la banda <span class="mono">[0,8 ; 1,2]</span>. El objetivo vale <span class="mono">min(1,15·1 ; 1,2·1) = 1,15</span>. Se permite el cambio íntegro: el aprendizaje fluye.</p>
+
+<p><b>Caso exagerado.</b> La política nueva se entusiasma y quiere un <span class="mono">r = 1,8</span> (un 80 % más probable). Fuera de banda. El objetivo vale <span class="mono">min(1,8·1 ; 1,2·1) = 1,2</span>. El recorte ha mordido: por mucho que el ratio crezca, la recompensa al cambio se queda topada en 1,2, así que el gradiente deja de empujar en esa dirección. <b>La política no puede dar el volantazo.</b></p>
+
+<p>El efecto es el mismo, simétrico, para acciones con ventaja negativa: PPO permite bajar la probabilidad hasta cierto punto, pero no hundirla de golpe. En ambos casos la palabra clave es <i>proximal</i>: nos movemos, pero cerca de donde estábamos.</p>
+
+<div class="caja caja-curiosos"><div class="ch">Para curiosos</div>
+<p>¿De dónde sale la ventaja <span class="mono">A<sub>t</sub></span>? La calculamos con <span class="term">GAE</span> (<i>Generalized Advantage Estimation</i>) y un parámetro <span class="mono">λ = 0,95</span>. GAE mezcla las valoraciones del crítico a lo largo de varios pasos para estimar la ventaja con poco ruido sin dejar de ser bastante fiel a lo que pasó. Un λ alto (cercano a 1) da más peso a lo que realmente ocurrió a largo plazo; bajarlo confía más en la predicción del crítico paso a paso. 0,95 es un punto intermedio que funciona bien.</p>
+</div>
+
+<h3 class="sub">Cómo se ve esto en el código (idea, no listado)</h3>
+
+<p>No hace falta el código completo para captar la mecánica. Un paso de PPO encadena estas operaciones: se juega un rollout de <span class="mono">256</span> pasos por entorno y se guardan estados, acciones, recompensas y las probabilidades de la política vieja; se calculan las ventajas con GAE; y entonces, durante <b>4 épocas</b>, se recorre ese lote en <i>minibatches</i> de <span class="mono">1024</span> muestras calculando el ratio, aplicándole el recorte y dando un paso de descenso de gradiente. La pérdida total combina tres términos: el objetivo recortado del actor, el error del crítico al predecir el valor (con peso <span class="mono">0,5</span>) y un pequeño premio a la exploración (la entropía, con peso <span class="mono">0,01</span>). Tras las 4 épocas, se descartan los datos y vuelta a empezar.</p>
+
+<div class="caja caja-error"><div class="ch">Error común</div>
+<p>Confundir las <b>épocas</b> de PPO con reutilizar datos viejos. Las 4 épocas repasan <i>el mismo</i> rollout recién recogido, no rollouts de hace mil pasos. Sigue siendo on-policy: en cuanto la política se actualiza demasiado respecto a la que generó el lote, el recorte frena, y por eso no se hacen 40 épocas sino unas pocas.</p>
+</div>
+
+<h3 class="sub">Resultado: el mejor y el más fiable</h3>
+
+<p>Con el protocolo de evaluación congelado —5 semillas, evaluación <i>greedy</i> (sin azar, eligiendo siempre la acción más probable) y éxito medido en niveles <b>no vistos</b> durante el entrenamiento— PPO obtuvo los mejores números del estudio. La siguiente tabla recoge la media de las 5 semillas.</p>
+
+<table class="compare">
+<tr><th>Métrica (media de 5 semillas)</th><th>PPO</th></tr>
+<tr><td>Éxito en test con la misma distribución (TEST-ID)</td><td>91 %</td></tr>
+<tr><td>Éxito fuera de distribución, por patrón (OOD-patrón)</td><td>89 %</td></tr>
+<tr><td>Éxito fuera de distribución, por dificultad (OOD-dificultad)</td><td>86 %</td></tr>
+<tr><td>Colapsos de entrenamiento</td><td>0 %</td></tr>
+<tr><td>Semillas que superan el 80 % de éxito</td><td>100 %</td></tr>
+<tr><td>Pasos para limpiar un nivel</td><td>1923</td></tr>
+</table>
+
+<p>Dos cosas merecen subrayarse. La primera es la <b>fiabilidad</b>: cero colapsos y las 5 semillas por encima del 80 %. Esto no es un detalle estético. Significa que el resultado no depende de tener suerte con la inicialización: arranques el experimento las veces que lo arranques, sale bien. La segunda es la <b>eficiencia en datos</b>. Mirando solo TEST-ID por presupuesto de entrenamiento:</p>
+
+<table class="compare">
+<tr><th>Presupuesto de pasos</th><th>Éxito TEST-ID</th></tr>
+<tr><td>700 000</td><td>90 %</td></tr>
+<tr><td>1,5 millones</td><td>91 %</td></tr>
+<tr><td>3 millones</td><td>87 %</td></tr>
+</table>
+
+<p>PPO <b>ya aprende a 700k</b>: con la quinta parte del presupuesto mayor alcanza el 90 %. Fue el método más eficiente en datos del estudio.</p>
+
+<figure><img src="assets/curvas_ppo.jpg"/><figcaption>Curvas de entrenamiento de PPO. La métrica sube pronto y se estabiliza, sin los desplomes bruscos típicos de un colapso. La estabilidad de la curva es coherente con el dato de 0 % de colapsos y con que las 5 semillas terminaran por encima del 80 %.</figcaption></figure>
+
+<div class="caja caja-mirar"><div class="ch">Qué mirar</div>
+<p>En el inspector, fíjate en las <b>3 probabilidades</b> del actor en estados claros frente a estados ambiguos. Cuando la bola cae limpia hacia un lado, una acción debería dominar (probabilidad alta); en situaciones dudosas, las tres se reparten más. Esa modulación es la firma de una buena política: decidida cuando toca, prudente cuando no está claro.</p>
+</div>
+
+<figure><img src="assets/inspector_ppo.jpg"/><figcaption>Inspector de PPO: a la izquierda el estado (cinemática + matriz de ladrillos), a la derecha la distribución del actor sobre las 3 acciones y el valor estimado por el crítico. Permite ver, paso a paso, en qué se apoya cada decisión.</figcaption></figure>
+
+<h3 class="sub">Lectura crítica: qué demuestra y qué no</h3>
+
+<p>El 87 % a 3 millones de pasos, por debajo del 91 % a 1,5M, no es un error de medición: es una señal honesta de que <b>más entrenamiento no siempre es mejor</b>. Con un presupuesto grande, una política on-policy puede sobreajustarse a los niveles de entrenamiento y perder algo de generalización. El dato útil no es «PPO mejora indefinidamente», sino «PPO alcanza su mejor punto pronto».</p>
+
+<div class="caja caja-limite"><div class="ch">Qué no demuestra</div>
+<p>Que PPO sea «el mejor algoritmo» en abstracto. Demuestra que, <b>sobre esta formulación concreta del Arkanoid</b> (reloj interno, recompensa sin <i>shaping</i>, visión 8×10, escalado de entradas, ramas convolucionales, currículo y un test honesto con niveles no vistos), PPO fue el que mejor explotó ese terreno. Cambiar la formulación podría cambiar el ranking. Y todos los números son la media de 5 semillas con evaluación greedy: no confundas esta media con el resultado de una única ejecución afortunada, ni el éxito (limpiar el nivel) con la recompensa acumulada, que son cosas distintas.</p>
+</div>
+
+<div class="takeaway"><div class="t">Quédate con esto</div><div class="bd">
+<p>PPO aprende <b>la política directamente</b> (no el valor), es <b>actor-crítico</b> y <b>on-policy</b>, y su sello es el <b>recorte</b>: deja que la política se mueva pero solo a pasos pequeños, dentro de la banda [0,8 ; 1,2], para no romper lo aprendido. En el Arkanoid fue <b>el mejor y el más fiable</b> (91 % TEST-ID, 0 % de colapsos, 100 % de semillas &gt;80 %) y <b>el más eficiente en datos</b> (90 % ya a 700k). Pero lo que de verdad desbloqueó el problema fue <i>formular bien la tarea</i>, no escoger el algoritmo: PPO destacó porque el terreno estaba bien preparado.</p>
+</div></div>
+
+<figure><img src="assets/app_ppo.jpg"/><figcaption>PPO jugando en la aplicación. La pala intercepta con limpieza y el nivel se va vaciando; es el comportamiento esperable de la política con mejor éxito y mayor fiabilidad del estudio.</figcaption></figure>
+
+<div class="autocheck"><div class="ch">Autocomprobación</div>
+<ol>
+<li>¿Qué aprende exactamente PPO: el valor de cada acción o la probabilidad de tomarla? ¿Por qué se le llama método «por política»?</li>
+<li>Explica con tus palabras qué hace el recorte cuando el ratio vale 1,8 y la ventaja es positiva. ¿Por qué impide un «volantazo»?</li>
+<li>¿Por qué PPO no usa memoria de repetición? ¿Qué relación tiene eso con ser on-policy?</li>
+<li>El éxito a 3M (87 %) es menor que a 1,5M (91 %). ¿Significa esto que PPO empeora con más datos, o hay otra lectura?</li>
+<li>¿Por qué decimos que «el mérito no es del algoritmo»? ¿Qué hubiera hecho falta para que la frase fuera distinta?</li>
+</ol>
+</div>
+
+<div class="ejercicio"><div class="ch">Ejercicio</div>
+<p>Abre el inspector y registra, en 10 estados distintos, las 3 probabilidades del actor y el valor del crítico. Clasifica cada estado como «claro» o «ambiguo» según la posición de la bola respecto a la pala. ¿Se cumple que en los estados claros una acción domina y en los ambiguos la probabilidad se reparte más? Después, repite el mismo recorrido con la evaluación greedy y comprueba que la acción elegida coincide siempre con la de mayor probabilidad.</p>
+</div>
+
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>PPO optimiza un <b>objetivo sustituto recortado</b> en lugar del gradiente de política directo:</p>
+<div class="formula">L<sup>CLIP</sup> = E[ min( r<sub>t</sub>·A<sub>t</sub>, clip(r<sub>t</sub>, 1−ε, 1+ε)·A<sub>t</sub> ) ]</div>
+<p>con <span class="mono">r<sub>t</sub> = π<sub>θ</sub> / π<sub>θ_old</sub></span> y ε = 0,2 (banda [0,8 ; 1,2]). El <span class="mono">min</span> toma siempre la rama más pesimista, de modo que el recorte solo penaliza —nunca premia— alejarse de la política antigua: es un límite de confianza, no una zanahoria. La ventaja <span class="mono">A<sub>t</sub></span> se estima por <b>GAE(λ = 0,95)</b>, que interpola entre la estimación de un paso (sesgada, poco ruidosa) y Monte Carlo (insesgada, ruidosa). Al ser <b>on-policy</b>, el lote pierde validez en cuanto θ se aleja de θ_old, lo que justifica las pocas épocas. La pérdida total suma el término del actor, un término de valor con <b>coef. 0,5</b> (error cuadrático del crítico) y un <b>coef. de entropía</b> que regula la exploración: su efecto fue muy marcado en nuestros experimentos —bajarlo de 0,01 a 0,003 casi duplicó el rendimiento, porque con 0,01 la política se quedaba demasiado cerca de uniforme y nunca llegaba a comprometerse con una estrategia—. Hiperparámetros del protocolo: <b>rollout 256</b> pasos/entorno, <b>4 épocas</b>, <b>minibatch 1024</b>, <b>clip ε = 0,2</b>. La sample-efficiency observada (90 % a 700k, frente a la degradación hasta 87 % a 3M) sugiere que, con presupuestos altos, conviene vigilar el sobreajuste a los niveles de entrenamiento más que seguir entrenando: el óptimo de generalización llega antes que el de recompensa en entrenamiento.</p>
+</div>

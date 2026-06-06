@@ -1,0 +1,95 @@
+<!--PE:0.2-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>A partir de aquí, cada tema se cierra con un recuadro rojo como este. La idea es leer en doble pista: primero explicamos todo de forma pedagógica —la intuición, la escena, el mini-ejemplo— para que cualquiera siga el hilo; y luego, en este recuadro, repasamos exactamente lo mismo de forma comprimida y técnica, con el formalismo, las ecuaciones y los nombres propios que el lector avanzado espera encontrar.</p>
+<p>Si vienes de júnior, puedes saltarte estos recuadros sin perder nada esencial: el cuerpo del libro es autocontenible y la narración no depende de ellos. Y si vienes de experto, aquí tienes la versión densa —definiciones precisas, referencias y notación— sin tener que esperar a la prosa. Misma materia, dos profundidades; tú eliges a qué velocidad la recorres.</p></div>
+
+<!--PE:1.1-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>«Aprender por consecuencias» se formaliza como un <b>Proceso de Decisión de Markov</b> (MDP), la tupla <span class="mono">(S, A, P, R, γ)</span>: <span class="mono">S</span> es el espacio de estados, <span class="mono">A</span> el de acciones, <span class="mono">P(s'|s,a)</span> la dinámica de transición (probabilidad de pasar a <span class="mono">s'</span> tras ejecutar <span class="mono">a</span> en <span class="mono">s</span>), <span class="mono">R(s,a,s')</span> la función de recompensa y <span class="mono">γ∈[0,1)</span> el factor de descuento. El agente interactúa generando una trayectoria <span class="mono">τ = (s₀,a₀,r₀,s₁,…)</span>.</p>
+<p>Sobre esa trayectoria definimos el <b>retorno</b> descontado desde el instante <span class="mono">t</span>:</p>
+<div class="formula"><span class="mono">G_t = Σ_{k≥0} γ^k r_{t+k}</span></div>
+<p>y el objetivo del aprendizaje es hallar la política <span class="mono">π</span> que maximiza el retorno esperado a lo largo de las trayectorias que ella misma induce:</p>
+<div class="formula"><span class="mono">J(π) = E_{τ~π}[G₀]</span></div>
+<p>Toda la teoría posterior —valor, Bellman, exploración— se construye sobre esta única definición de éxito.</p></div>
+
+<!--PE:1.2-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>«Sobrevivir no es resolver» es, en términos formales, el problema de las <b>métricas proxy</b> y la <b>ley de Goodhart</b>: «cuando una medida se convierte en objetivo, deja de ser una buena medida». Premiar la supervivencia (recompensa por no perder la bola) define un proxy cuya optimización no implica resolver la tarea real, que es limpiar el nivel; el agente puede maximizar el proxy quedándose en bucles seguros que devuelven la bola eternamente sin romper ladrillos.</p>
+<p>Esto es una forma de <i>reward hacking</i>: la política explota la letra de la recompensa, no su espíritu. La consecuencia metodológica es separar la señal de aprendizaje de la métrica de logro: la recompensa puede ser un proxy denso y útil para guiar el gradiente, pero la métrica con la que <b>juzgamos</b> al agente debe ser el <b>éxito</b> (<i>success rate</i>, fracción de niveles completados), no la recompensa acumulada. Optimizar una cosa y evaluar por otra es justo lo que evita engañarnos.</p></div>
+
+<!--PE:1.3-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>«El examen de los niveles no vistos» es el protocolo estándar de <b>conjuntos disjuntos</b> de entrenamiento, validación y test: el agente aprende sobre <i>train</i>, ajustamos hiperparámetros mirando <i>validación</i> y solo medimos el resultado final sobre un <i>test</i> que el modelo nunca tocó. La diferencia entre rendimiento en entrenamiento y en test es la <b>brecha de generalización</b> (<i>generalization gap</i> = rendimiento en train − rendimiento en test); una brecha grande delata <b>sobreajuste</b> al conjunto concreto de niveles, es decir, memorización en lugar de comprensión.</p>
+<p>Los niveles de test son, por construcción, <b>fuera de la distribución</b> de entrenamiento (<i>OOD</i>, <i>out-of-distribution</i>): introducen <i>distribution shift</i> respecto a lo visto. Por eso el éxito en TEST es la magnitud honesta —mide si la política capturó la estructura subyacente del juego y la transfiere a configuraciones nuevas— mientras que un éxito alto solo en entrenamiento es compatible con haber memorizado trayectorias y no demuestra nada sobre generalización.</p></div>
+
+<!--PE:1.4-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>«El agente ciego» es, técnicamente, un <b>POMDP</b> (proceso de decisión de Markov parcialmente observable): la observación que recibe la política no contiene el estado completo del entorno. Cuando la matriz de ladrillos no figura en la observación, ninguna política <span class="mono">π(a|o)</span> definida sobre esa observación incompleta puede inferir lo que no se le da; el límite no es de cómputo sino de <b>información</b>.</p>
+<p>Esta distinción es clave: más entrenamiento, más capas o más pasos no crean información que estaba ausente en la entrada. El techo lo fija el contenido de la observación, no el optimizador. La cura no es entrenar más, sino rediseñar la observación para que el estado relevante (la disposición de los ladrillos, la velocidad de la bola) sea observable; solo entonces el problema vuelve a ser resoluble.</p></div>
+
+<!--PE:1.5-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>Los «tres muros» del diagnóstico ilustran que <b>la formulación domina al algoritmo</b>: un MDP mal planteado no lo arregla ningún optimizador. El primer muro es la <b>asignación de crédito</b> (<i>credit assignment</i>): un <i>timeout</i> demasiado corto trunca el horizonte efectivo del episodio antes de que llegue la recompensa terminal, de modo que esa señal de logro se vuelve literalmente inalcanzable y el agente nunca aprende a perseguirla.</p>
+<p>El segundo es el <i>reward shaping</i>. El teorema de <b>Ng, Harada y Russell (1999)</b> demuestra que un moldeado basado en potenciales,</p>
+<div class="formula"><span class="mono">F(s,s') = γΦ(s') − Φ(s)</span></div>
+<p>no altera la política óptima, sea cual sea <span class="mono">Φ</span>. Pero «no cambiar el óptimo» no significa «no hacer daño»: un <span class="mono">Φ</span> mal elegido sesga la dinámica de aprendizaje intermedia, ralentiza o desvía la optimización y puede inducir comportamientos espurios. Por eso, en la práctica, <b>quitar</b> un <i>shaping</i> mal calibrado mejoró el resultado.</p></div>
+
+<!--PE:1.6-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>«La receta que desbloquea» es una suma de <b>sesgos inductivos</b>, cada uno atacando un término distinto del problema. La <b>convolución</b> aporta <i>equivarianza a la traslación</i> y <i>weight sharing</i>: el mismo detector de patrones se aplica en toda la rejilla, lo que encaja con la estructura de la matriz <span class="mono">8×10</span> de ladrillos y reduce drásticamente los parámetros frente a tratar cada celda como independiente.</p>
+<p>La <b>escala de la señal</b> (recompensas y entradas) no es cosmética: interactúa con la normalización y el <b>condicionamiento del gradiente</b>, de modo que una escala mal puesta degrada la optimización aunque la formulación sea correcta. Y el <b>currículo</b> ordena la dificultad de menos a más, lo que mejora la <i>exploración efectiva</i> al garantizar que el agente encuentra recompensa en las fases tempranas y construye sobre ella. Ninguno sustituye a los demás: arquitectura, escala y currículo operan sobre ejes ortogonales del mismo problema.</p></div>
+
+<!--PE:1.7-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>«La primera conquista» exige <b>rigor estadístico</b>. Por la varianza inherente al RL —dependencia de la semilla, ruido de exploración, no estacionariedad—, reportamos la <b>media de 5 semillas</b> junto con su dispersión y el porcentaje de <i>colapsos</i> (runs que no convergen), nunca la mejor corrida. Una única ejecución brillante es ruido afortunado, no evidencia: con suficientes semillas, alguna parecerá excelente por azar.</p>
+<p>Antes de afirmar que un método supera a otro conviene mirar la <b>distribución completa</b> de resultados y apoyarse en estadísticos robustos —como la <b>mediana</b> y el rango intercuartílico— que no se dejan arrastrar por <i>outliers</i>. Comparar máximos entre métodos es uno de los errores metodológicos más comunes en la literatura de RL; comparar distribuciones es la práctica honesta.</p></div>
+
+<!--PE:2.1-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>El bucle agente-entorno es, formalmente, el muestreo de un MDP <span class="mono">(S,A,P,R,γ)</span>. En cada paso el agente observa <span class="mono">s_t</span>, elige <span class="mono">a_t</span>, y el entorno responde con un nuevo estado y una recompensa según</p>
+<div class="formula"><span class="mono">s_{t+1} ~ P(·|s_t,a_t),   r_t = R(s_t,a_t,s_{t+1})</span></div>
+<p>Iterar este proceso genera la trayectoria <span class="mono">τ = (s₀,a₀,r₀,s₁,…)</span> sobre la que se define el retorno <span class="mono">G_t = Σ_{k≥0} γ^k r_{t+k}</span>.</p>
+<p>El objetivo no es maximizar la recompensa <b>inmediata</b> <span class="mono">r_t</span> sino el <b>retorno esperado</b> <span class="mono">E[G_t]</span>: una acción puede tener recompensa instantánea baja y aun así ser óptima si conduce a estados de alto valor futuro. Esta diferencia entre lo inmediato y lo acumulado descontado es la esencia del control secuencial y lo que separa el RL de la optimización miope paso a paso.</p></div>
+
+<!--PE:2.2-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>Un <b>POMDP</b> se describe con la tupla <span class="mono">(S, A, O, T, Z, R, γ)</span>, donde <span class="mono">O</span> es el espacio de observaciones, <span class="mono">T</span> la dinámica de transición y <span class="mono">Z(o|s',a)</span> la <b>función de observación</b> (probabilidad de observar <span class="mono">o</span> tras llegar a <span class="mono">s'</span> con la acción <span class="mono">a</span>). Como la observación no determina el estado, el agente actúa sobre un <b>estado de creencia</b> (<i>belief</i>) <span class="mono">b(s)</span> —una distribución sobre estados que mantiene implícita o explícitamente— en lugar de sobre el estado real.</p>
+<p>La <b>propiedad de Markov</b> dice que el futuro depende solo del estado presente, no de la historia. Un único fotograma de Arkanoid la <b>rompe</b>: la imagen muestra dónde está la bola pero no su <b>velocidad</b>, así que dos estados físicos distintos producen la misma observación y la dinámica deja de ser markoviana sobre <span class="mono">O</span>. <b>Apilar</b> fotogramas consecutivos —o medir explícitamente la velocidad— restaura la información cinemática y devuelve la propiedad de Markov a la observación.</p></div>
+
+<!--PE:2.3-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>El factor de descuento <span class="mono">γ</span> gobierna el compromiso <b>sesgo/varianza</b> y define el <b>horizonte efectivo</b> del agente, aproximadamente</p>
+<div class="formula"><span class="mono">1/(1−γ)</span></div>
+<p>de modo que con <span class="mono">γ=0,99</span> el agente «mira» del orden de ~100 pasos hacia delante. Bajar <span class="mono">γ</span> acorta ese horizonte (más sesgo, menos varianza, visión más miope); subirlo lo alarga (menos sesgo pero estimaciones más ruidosas).</p>
+<p>Además, <span class="mono">γ<1</span> cumple una función matemática: garantiza que la serie del retorno <span class="mono">Σ γ^k r_{t+k}</span> <b>converge</b> aunque la trayectoria sea infinita, siempre que las recompensas estén acotadas. El descuento es, pues, doblemente útil: regula cuánto futuro importa y asegura que el objetivo está bien definido, manteniendo además controlada la varianza del estimador del retorno.</p></div>
+
+<!--PE:2.4-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>El valor de un estado se rige por las <b>ecuaciones de Bellman</b>. La de esperanza relaciona el valor de un estado con el de sus sucesores bajo una política; la de <b>optimalidad</b> caracteriza el valor óptimo <span class="mono">V*</span> y la función de acción-valor óptima <span class="mono">Q*</span> tomando el máximo sobre acciones. El <b>operador de Bellman</b> es una <b>contracción</b> en la norma del supremo con factor <span class="mono">γ</span>: por el <b>teorema del punto fijo de Banach</b>, posee un único punto fijo —precisamente <span class="mono">V*</span>— al que converge la iteración repetida, lo que fundamenta toda la programación dinámica y los métodos de valor.</p>
+<p>Cuando no conocemos la dinámica, el aprendizaje por <b>diferencias temporales</b> TD(0) actualiza el valor con muestras usando el <b>TD-error</b>:</p>
+<div class="formula"><span class="mono">δ = r + γV(s') − V(s)</span></div>
+<p>que mide la discrepancia entre la estimación actual y un blanco de un paso. Este <span class="mono">δ</span> es la señal de aprendizaje que reaparece, de una u otra forma, en casi todos los algoritmos modernos de RL.</p></div>
+
+<!--PE:2.5-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>El dilema exploración/explotación tiene formalizaciones precisas. La política <b>ε-greedy</b> explota la mejor acción con probabilidad <span class="mono">1−ε</span> y explora al azar con probabilidad <span class="mono">ε</span>; su calidad se mide por el <b>regret</b> (pérdida acumulada frente a la política óptima). Para garantizar convergencia al óptimo se exige la condición <b>GLIE</b> (<i>greedy in the limit with infinite exploration</i>): explorar infinitamente pero volverse cada vez más codicioso, de modo que <span class="mono">ε→0</span> sin dejar de visitar todo el espacio.</p>
+<p>Una alternativa es la <b>regularización por entropía</b>, que añade al objetivo el término</p>
+<div class="formula"><span class="mono">H(π) = −Σ_a π(a|s) log π(a|s)</span></div>
+<p>máximo cuando todas las acciones son equiprobables, lo que empuja a la política a no colapsar prematuramente. Otras estrategias clásicas son el <b>muestreo de Boltzmann/softmax</b> —probabilidad proporcional a <span class="mono">exp(Q/T)</span> con temperatura <span class="mono">T</span>— y <b>UCB</b>, que añade un bono de optimismo a las acciones poco probadas.</p></div>
+
+<!--PE:2.6-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>Combinar <b>aproximación de funciones + bootstrapping + aprendizaje off-policy</b> forma la <b>«tríada letal»</b> (Sutton y Barto): juntos pueden hacer divergir las estimaciones de valor. Dos mecanismos la domestican. El <b>replay buffer</b> almacena transiciones y las muestrea al azar, rompiendo la correlación temporal entre muestras consecutivas; el <b>prioritized replay</b> (Schaul et al., 2016) las muestrea con probabilidad <span class="mono">∝ p_i^α</span> según la magnitud de su TD-error, y corrige el sesgo introducido con pesos de <i>importance sampling</i>.</p>
+<p>El segundo mecanismo es la <b>red objetivo</b>: una copia retrasada de los parámetros que proporciona un blanco estable para el bootstrapping. Con <i>soft update</i> de Polyak,</p>
+<div class="formula"><span class="mono">θ⁻ ← τθ + (1−τ)θ⁻</span></div>
+<p>el blanco sigue a la red en línea muy despacio (<span class="mono">τ≪1</span>), evitando el bucle de retroalimentación en el que la red persigue un objetivo que ella misma desplaza. Juntos, replay y red objetivo convierten un esquema potencialmente divergente en uno estable.</p></div>
+
+<!--PE:2.7-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>El <b>sesgo inductivo</b> de la convolución descansa en tres pilares: <b>equivarianza a la traslación</b> (desplazar la entrada desplaza la salida de igual modo), <b>weight sharing</b> (un mismo filtro recorre toda la imagen) y <b>localidad</b> a través de un <i>campo receptivo</i> acotado que captura vecindades espaciales. Un MLP que recibe la matriz <b>aplanada a 80 números</b> destruye esa vecindad —dos celdas adyacentes en la rejilla quedan arbitrariamente lejos en el vector— y, además, multiplica el número de parámetros al conectar todo con todo.</p>
+<p>Esa diferencia no es teórica: en la ablación, el <b>encoder convolucional vale ~20 puntos de éxito</b> frente al MLP. La arquitectura final es de <b>dos ramas</b>: una rama convolucional procesa la disposición espacial de los ladrillos y una rama <b>cinemática</b> procesa las magnitudes continuas (posición y velocidad de la bola y la pala); sus representaciones se <b>concatenan</b> antes de la cabeza de decisión, combinando «dónde está cada cosa» con «cómo se mueve».</p></div>
+
+<!--PE:2.8-->
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>Entrenar la red es <b>descenso de gradiente estocástico</b> sobre minilotes, normalmente con <b>Adam</b>, que adapta el paso por parámetro a partir de estimaciones de los <b>momentos</b> primero y segundo del gradiente (media y varianza), lo que estabiliza y acelera la optimización. Los gradientes se obtienen por <b>backpropagation</b>, es decir, la regla de la cadena aplicada capa a capa hacia atrás.</p>
+<p>Hay, sin embargo, una diferencia esencial respecto al aprendizaje supervisado: en RL el <b>blanco no es estacionario</b> —se mueve con la red objetivo y con la propia política que cambia los datos que recoge—, de modo que la <b>pérdida no es un proxy fiable del rendimiento</b>: puede subir, bajar u oscilar sin que ello indique que el agente mejora o empeora. Lo que de verdad importa monitorizar es doble: que el entrenamiento <b>no diverja</b> y que el <b>éxito por episodio suba</b>. La curva de pérdida informa de la estabilidad numérica; la curva de éxito informa del aprendizaje real.</p></div>

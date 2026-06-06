@@ -1,0 +1,98 @@
+<p class="pregunta">Después de seis algoritmos, miles de partidas y un protocolo congelado, ¿qué dicen realmente los datos? ¿Quién gana, por cuánto, y —sobre todo— por qué?</p>
+
+<p>Este es el capítulo del veredicto, así que conviene fijar las reglas antes de mirar una sola cifra. No medimos <i>recompensa</i>: medimos <b>éxito</b>, entendido como el porcentaje de niveles que el agente <b>limpia por completo</b>. No lo medimos en los niveles con los que entrenó, sino en niveles <b>nunca vistos</b>. Lo medimos con la política en modo <span class="term">GREEDY</span> (sin exploración, la mejor jugada que el agente cree conocer en cada paso). Y no reportamos el mejor intento afortunado, sino la <b>media de cinco semillas</b> independientes. Cualquier número de este capítulo que no cumpla esas cuatro condiciones a la vez no es un resultado: es una anécdota.</p>
+
+<div class="caja-mirar"><div class="ch">Qué mirar</div>
+<p>Antes de leer la tabla, conviene saber qué columna pesa y cuál engaña. <b>TEST-ID</b> es el éxito sobre niveles con el patrón de disposición ya visto en entrenamiento, pero en configuraciones nuevas: mide si el agente aprendió a <i>jugar</i>. <b>OOD-patrón</b> usa disposiciones de ladrillos que el agente jamás vio: mide si generaliza la <i>forma</i>. <b>OOD-dificultad</b> sube la densidad de ladrillos a niveles fuera del rango de entrenamiento: mide si generaliza la <i>presión</i>. <b>% colapsos</b> es el porcentaje de semillas que se hunden por debajo del 10% de éxito (una sola semilla rota basta para delatar inestabilidad). <b>% semillas &gt;80</b> es cuántas de las cinco superan el 80%: distingue un algoritmo fiable de uno que «a veces sale bien». <b>Pasos para limpiar</b> es la eficiencia <i>en partida</i>: cuántos pasos tarda en vaciar un nivel cuando lo consigue.</p>
+<p>La trampa clásica es leer solo TEST-ID. Un número alto en la primera columna con colapsos en la cuarta es un agente que memoriza y se rompe, no uno que aprende.</p></div>
+
+<table class="compare">
+<tr><th>Algoritmo</th><th>TEST-ID</th><th>OOD-patrón</th><th>OOD-dificultad</th><th>% colapsos</th><th>% semillas &gt;80</th><th>Pasos para limpiar</th></tr>
+<tr><td style="font-weight:700;color:#2563eb">PPO</td><td>91</td><td>89</td><td>86</td><td>0%</td><td>100%</td><td>1923</td></tr>
+<tr><td style="font-weight:700;color:#0891b2">SAC-pure</td><td>87</td><td>84</td><td>68</td><td>0%</td><td>80%</td><td>2732</td></tr>
+<tr><td style="font-weight:700;color:#7c3aed">DQN</td><td>77</td><td>74</td><td>64</td><td>0%</td><td>80%</td><td>2125</td></tr>
+<tr><td style="font-weight:700;color:#db2777">SAC-híbrido</td><td>61</td><td>60</td><td>51</td><td>20%</td><td>40%</td><td>1716</td></tr>
+<tr><td style="font-weight:700;color:#059669">World Model</td><td>55</td><td>53</td><td>42</td><td>0%</td><td>0%</td><td>1977</td></tr>
+<tr><td style="font-weight:700;color:#b45309">WM-RNN</td><td>35</td><td>29</td><td>27</td><td>0%</td><td>0%</td><td>1370</td></tr>
+</table>
+
+<h3 class="sub">Lectura fila a fila</h3>
+
+<p><b><span class="mono" style="color:#2563eb">PPO</span></b> es el veredicto en una línea: <b>91%</b> de niveles no vistos limpiados a 1,5M de pasos, <b>0% de colapsos</b> y <b>100% de semillas por encima del 80%</b>. Las cinco semillas funcionan, y funcionan bien. Y lo más importante: la degradación al salir del dominio es mínima —de 91 a 89 en patrones nuevos, a 86 en dificultades nuevas—. Eso no es memorización: es una política que aprendió a jugar al Arkanoid, no a recitar diez niveles concretos.</p>
+
+<p><b><span class="mono" style="color:#0891b2">SAC-pure</span></b> queda segundo y honroso: <b>87</b> en TEST-ID, sin colapsos, 4 de 5 semillas por encima de 80. Pero la grieta aparece en la última columna OOD: cae a <b>68</b> en dificultad no vista. Generaliza bien la forma (84 en OOD-patrón) y peor la presión. Además paga su precio en <i>pasos para limpiar</i>: 2732, el más lento del cuadro. Resuelve, pero da más vueltas.</p>
+
+<p><b><span class="mono" style="color:#7c3aed">DQN</span></b> rinde un sólido <b>77</b> sin un solo colapso. Su virtud no está en esta tabla (capturada a 1,5M) sino en su <i>trayectoria</i>: es el único cuyo éxito crece de forma <b>monótona</b> con el presupuesto, y a 3M de pasos sube hasta el <b>85%</b>. Es el clásico fiable: lento, estable, sin sorpresas desagradables.</p>
+
+<p><b><span class="mono" style="color:#db2777">SAC-híbrido</span></b> es la advertencia del capítulo. Un <b>61</b> de media que esconde lo peor de todo: <b>20% de colapsos</b> y solo <b>40% de semillas por encima de 80</b>. Es un resultado <b>bimodal</b>: unas semillas vuelan y otras se estrellan. La media no describe a ningún agente real; describe el promedio entre triunfos y catástrofes. Curiosamente, es el más rápido en limpiar (1716 pasos) <i>cuando</i> lo consigue.</p>
+
+<p><b><span class="mono" style="color:#059669">World Model</span></b> y <b><span class="mono" style="color:#b45309">WM-RNN</span></b> cierran la tabla con <b>55</b> y <b>35</b>. Ninguna de sus semillas supera el 80% (<b>0%</b> en esa columna), y aunque no colapsan, su techo es bajo y su degradación OOD es pronunciada (World Model cae de 55 a 42; WM-RNN de 35 a 27). Modelar el mundo para luego planificar sobre el modelo es elegante, pero aquí el error del modelo se acumula y pone un tope al rendimiento.</p>
+
+<div class="takeaway"><div class="t">Quédate con esto</div><div class="bd">PPO no gana por poco: gana por mucho y, sobre todo, gana <b>fiable</b> —0% de colapsos, 100% de semillas por encima de 80% y una degradación de apenas 5 puntos al salir del dominio de entrenamiento—. El resto del cuadro ordena el resto: SAC-pure resuelve pero generaliza peor la dificultad, DQN es el lento-fiable que mejora con presupuesto, y SAC-híbrido es la lección de que una media decente puede esconder un 20% de catástrofes.</div></div>
+
+<h3 class="sub">La eficiencia muestral: el eje del coste</h3>
+
+<p>La tabla maestra es una foto a 1,5M de pasos. Pero un agente no solo se juzga por dónde llega, sino por <b>cuánto cómputo</b> necesita para llegar. Esa es la pregunta de la eficiencia muestral, y aquí el eje no es el rendimiento sino el <b>coste</b>: el éxito en TEST-ID frente a tres presupuestos —700k, 1,5M y 3M de pasos—.</p>
+
+<figure><img src="assets/m_eficiencia.png"/><figcaption>Eficiencia muestral: éxito en TEST-ID de los seis algoritmos frente al presupuesto de cómputo (700k / 1,5M / 3M de pasos). El eje horizontal es el coste; lo que importa es la <b>forma</b> de cada curva, no solo su altura final.</figcaption></figure>
+
+<p>Las trayectorias cuentan seis historias distintas:</p>
+
+<div class="formula">PPO: 90 → 91 → 87 &nbsp;&nbsp;|&nbsp;&nbsp; SAC-pure: 25 → 87 → 91 &nbsp;&nbsp;|&nbsp;&nbsp; DQN: 67 → 77 → 85</div>
+<div class="formula">SAC-híbrido: 4 → 61 → 88 &nbsp;&nbsp;|&nbsp;&nbsp; World Model: 33 → 55 → 56 &nbsp;&nbsp;|&nbsp;&nbsp; WM-RNN: 54 → 35 → 40</div>
+
+<p><b>PPO es el más eficiente, y con diferencia.</b> Ya con 700k pasos limpia el <b>90%</b>: prácticamente todo lo que va a saber lo sabe pronto. El presupuesto extra apenas mueve la aguja (91 a 1,5M, 87 a 3M). Si el cómputo es caro, PPO es la elección obvia.</p>
+
+<p><b>SAC-pure y SAC-híbrido tienen una dependencia brutal del presupuesto.</b> SAC-pure arranca en un pobre <b>25</b> a 700k y termina en <b>91</b> a 3M —alcanza a PPO, pero le cuesta el doble de cómputo llegar—. SAC-híbrido es el caso extremo: <b>4 → 61 → 88</b>. Empieza prácticamente sin saber jugar y necesita los 3M completos para volverse competitivo. Esa pendiente tan pronunciada es la otra cara de su inestabilidad: tarda en arrancar y, cuando arranca, no todas las semillas lo hacen igual.</p>
+
+<p><b>DQN es el único monótono limpio:</b> 67 → 77 → 85. Cada euro de cómputo compra rendimiento, sin retrocesos. Es la curva que un ingeniero quiere ver cuando no puede permitirse sorpresas.</p>
+
+<p><b>World Model choca contra un techo:</b> 33 → 55 → 56. Sube hasta 1,5M y luego se estanca: darle el doble de pasos (de 1,5M a 3M) le aporta un mísero punto. Ese plató es la firma del error de modelo acumulado. <b>WM-RNN es directamente no-monótono</b> (54 → 35 → 40): más cómputo no garantiza más éxito, una señal de inestabilidad en el aprendizaje del modelo recurrente.</p>
+
+<h3 class="sub">La velocidad de convergencia</h3>
+
+<figure><img src="assets/m_convergencia.png"/><figcaption>Velocidad de convergencia: éxito de evaluación frente a pasos de entrenamiento. Una curva que sube pronto y se aplana arriba (PPO) indica aprendizaje rápido y estable; curvas que despegan tarde (los SAC) o que oscilan (los World Model) delatan, respectivamente, alta dependencia del presupuesto e inestabilidad.</figcaption></figure>
+
+<p>La convergencia confirma desde otro ángulo lo que dijo la eficiencia: PPO no solo termina arriba, sino que <b>llega arriba antes</b> y se queda. Los SAC despegan tarde. Los World Model se aplanan en un techo bajo. La forma de la curva, más que su punto final, es lo que distingue a un algoritmo robusto de uno frágil.</p>
+
+<div class="caja-error"><div class="ch">Error común</div>
+<p>Confundir «converge rápido» con «converge alto», o al revés. SAC-pure converge <b>lento</b> pero <b>alto</b> (acaba en 91). WM-RNN converge <b>rápido</b> a 700k pero a un techo <b>bajo</b> y encima retrocede después. Son dos ejes independientes: la velocidad de aprendizaje y el rendimiento asintótico. Un buen algoritmo gana en ambos; la mayoría hace un trade-off.</p></div>
+
+<div class="caja-error"><div class="ch">Qué no demuestra</div>
+<p>Nada de este capítulo se apoya en las cifras de <b>recompensa</b> que muestra el laboratorio web. La recompensa es el <i>instrumento</i> con el que entrenamos —una señal interna que el agente intenta maximizar—, no el <i>logro</i>. Un agente puede acumular recompensa altísima explotando un atajo del shaping y aun así limpiar pocos niveles nuevos. Por eso el veredicto se mide en una sola moneda: <b>éxito sobre niveles no vistos, en GREEDY, promediado sobre 5 semillas</b>. Si alguien te enseña una recompensa espectacular como prueba de que «el agente aprendió», pídele la columna de éxito OOD. Ahí se cae casi todo.</p></div>
+
+<figure><img src="assets/comparativa_dashboard.jpg"/><figcaption>Panel comparativo del laboratorio web. Útil para inspeccionar el comportamiento de cada agente en vivo, pero recuerda: las curvas de recompensa que aquí aparecen son el instrumento de entrenamiento, no el veredicto. El veredicto está en la tabla maestra de arriba.</figcaption></figure>
+
+<h3 class="sub">La tesis: el cuello de botella nunca fue el algoritmo</h3>
+
+<p>Si se ordenan los seis algoritmos por éxito, es tentador concluir «PPO es mejor que SAC, que es mejor que los World Model». Sería una lectura pobre y, peor, falsa en su moraleja. La verdadera enseñanza del experimento es otra, y va a contracorriente de la intuición.</p>
+
+<p><b>El cuello de botella nunca fue el tiempo de entrenamiento ni la elección del algoritmo. Fue la FORMULACIÓN del problema.</b></p>
+
+<p>Cada gran salto de rendimiento de este laboratorio no vino de cambiar de optimizador ni de regalar más pasos de cómputo, sino de arreglar <i>cómo estaba planteada la tarea</i>: el <b>reloj proporcional</b> (que el tiempo límite escale con el tamaño del nivel), la <b>meta sin shaping Φ</b> mal puesto (recompensar el objetivo real, no proxies que el agente puede reventar), la <b>observación 8×10</b> (darle al agente una vista del tablero que contenga la información necesaria), la <b>escala de la señal</b> (que las recompensas vivan en un rango que el aprendizaje pueda digerir), el <b>encoder convolucional</b> (procesar la rejilla con la arquitectura adecuada a su estructura espacial), el <b>currículo</b> (ordenar la dificultad de menos a más) y, transversal a todo, la <b>evaluación honesta</b> (medir en niveles no vistos, en GREEDY, con varias semillas).</p>
+
+<div class="caja-juego"><div class="ch">Traducción al juego</div>
+<p>Imagina enseñar a un amigo a jugar al Arkanoid. Puedes elegir al «alumno más listo» (el mejor algoritmo) y darle «más horas de práctica» (más cómputo). Pero si le tapas media pantalla (observación pobre), le pones un cronómetro que no escala con el tamaño del nivel (reloj fijo), y le premias por mover la pala en vez de por romper ladrillos (shaping mal puesto)… ni el alumno más brillante con horas infinitas aprenderá a jugar bien. Y al revés: con la pantalla entera, un reloj justo y un premio claro, hasta un alumno modesto (DQN) aprende decentemente. Eso es exactamente lo que cuentan estos datos.</p></div>
+
+<p>Los World Model que vemos en el fondo de la tabla no «fracasaron por ser World Model». Rindieron lo que su formulación les permitió. Y PPO no «ganó por ser PPO»: ganó porque, sobre una formulación bien construida, es el algoritmo que mejor aprovecha esa buena formulación con menos cómputo. Cambia el orden de las causas y entenderás mal todo el experimento.</p>
+
+<div class="caja-limite"><div class="ch">Qué no demuestra</div>
+<p>Que PPO sea «el mejor algoritmo de RL» en abstracto. Demuestra que, <b>en esta tarea, con esta formulación, este presupuesto y esta evaluación honesta</b>, PPO es la elección más eficiente y fiable. En otra tarea —con horizonte largo, recompensas muy dispersas o necesidad de planificación explícita— un World Model bien formulado podría darle la vuelta a la tabla. La lección portable no es «usa PPO»: es <b>«arregla la formulación antes de culpar al algoritmo»</b>.</p></div>
+
+<div class="takeaway"><div class="t">Quédate con esto</div><div class="bd">El veredicto tiene dos capas. En la superficie: PPO limpia el 91% de niveles no vistos a 1,5M, sin colapsos y con todas sus semillas por encima del 80%, siendo además el más eficiente en cómputo. En el fondo, y más importante: el ranking de algoritmos es secundario frente a la tesis central —el cuello de botella fue siempre la <b>formulación del problema</b> (reloj, meta, observación, escala, encoder, currículo y evaluación honesta), no el algoritmo ni los pasos de entrenamiento—. Arregla la pregunta y casi cualquier algoritmo responde; deja la pregunta rota y ninguno lo hará.</div></div>
+
+<div class="autocheck"><div class="ch">Autocomprobación</div>
+<ol>
+<li>El éxito que reporta este capítulo, ¿se mide sobre los niveles de entrenamiento o sobre niveles no vistos? ¿Y con qué política y cuántas semillas?</li>
+<li>SAC-híbrido tiene un 61% de éxito medio pero un 20% de colapsos y solo el 40% de semillas por encima de 80. ¿Por qué decimos que su media «no describe a ningún agente real»?</li>
+<li>PPO hace 90 → 91 → 87 al aumentar el presupuesto; SAC-híbrido hace 4 → 61 → 88. ¿Qué dice cada trayectoria sobre la dependencia del cómputo de cada algoritmo?</li>
+<li>Un compañero presume de una recompensa altísima en el laboratorio web. ¿Qué columna le pedirías para saber si su agente de verdad aprendió a jugar?</li>
+<li>Enuncia con tus palabras la tesis central del capítulo. ¿Por qué «PPO es mejor que SAC» es una lectura insuficiente de los datos?</li>
+</ol></div>
+
+
+<figure><img src="assets/v2/f2_curvas.png" alt="Curvas de aprendizaje reales: éxito en validación frente a pasos de entorno, con banda mín–máx sobre las 5 semillas (pre"><figcaption>Curvas de aprendizaje reales: <b>éxito en validación</b> frente a pasos de entorno, con banda mín–máx sobre las 5 semillas (presupuesto 1,5 M). PPO (morado) despega antes y se mantiene arriba; los <i>model-based</i> (WM, WM-RNN) se quedan atrás. Una banda ancha = semillas dispares, es decir, más riesgo.</figcaption></figure>
+
+<figure><img src="assets/v2/f4_dificultad.png" alt="Éxito desglosado por dificultad del nivel (número de ladrillos), en TEST-ID a 1,5 M. Todos rinden peor cuanto más lleno "><figcaption>Éxito desglosado por <b>dificultad del nivel</b> (número de ladrillos), en TEST-ID a 1,5 M. Todos rinden peor cuanto más lleno está el nivel, pero el orden se mantiene: PPO aguanta mejor; WM-RNN se desploma. Generalizar a niveles más densos es lo más difícil.</figcaption></figure>
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>El rigor de estas cifras no está en los números, sino en el <b>protocolo</b> que los produjo. Cada celda es la <b>media de 5 semillas</b> [0..4], no el mejor run; y junto a la media vigilamos la <b>dispersión</b> y los <b>colapsos</b> (de ahí las columnas «% colapsos» y «% semillas &gt;80», que delatan la bimodalidad de SAC-híbrido que una media aislada ocultaría). Aun así, reportar la media es el eslabón débil: en regímenes de pocas semillas la media es sensible a las colas y a los outliers. Agarwal et al. (2021), en «Deep Reinforcement Learning at the Edge of the Statistical Precipice», muestran que conviene reportar la <b>mediana intercuartílica (IQM)</b> —robusta a colapsos y a runs afortunados— acompañada de <b>intervalos de confianza por bootstrap estratificado</b>, en lugar de la media puntual; con 5 semillas, una media sin barras de error es estadísticamente frágil. La segunda mitad del rigor es el <b>protocolo congelado</b>: <span class="mono">frozen_hash = a1ab7ce18d7bad6b</span> sella el entorno completo (torch 2.12.0 + numpy 2.4.4 + Python 3.13 sobre MPS en Apple M3 Ultra), los presupuestos (700k/1,5M/3M), los conjuntos <b>disjuntos</b> de train/validación/test y la evaluación GREEDY. Ese sellado no es burocracia: es el antídoto contra los <i>researcher degrees of freedom</i> —la libertad de ir ajustando hiperparámetros, criterios de parada o conjuntos de evaluación hasta que el número favorito sale bonito— y contra el <b>p-hacking</b> implícito de elegir <i>a posteriori</i> qué reportar. Congelar el protocolo <i>antes</i> de mirar los resultados (y no volver a re-congelarlo nunca) convierte un experimento en una prueba, no en una narración.</p></div>

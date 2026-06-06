@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 540" role="img" aria-labelledby="title desc">
+  <title id="title">Cuatro capas de lectura sobre la misma pagina</title>
+  <desc id="desc">Diagrama pedagogico que muestra una pagina con cuatro capas: intuicion, tecnica, codigo y reproducibilidad. A la derecha, tres rutas de lectura segun el objetivo del lector.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}
+      .ink{fill:#111827}
+      .muted{fill:#64748b}
+      .line{stroke:#dbe2ea}
+      .tiny{font:500 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:600 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 18px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .title{font:800 26px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .mono{font:700 14px "SFMono-Regular",Menlo,Consolas,monospace}
+      .pill{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.4px}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1100" height="540"/>
+  <text class="title ink" x="42" y="54">Cuatro capas sobre la misma pagina</text>
+  <text class="body muted" x="42" y="82">La intuicion mantiene el hilo; las demas capas anaden precision, construccion y evidencia.</text>
+
+  <line x1="70" y1="430" x2="70" y2="134" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <text class="pill muted" x="54" y="466" transform="rotate(-90 54 466)">MAS PROFUNDIDAD</text>
+
+  <rect x="104" y="118" width="640" height="324" rx="22" fill="#f8fafc" stroke="#dbe2ea" stroke-width="1.4" class="shadow"/>
+  <rect x="126" y="139" width="596" height="62" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+  <rect x="126" y="214" width="596" height="62" rx="14" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/>
+  <rect x="126" y="289" width="596" height="62" rx="14" fill="#ecfeff" stroke="#0891b2" stroke-width="1.5"/>
+  <rect x="126" y="364" width="596" height="62" rx="14" fill="#ecfdf5" stroke="#0f9f6e" stroke-width="1.5"/>
+
+  <circle cx="159" cy="170" r="18" fill="#2563eb"/>
+  <text class="small" x="159" y="176" text-anchor="middle" fill="#fff">1</text>
+  <text class="label" x="190" y="163" fill="#2563eb">Intuicion</text>
+  <text class="tiny ink" x="190" y="184">pregunta, escena de Arkanoid, idea en palabras</text>
+  <rect x="586" y="152" width="112" height="26" rx="13" fill="#dbeafe"/>
+  <text class="pill" x="642" y="170" text-anchor="middle" fill="#1d4ed8">AUTOSUFICIENTE</text>
+  <rect x="474" y="157" width="20" height="13" rx="3" fill="#60a5fa"/>
+  <rect x="499" y="157" width="20" height="13" rx="3" fill="#60a5fa"/>
+  <rect x="524" y="157" width="20" height="13" rx="3" fill="#60a5fa"/>
+  <circle cx="512" cy="184" r="6" fill="#1d4ed8"/>
+  <rect x="490" y="191" width="55" height="7" rx="3.5" fill="#1d4ed8"/>
+
+  <circle cx="159" cy="245" r="18" fill="#7c3aed"/>
+  <text class="small" x="159" y="251" text-anchor="middle" fill="#fff">2</text>
+  <text class="label" x="190" y="238" fill="#7c3aed">Tecnica</text>
+  <text class="tiny ink" x="190" y="259">definiciones, variables, formulas y tablas</text>
+  <text class="mono" x="584" y="249" fill="#6d28d9">Q(s,a) = r + gamma max Q</text>
+
+  <circle cx="159" cy="320" r="18" fill="#0891b2"/>
+  <text class="small" x="159" y="326" text-anchor="middle" fill="#fff">3</text>
+  <text class="label" x="190" y="313" fill="#0891b2">Codigo</text>
+  <text class="tiny ink" x="190" y="334">pseudocodigo, red, buffers y bucle de entrenamiento</text>
+  <rect x="574" y="304" width="124" height="32" rx="8" fill="#cffafe" stroke="#67e8f9"/>
+  <text class="mono" x="590" y="325" fill="#0e7490">for step in env</text>
+
+  <circle cx="159" cy="395" r="18" fill="#0f9f6e"/>
+  <text class="small" x="159" y="401" text-anchor="middle" fill="#fff">4</text>
+  <text class="label" x="190" y="388" fill="#0f9f6e">Reproducibilidad</text>
+  <text class="tiny ink" x="190" y="409">5 semillas, splits disjuntos, ledger.csv y frozen_hash</text>
+  <rect x="560" y="379" width="138" height="32" rx="8" fill="#d1fae5" stroke="#86efac"/>
+  <text class="mono" x="581" y="400" fill="#047857">a1ab7ce18d...</text>
+
+  <text class="small muted" x="330" y="462">mismo texto, distinta profundidad</text>
+
+  <rect x="788" y="118" width="270" height="324" rx="22" fill="#ffffff" stroke="#dbe2ea" stroke-width="1.4" class="shadow"/>
+  <text class="label ink" x="816" y="154">Elige hasta donde bajar</text>
+  <text class="tiny muted" x="816" y="178">No es una escalera obligatoria:</text>
+  <text class="tiny muted" x="816" y="196">es un control de zoom.</text>
+
+  <rect x="816" y="222" width="214" height="50" rx="12" fill="#eff6ff" stroke="#bfdbfe"/>
+  <rect x="832" y="236" width="12" height="22" rx="6" fill="#2563eb"/>
+  <text class="small ink" x="858" y="242">Primera lectura</text>
+  <text class="tiny muted" x="858" y="260">lee solo la capa 1</text>
+
+  <rect x="816" y="287" width="214" height="50" rx="12" fill="#ecfeff" stroke="#bae6fd"/>
+  <rect x="832" y="301" width="12" height="22" rx="6" fill="#0891b2"/>
+  <text class="small ink" x="858" y="307">Construir algo</text>
+  <text class="tiny muted" x="858" y="325">baja hasta codigo</text>
+
+  <rect x="816" y="352" width="214" height="50" rx="12" fill="#ecfdf5" stroke="#bbf7d0"/>
+  <rect x="832" y="366" width="12" height="22" rx="6" fill="#0f9f6e"/>
+  <text class="small ink" x="858" y="372">Auditar cifras</text>
+  <text class="tiny muted" x="858" y="390">baja hasta evidencia</text>
+
+  <rect x="42" y="488" width="1016" height="32" rx="16" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text class="tiny muted" x="550" y="509" text-anchor="middle">Regla practica: si la capa superior ya responde tu pregunta, puedes seguir avanzando sin culpa.</text>
+</svg>

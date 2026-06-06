@@ -1,0 +1,123 @@
+<p class="pregunta">¿Y si pudieras asomarte a un agente mientras aprende a jugar, ver subir su recompensa en directo y abrir su «cerebro» para mirar en qué se fija?</p>
+<figure><img src="assets/vis_curvas_galeria.svg" alt="Cómo mirar las curvas en vivo con criterio: una sana sube y se estabiliza; un colapso sube y se desploma; el ruido oscil"><figcaption>Cómo mirar las curvas en vivo con criterio: una sana sube y se estabiliza; un colapso sube y se desploma; el ruido oscila; una plana es estancamiento.</figcaption></figure>
+
+
+<p>Los capítulos anteriores te han dado el mapa: los cinco algoritmos, lo que cada uno aprende, sus piezas internas y los números del protocolo congelado. Este capítulo es distinto. No vamos a demostrar nada ni a defender un ranking. Vamos a <b>invitarte a tocar</b>. El laboratorio web es una página que corre <i>en tu navegador</i> y deja que entrenes, en vivo, cualquiera de los cinco algoritmos sobre el mismo Arkanoid del libro: <span class="term">DQN</span>, <span class="term">PPO</span>, <span class="term">SAC</span>, <span class="term">World Model</span> y <span class="term">World Model RNN</span>. Verás la pala moverse, los ladrillos caer, la curva de recompensa abrirse paso y —si te animas— podrás inspeccionar la red y lanzar una búsqueda de hiperparámetros mientras todo sucede.</p>
+
+<p>La idea es sencilla y vale la pena decirla antes de nada: <b>leer sobre aprendizaje por refuerzo y verlo ocurrir son dos cosas muy distintas</b>. El laboratorio existe para la segunda. Para que la intuición que has ido construyendo —ventaja, exploración, valor, política— deje de ser una palabra en una página y se convierta en algo que <i>reconoces a simple vista</i> cuando lo ves moverse.</p>
+
+<figure><img src="assets/v2/app_jugar.png"/><figcaption>Vista general del laboratorio jugando: a un lado el tablero del Arkanoid con la partida observada, al otro los controles, el selector de algoritmo y las curvas. Todo ocurre en el navegador, sin instalar nada.</figcaption></figure>
+
+<h3 class="sub">Qué es (y qué no es) el laboratorio</h3>
+
+<p>El laboratorio es una web interactiva. No es un vídeo grabado ni una simulación de adorno: dentro del navegador hay un bucle de entrenamiento real que recoge experiencia, actualiza una red neuronal y mejora —o no— una política, igual que haría un entrenamiento «de verdad», solo que a una escala que cabe en una pestaña. Puedes arrancarlo, pararlo, cambiar de algoritmo y observar cómo evoluciona el comportamiento sin tocar una línea de código.</p>
+
+<div class="caja caja-juego"><div class="ch">Traducción al juego</div>
+<p>Piensa en el laboratorio como en un acuario con cristales transparentes. Dentro, un agente aprende a jugar al Arkanoid; fuera, tú miras desde todos los ángulos: cómo se mueve la pala, qué probabilidad da a cada acción, cómo sube su recompensa partida tras partida. El agente no sabe que lo observas; tú lo ves todo. Ese es el valor del laboratorio: hacer <i>visible</i> un proceso que normalmente vive escondido en logs y ficheros.</p>
+</div>
+
+<p>Conviene fijar desde ya la frontera, porque es la advertencia honesta que recorre todo el libro. Lo que el laboratorio te muestra —sobre todo la recompensa que ves crecer en directo— es estupendo para la <b>intuición</b>, pero <b>no es el veredicto</b>. El logro de un agente no se mide por cuánta recompensa acumula mientras entrena, sino por su <i>éxito limpiando niveles que nunca ha visto</i>, en evaluación <span class="term">greedy</span> (sin azar) y bajo el protocolo congelado. La recompensa en vivo es la aguja temblorosa de un velocímetro: te dice que el coche se mueve y hacia dónde, pero el resultado de la carrera se mide en otra parte. Volveremos a esto al final; por ahora, quédate con la consigna: <b>mira para entender, no para puntuar</b>.</p>
+
+<h3 class="sub">El tablero: la partida observada</h3>
+
+<p>El panel central es el juego. Lo encabeza el rótulo <span class="mono">PARTIDA OBSERVADA · ENV 0</span> y una insignia de estado —<span class="mono">jugando</span>— que te dice que hay un agente actuando ahí dentro. Es exactamente el Arkanoid del que habla todo el libro: una rejilla de <span class="mono">8×10</span> ladrillos arriba, una bola que rebota y una pala que el agente controla en la base. Nada de gráficos recargados; lo justo para ver el comportamiento con claridad.</p>
+
+<figure><img src="assets/panel_juego.jpg"/><figcaption>El tablero de la partida observada. Arriba, la matriz 8×10 de ladrillos (el mismo estado que «ve» la rama convolucional de la red); en el centro, la bola; abajo, la pala que controla el agente. La barra inferior resume el episodio en curso: recompensa, ladrillos rotos y pasos.</figcaption></figure>
+
+<p>Lo más informativo está en la <b>barra inferior</b>, y merece que la leas despacio:</p>
+
+<div class="defs">
+<dt>Recompensa episodio</dt><dd>la recompensa acumulada en la partida que estás viendo ahora mismo. Sube cuando el agente rompe ladrillos y rebota bien. Es la señal en vivo —útil para intuir, no para juzgar.</dd>
+<dt>Ladrillos</dt><dd>cuántos ladrillos lleva rotos sobre el total del nivel (por ejemplo, <span class="mono">0/80</span>). Esta es la pista más cercana al éxito real: <i>limpiar el nivel</i> es vaciar esta cuenta.</dd>
+<dt>Pasos</dt><dd>cuántas decisiones lleva tomadas el agente en este episodio. Relacionado con la eficiencia: un buen agente limpia el nivel en menos pasos.</dd>
+</div>
+
+<div class="caja caja-mirar"><div class="ch">Qué mirar</div>
+<p>No te quedes solo en la recompensa: vigila la pareja <b>ladrillos / pasos</b>. Un agente que aún no ha aprendido deja la pala temblando o la planta en una esquina mientras la bola se pierde; la cuenta de ladrillos apenas avanza. Un agente que <i>ya sabe</i> coloca la pala donde la bola va a caer, encadena rebotes y la cuenta de ladrillos sube de forma sostenida. Ese cambio —de movimiento errático a interceptación limpia— es la cara visible del aprendizaje, y se aprecia mucho mejor en el tablero que en cualquier número.</p>
+</div>
+
+<h3 class="sub">El selector de algoritmo</h3>
+
+<p>El panel de <span class="mono">VERSIÓN DEL EXPERIMENTO</span> es donde eliges con qué de los cinco quieres jugar. Cada algoritmo aparece con su nombre y una etiqueta corta que resume su «carné de identidad» —las mismas tres preguntas del capítulo de panorama: ¿aprende valor o política?, ¿reutiliza experiencia (<i>off-policy</i>) o exige datos frescos (<i>on-policy</i>)?, ¿tiene modelo del mundo o no?</p>
+
+<figure><img src="assets/panel_algoritmo.jpg"/><figcaption>Selector de algoritmo. Cada opción muestra su familia bajo el nombre: DQN («model-free · basado en valor · off-policy»), PPO («model-free · actor-crítico · on-policy»), SAC («model-free · actor-crítico · off-policy»), World Model («model-based · off-policy»). Las insignias de la derecha (recomendado, política, avanzado, model-based) ayudan a orientarte.</figcaption></figure>
+
+<p>Esas etiquetas no son decoración: son un atajo para que sepas qué vas a estar mirando antes de pulsar. Si eliges DQN, esperarás ver una red que estima el <i>valor</i> de cada acción; si eliges PPO o SAC, una pareja actor-crítico donde el actor reparte <i>probabilidad</i> entre las acciones; si eliges un World Model, un agente que además construye una maqueta interna del juego. Te recomendamos empezar por el que aparece marcado como punto de partida y, una vez te hagas con la interfaz, ir saltando de uno a otro para <b>comparar comportamientos con tus propios ojos</b>.</p>
+
+<div class="caja caja-curiosos"><div class="ch">Para curiosos</div>
+<p>¿Por qué hay un algoritmo señalado como «recomendado» para empezar y no, simplemente, el que mejores números saca en el libro? Porque el laboratorio busca <i>claridad pedagógica</i>, no reproducir el ranking. El objetivo de tu primera sesión es entender la interfaz —dónde mirar, qué significa cada cifra— con un algoritmo que aprende de forma legible. El veredicto sobre cuál rinde mejor ya lo da el protocolo congelado en los capítulos de resultados; aquí lo que importa es que <i>veas aprender</i>.</p>
+</div>
+
+<h3 class="sub">Los controles: el ritmo del experimento</h3>
+
+<p>El panel de <span class="mono">CONTROL DE EJECUCIÓN</span> regula <i>cómo</i> corre el entrenamiento. Son pocos mandos y conviene entenderlos, porque cambian lo que ves sin cambiar lo que el agente aprende:</p>
+
+<figure><img src="assets/panel_controles.jpg"/><figcaption>Controles de ejecución. «Velocidad» fija cuántos lotes se procesan por fotograma; «Entornos de entrenamiento (headless)» son las partidas invisibles que alimentan el aprendizaje en paralelo; «Entornos visuales» son las que sí se dibujan; y el interruptor activa o desactiva el moldeado de recompensa potencial.</figcaption></figure>
+
+<div class="defs">
+<dt>Velocidad (lotes/frame)</dt><dd>cuántos lotes de aprendizaje se procesan en cada fotograma de la animación. Más velocidad = el agente aprende más rápido en tiempo de reloj, pero la imagen va más «a saltos». Es un mando de comodidad, no afecta a lo que se aprende.</dd>
+<dt>Entornos de entrenamiento (headless)</dt><dd>el número de partidas que corren <i>sin dibujarse</i>, en paralelo, solo para recoger experiencia. Aquí está el músculo: muchas partidas a la vez aceleran muchísimo el aprendizaje. «Headless» significa, justamente, «sin pantalla».</dd>
+<dt>Entornos visuales</dt><dd>cuántas de esas partidas se dibujan para que las veas. Son una ventana representativa; el grueso del trabajo ocurre en las invisibles.</dd>
+<dt>Reward shaping potencial</dt><dd>un interruptor que activa o no el <i>moldeado de recompensa</i> por potencial: una ayuda extra a la señal de aprendizaje. Es una palanca metodológica delicada; tócala solo cuando quieras experimentar con ella a conciencia.</dd>
+</div>
+
+<div class="caja caja-juego"><div class="ch">Traducción al juego</div>
+<p>La distinción entre entornos <b>de entrenamiento</b> y <b>visuales</b> es la clave para no confundirte. Imagina una academia de tenis con cien pistas: en noventa y muchas se entrena a puerta cerrada (los entornos headless, que aportan casi toda la experiencia) y solo en unas pocas hay gradas para que el público mire (los entornos visuales). El agente aprende de <i>todas</i>; tú solo ves <i>algunas</i>. Por eso la recompensa puede mejorar deprisa aunque la partida concreta que estás mirando no sea espectacular: detrás hay decenas de partidas invisibles empujando.</p>
+</div>
+
+<h3 class="sub">Las curvas y el inspector: dónde se ve aprender</h3>
+
+<p>Más allá del tablero, el laboratorio ofrece dos vistas que son el verdadero corazón pedagógico. La primera son las <b>curvas de recompensa</b>: la evolución de la señal a lo largo del entrenamiento. Una curva que sube y se estabiliza cuenta una historia de aprendizaje sano; una que se desploma de golpe delata un <i>colapso</i>; una que oscila sin rumbo, un agente que no acaba de encontrar el camino. Aprender a leer la <i>forma</i> de la curva —no su valor exacto— es una de las intuiciones más valiosas que te llevarás del laboratorio.</p>
+
+<p>La segunda es el <b>inspector de la red</b>: la posibilidad de abrir el «cerebro» del agente y ver en qué se apoya cada decisión. Según el algoritmo, verás el valor que asigna a cada acción (en DQN) o la distribución de probabilidad del actor junto al valor del crítico (en PPO y SAC). Es la diferencia entre ver <i>qué</i> hace el agente y entender <i>por qué</i> lo hace.</p>
+
+<div class="caja caja-mirar"><div class="ch">Qué mirar</div>
+<p>En el inspector, contrasta <b>estados claros frente a estados ambiguos</b>. Cuando la bola cae limpia hacia un lado, una acción debería destacar con fuerza (valor alto o probabilidad alta); cuando la situación es dudosa, la decisión se reparte más entre opciones. Esa modulación —decidido cuando toca, prudente cuando no está claro— es la firma de una política que ha aprendido de verdad, y se ve mejor mirando el inspector que cualquier resumen numérico.</p>
+</div>
+
+<h3 class="sub">La búsqueda en rejilla de hiperparámetros</h3>
+
+<p>El laboratorio incluye una <span class="term">búsqueda en rejilla</span> (en inglés, <i>grid search</i>) de hiperparámetros en vivo. La idea es probar, de forma sistemática, varias combinaciones de los ajustes que gobiernan el aprendizaje —el peso de la exploración, el tamaño del paso, etc.— y ver cuáles funcionan mejor. Es la manera honesta de descubrir que un algoritmo no es «bueno» o «malo» en abstracto: su rendimiento <i>depende</i> de cómo lo configures, y pequeñas variaciones en un hiperparámetro pueden cambiar mucho el resultado.</p>
+
+<div class="caja caja-curiosos"><div class="ch">Para curiosos</div>
+<p>Ver una búsqueda en rejilla en marcha es uno de los mejores antídotos contra la idea mágica de que «existe el algoritmo definitivo». Lo que descubres es lo contrario: que detrás de cada cifra bonita hay un trabajo paciente de ajuste, que dos configuraciones del <i>mismo</i> algoritmo pueden rendir de forma muy distinta, y que parte del oficio del aprendizaje por refuerzo es precisamente <i>encontrar</i> esa buena configuración. Es trabajo artesanal disfrazado de matemáticas.</p>
+</div>
+
+<h3 class="sub">Antes de pulsar: la consigna honesta</h3>
+
+<p>Ya tienes el mapa de los paneles. Antes de lanzarte, repasemos la advertencia metodológica, porque es lo que separa este capítulo de un folleto publicitario. El laboratorio es una herramienta de <b>intuición</b>, no un banco de pruebas de <i>logro</i>. Lo que ves —la recompensa subiendo, la pala mejorando— alimenta tu comprensión, pero <b>no es la métrica con la que se juzga a un agente</b> en este libro.</p>
+
+<div class="caja caja-limite"><div class="ch">Dónde está el límite</div>
+<p>La recompensa que crece en el laboratorio se mide <i>sobre los niveles que el agente está entrenando</i> y mientras explora (con algo de azar en sus decisiones). El veredicto del libro es otra cosa: <b>éxito en niveles no vistos</b>, en evaluación <b>greedy</b> (eligiendo siempre la mejor acción, sin azar) y como <b>media de varias semillas</b> bajo el protocolo congelado. Un agente puede acumular mucha recompensa en entrenamiento y luego generalizar mal a niveles nuevos: por eso no confundas la aguja del velocímetro con el cronómetro de la meta. Mira el laboratorio para <i>entender</i> el aprendizaje; busca el logro en los capítulos de resultados.</p>
+</div>
+
+<h3 class="sub">Dónde encontrarlo</h3>
+
+<p>El laboratorio y todo el código del proyecto están abiertos. Puedes explorarlo, ejecutarlo en tu propio navegador y mirar por dentro cada algoritmo:</p>
+
+<div class="defs">
+<dt>Repositorio</dt><dd><span class="mono">github.com/rcanalescoder/DRLArkanoid</span> — el código completo del laboratorio y de los experimentos.</dd>
+<dt>Web del autor</dt><dd><span class="mono">www.robertocanales.com</span> — más material y contexto del proyecto.</dd>
+</div>
+
+<p>No necesitas instalar nada: basta con abrir la página, elegir un algoritmo y pulsar para empezar. Dedícale una sesión sin prisa. Arranca el algoritmo de partida, observa cómo la cuenta de ladrillos despega, abre el inspector en un par de estados y luego cambia de algoritmo para sentir la diferencia. Cuando una curva «de libro» deje de ser una figura y se convierta en algo que <i>esperas</i> ver, sabrás que el laboratorio ha hecho su trabajo.</p>
+
+<div class="takeaway"><div class="t">Quédate con esto</div><div class="bd">
+<p>El laboratorio web es una página que corre <b>en tu navegador</b> y deja entrenar en vivo los cinco algoritmos (DQN, PPO, SAC, World Model, World Model RNN) sobre el Arkanoid del libro. El <b>tablero</b> muestra la partida observada y, en su barra inferior, la pareja clave <b>ladrillos / pasos</b> —la pista más cercana al éxito real. El <b>selector</b> elige el algoritmo y recuerda su familia; los <b>controles</b> regulan velocidad y entornos (muchos invisibles, pocos visibles, todos enseñando). Las <b>curvas</b> y el <b>inspector</b> dejan ver, y entender, cómo aprende. Pero la consigna es honesta: <b>la recompensa en vivo sirve para la intuición, no es el veredicto</b>. El logro se mide aparte —éxito en niveles no vistos, greedy, media de semillas, protocolo congelado. Está todo abierto en <span class="mono">github.com/rcanalescoder/DRLArkanoid</span>.</p>
+</div></div>
+
+<div class="autocheck"><div class="ch">Autocomprobación</div>
+<ol>
+<li>En la barra inferior del tablero, ¿qué cifra está más cerca de medir el «éxito real» de un agente y por qué: la recompensa del episodio o la cuenta de ladrillos?</li>
+<li>¿Qué diferencia hay entre los «entornos de entrenamiento (headless)» y los «entornos visuales»? ¿De cuáles aprende el agente?</li>
+<li>Estás viendo subir la recompensa en directo. ¿Por qué eso no basta para afirmar que el agente «ha aprendido bien»? ¿Dónde se mide de verdad el logro?</li>
+<li>Abre el inspector y compara un estado claro con uno ambiguo. ¿Qué esperas ver en la decisión del agente en cada caso?</li>
+<li>¿Para qué sirve una búsqueda en rejilla de hiperparámetros y qué idea sobre los algoritmos ayuda a desmontar?</li>
+</ol>
+</div>
+
+
+<figure><img src="assets/app_intro_2.jpg" alt="La mitad inferior del laboratorio: qué conceptos usa cada algoritmo (aquí DQN: replay, red objetivo, ε-greedy), el flujo"><figcaption>La mitad inferior del laboratorio: qué <b>conceptos</b> usa cada algoritmo (aquí DQN: replay, red objetivo, ε-greedy), el <b>flujo de datos</b> entorno→experiencia→buffer→red→política, el <b>replay buffer</b> con el TD-error de cada transición, y las fichas de las cuatro familias. La interfaz no solo enseña a jugar: enseña el mecanismo.</figcaption></figure>
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>El laboratorio entrena <b>en el navegador</b> sobre un bucle de juego en JavaScript (estilo <i>Vita-like loop</i>) con <b>pools de entornos en paralelo</b>: la inmensa mayoría corren <i>headless</i> para alimentar la recogida de experiencia y solo un puñado se renderizan. La interfaz permite <b>inspeccionar la red</b> (valores de acción en DQN; distribución del actor y <span class="mono">V(s)</span> del crítico en PPO/SAC), seguir las <b>curvas de recompensa</b> en tiempo real y lanzar una <b>búsqueda en rejilla</b> (grid search) de hiperparámetros en vivo, lo que hace tangible la sensibilidad del rendimiento a la configuración. <b>Advertencia metodológica</b>, y es la que de verdad importa: la recompensa del laboratorio es <i>ruido útil para intuición</i>, no la métrica de logro. Se mide sobre los niveles en entrenamiento, con exploración activa y a escala reducida —tres factores que la separan del criterio del estudio. El veredicto vive en la <b>evaluación GREEDY sobre niveles no vistos</b> del protocolo congelado: sin azar en la política, como media de varias semillas y midiendo <i>éxito</i> (limpiar el nivel), no recompensa acumulada. Quien confunda la curva del laboratorio con el resultado del protocolo estará leyendo el velocímetro y anotándolo como tiempo de meta.</p>
+</div>

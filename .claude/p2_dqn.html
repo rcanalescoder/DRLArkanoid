@@ -1,0 +1,207 @@
+<p class="pregunta">¿Cómo decide una máquina, mirando la pantalla de Arkanoid, si le conviene más moverse a la izquierda, quedarse quieta o ir a la derecha? ¿Y cómo aprende a hacerlo bien sin que nadie le diga nunca cuál era la jugada correcta?</p>
+<figure><img src="assets/vis_flujo_dqn.svg" alt="El ciclo de DQN: jugar, guardar la transición, muestrear un lote, calcular el objetivo de Bellman y la pérdida, actualiz"><figcaption>El ciclo de DQN: jugar, guardar la transición, muestrear un lote, calcular el objetivo de Bellman y la pérdida, actualizar la red online y, despacio, la objetivo. Aquí encajan replay y red objetivo.</figcaption></figure>
+
+
+<p>Empezamos el recorrido por los algoritmos con el más antiguo de los tres y, a la vez, el más instructivo: <span class="term">DQN</span>, abreviatura de <i>Deep Q-Network</i>. Es el cimiento. Si entiendes a fondo cómo piensa DQN, los otros dos métodos que veremos después serán variaciones sobre un tema que ya te resultará familiar. Por eso este capítulo es deliberadamente lento y detallado: vamos a abrir el motor y mirar cada pieza.</p>
+
+<figure><img src="assets/dg_dqn.svg"/><figcaption>Esquema general de DQN: el estado entra por la izquierda, la red lo procesa y a la salida aparecen tres números, uno por cada acción posible. El agente se queda con la acción del número más alto.</figcaption></figure>
+
+<h3 class="sub">La escena: tres puertas y ninguna etiqueta</h3>
+
+<p>Imagina que paras el juego en un fotograma cualquiera. La bola baja por la zona derecha del tablero, con cierta velocidad, y tu pala está más bien a la izquierda. Tienes tres puertas delante: <i>mover a la izquierda</i>, <i>mantener</i>, <i>mover a la derecha</i>. Una de ellas conduce, varios segundos después, a interceptar la bola y seguir rompiendo ladrillos. Las otras dos, probablemente, a perder la bola por abajo.</p>
+
+<p>Aquí está la dificultad de fondo, la que hace que esto no sea un problema de los que se resuelven con una receta fija. <b>Nadie te dice cuál era la puerta buena.</b> No hay un profesor que, fotograma a fotograma, susurre «la correcta era la derecha». El único mensaje que recibe el agente es la recompensa, y además llega tarde: rompes un ladrillo varias jugadas <i>después</i> de haber empezado a mover la pala en la dirección acertada. El agente tiene que aprender a repartir el mérito de esa recompensa entre todas las decisiones que la hicieron posible. A eso lo llamamos el <span class="term">problema de la asignación de crédito</span>, y resolverlo es justo lo que hace especial al aprendizaje por refuerzo frente a un clasificador corriente.</p>
+
+<div class="caja caja-juego"><div class="ch">Traducción al juego</div>
+En Arkanoid no existe el «movimiento correcto» en abstracto. Mover a la derecha es magnífico si la bola va hacia la derecha y nefasto si va hacia la izquierda. El acierto depende del <i>estado</i>: de dónde está la bola, hacia dónde se mueve y dónde tienes la pala. DQN no aprende una regla del tipo «si pasa X, haz Y», sino algo más sutil: aprende a <i>valorar</i> cada puerta en cada situación.</div>
+
+<h3 class="sub">Aprender por valor: la función Q</h3>
+
+<p>DQN pertenece a la familia de los métodos <span class="term">basados en valor</span>. La idea central es que, en lugar de aprender directamente qué hacer, el agente aprende a estimar <b>cuánto vale</b> cada cosa que podría hacer. Si sabes poner precio a tus opciones, decidir es trivial: eliges la más cara.</p>
+
+<p>Ese «precio» tiene nombre propio. Lo llamamos la <span class="term">función de valor de acción</span>, o función Q, y se escribe <span class="mono">Q(s,a)</span>. Conviene leerla con calma, despacio, porque toda la asignatura cuelga de ella.</p>
+
+<div class="defs">
+<dt>Estado <span class="mono">s</span></dt><dd>La fotografía de la situación actual del juego: dónde está la bola, su velocidad, la posición de la pala y qué ladrillos siguen vivos. Es lo que el agente «ve».</dd>
+<dt>Acción <span class="mono">a</span></dt><dd>Una de las decisiones disponibles. En nuestro Arkanoid hay exactamente tres: izquierda, mantener, derecha.</dd>
+<dt>Función Q <span class="mono">Q(s,a)</span></dt><dd>Una estimación del <i>retorno</i> total que cabe esperar si, estando en el estado <span class="mono">s</span>, tomamos la acción <span class="mono">a</span> y a partir de ahí seguimos jugando lo mejor que sabemos. No es la recompensa inmediata: es la suma de todas las recompensas futuras, descontadas en el tiempo.</dd>
+</div>
+
+<p>Subrayemos lo importante de esa definición, porque es donde tropieza casi todo el mundo al principio. <span class="mono">Q(s,a)</span> <b>no</b> es «cuántos puntos me da esta acción ahora mismo». Es una promesa sobre el futuro: «si tomo esta acción y luego sigo jugando bien, terminaré acumulando aproximadamente <i>esto</i>». Por eso una acción puede tener un valor Q alto aunque su recompensa inmediata sea cero: mover la pala hacia la bola no da puntos en ese instante, pero abre la puerta a romper ladrillos dentro de unas jugadas, y ese valor futuro se refleja en su Q.</p>
+
+<div class="caja caja-formula"><div class="ch">Antes de la fórmula</div>
+El «retorno» no es la suma pelada de recompensas futuras, sino una suma <i>descontada</i>: las recompensas lejanas pesan menos que las cercanas. El factor que las encoge se llama <span class="mono">γ</span> (gamma) y en nuestro laboratorio vale <span class="mono">0,99</span>. Con ese valor, una recompensa dentro de cien pasos todavía cuenta bastante, pero una que llegue dentro de mil ya casi se ha desvanecido. Gamma fija el horizonte: cuán lejos mira el agente.</div>
+
+<p>Con esto ya podemos escribir la definición formal del retorno <span class="mono">G<sub>t</sub></span> a partir del instante <span class="mono">t</span>:</p>
+
+<div class="formula">G<sub>t</sub> = r<sub>t</sub> + γ·r<sub>t+1</sub> + γ²·r<sub>t+2</sub> + γ³·r<sub>t+3</sub> + …</div>
+
+<p>Y la función Q óptima es, sencillamente, el retorno que esperamos obtener empezando por la acción <span class="mono">a</span> en el estado <span class="mono">s</span> y comportándonos de forma óptima después. El verbo clave es «esperamos»: como el juego tiene incertidumbre, hablamos de valor <i>esperado</i>, un promedio sobre todo lo que podría pasar.</p>
+
+<h3 class="sub">Por qué «la mejor acción es argmax Q»</h3>
+
+<p>Aquí llega la parte elegante. Si de verdad tuviéramos la función Q perfecta —una que conociera el valor real de cada acción en cada estado—, jugar de forma óptima sería casi insultantemente fácil. En cada estado <span class="mono">s</span>, calculamos los tres valores Q (uno por acción) y elegimos el más alto. Esa operación, «dame la acción cuyo valor es máximo», se escribe con el operador <span class="mono">argmax</span>:</p>
+
+<div class="formula">a* = argmax<sub>a</sub> Q(s,a)</div>
+
+<p>Léelo así: <span class="mono">argmax<sub>a</sub></span> no devuelve el valor máximo, sino el <i>argumento</i> que lo produce, es decir, <b>qué acción</b> es la mejor. Si en un estado los tres valores son <span class="mono">Q(s, izquierda)=2,1</span>, <span class="mono">Q(s, mantener)=0,4</span> y <span class="mono">Q(s, derecha)=−0,3</span>, entonces <span class="mono">argmax</span> devuelve «izquierda», porque <span class="mono">2,1</span> es el mayor. La política —la forma de jugar— se deduce directamente de los valores. No hace falta aprenderla aparte: <i>está implícita en Q</i>.</p>
+
+<div class="caja caja-error"><div class="ch">Error común</div>
+Confundir <span class="mono">max Q</span> con <span class="mono">argmax Q</span>. El primero es el <i>número</i> más alto (en el ejemplo, <span class="mono">2,1</span>); el segundo es la <i>acción</i> que lo consigue («izquierda»). DQN usa los dos en momentos distintos: <span class="mono">max</span> para calcular el valor objetivo durante el aprendizaje, y <span class="mono">argmax</span> para decidir qué hacer cuando juega de verdad.</div>
+
+<p>Por eso decimos que DQN es un método <i>basado en valor</i> y no <i>basado en política</i>: no tiene una red que diga «haz esto», tiene una red que dice «esto vale tanto», y la decisión sale de comparar valores. Es una diferencia que será importante cuando, más adelante, conozcamos algoritmos que sí modelan la política directamente.</p>
+
+<h3 class="sub">El truco profundo: una red neuronal en lugar de una tabla</h3>
+
+<p>Si el número de estados fuera pequeño, podríamos guardar todos los valores Q en una tabla gigante: una fila por estado, una columna por acción. Eso es el Q-learning clásico, anterior a la era del aprendizaje profundo. Pero en nuestro Arkanoid el estado incluye una rejilla de <span class="mono">8×10 = 80</span> ladrillos que pueden estar vivos o rotos en cualquier combinación, más seis números continuos con posiciones y velocidades. El número de estados posibles es astronómico. Una tabla es inviable.</p>
+
+<p>La «D» de DQN —<i>Deep</i>— es exactamente la respuesta a ese problema. En vez de una tabla, usamos una <b>red neuronal profunda</b> que aproxima la función Q. Le damos el estado a la entrada y nos devuelve los valores Q a la salida. La red no memoriza estados uno a uno: aprende patrones que <i>generalizan</i>, de modo que ante una configuración de ladrillos que no ha visto nunca puede, aun así, dar una estimación razonable. Esa capacidad de generalizar es la que nos permitirá, al final, evaluar al agente en niveles que jamás vio durante el entrenamiento.</p>
+
+<div class="caja caja-curiosos"><div class="ch">Para curiosos</div>
+El salto histórico que dio fama a DQN fue precisamente este. En 2015, el equipo de DeepMind publicó en <i>Nature</i> un sistema que aprendió a jugar a 49 juegos distintos de Atari directamente desde los píxeles de la pantalla, con la misma red convolucional y sin conocimiento específico de cada juego, a base de ver del orden de cincuenta millones de fotogramas. Nuestro laboratorio no juega desde píxeles ni a esa escala —es un banco de pruebas mucho más modesto y controlado—, pero hereda la misma idea: aproximar Q con una red profunda.</div>
+
+<h3 class="sub">Dos piezas heredadas: replay y red objetivo</h3>
+
+<p>Aproximar Q con una red trae un problema serio de estabilidad, y DQN lo domestica con dos mecanismos que ya presentamos en los fundamentos y que aquí solo recordamos brevemente, porque son imprescindibles para entender el algoritmo.</p>
+
+<div class="defs">
+<dt>Memoria de repetición (<span class="term">replay</span>)</dt><dd>Un gran almacén —en nuestro caso de <span class="mono">100.000</span> transiciones— donde el agente guarda sus experiencias <span class="mono">(s, a, r, s′)</span> a medida que juega. Para entrenar, no usa la última jugada, sino un lote aleatorio de <span class="mono">128</span> experiencias sacadas de ese almacén. Mezclar el pasado rompe la correlación entre fotogramas consecutivos y estabiliza el aprendizaje.</dd>
+<dt>Red objetivo (<span class="term">target network</span>)</dt><dd>Una segunda copia de la red, que cambia muy despacio, y que se usa para calcular hacia dónde debe moverse la red principal. Sin ella, la red perseguiría un objetivo que ella misma modifica a cada paso —como pintar una pared mientras alguien la repinta detrás de ti—, y el entrenamiento se vuelve inestable.</dd>
+</div>
+
+<p>En nuestra implementación la red objetivo no se copia de golpe, sino que se actualiza con un <span class="term">soft update</span> de Polyak: en cada paso, la copia se acerca un poquito a la red principal, con un factor <span class="mono">τ = 0,01</span>. Es como mover un termostato un 1% hacia la temperatura deseada en cada lectura: nunca da bandazos, siempre converge suavemente. Volveremos sobre esto en el bloque para expertos.</p>
+
+<h3 class="sub">Cómo se ve DQN en nuestro Arkanoid</h3>
+
+<p>Toca aterrizar todo lo anterior en la arquitectura concreta del laboratorio. Nuestra observación tiene <span class="mono">86</span> números, y no todos son del mismo tipo, así que la red los trata por separado antes de juntarlos. Tiene <b>dos ramas</b>.</p>
+
+<figure><img src="assets/inspector_dqn.jpg"/><figcaption>El inspector de la red muestra las dos ramas: la rejilla de ladrillos entra por el encoder convolucional, los seis valores cinemáticos por la rama densa, y ambas se fusionan antes de la salida de tres valores Q.</figcaption></figure>
+
+<p>Por un lado están los <b>6 valores cinemáticos</b>: la posición de la bola (x, y), su velocidad (vx, vy), la posición de la pala (x) y la distancia entre bola y pala. Son magnitudes continuas, una lista corta de números; van a una <b>rama densa</b> normal.</p>
+
+<p>Por otro lado está la <b>matriz de ocupación 8×10</b>: una cuadrícula con un <span class="mono">1</span> donde queda un ladrillo vivo y un <span class="mono">0</span> donde ya está roto. Esto no es una lista cualquiera: es una <i>imagen</i> pequeña, con estructura espacial. Aquí está cerca de allí, los huecos forman formas. Para aprovechar esa estructura, la matriz pasa por un <b>encoder convolucional</b> con dos capas de filtros (16 y luego 32), igual que se hace con imágenes. La convolución reconoce patrones locales —un hueco abierto, una columna casi limpia— sin importar en qué parte del tablero aparezcan.</p>
+
+<p>Las dos ramas <b>se concatenan</b> en un único vector, que atraviesa dos capas densas de <span class="mono">128</span> neuronas con activación <span class="mono">ReLU</span>, y finalmente desemboca en la <b>capa de salida con 3 valores Q</b>: uno por cada acción. Eso es todo. Tres números a la salida, y el agente elige el mayor.</p>
+
+<div class="caja caja-mirar"><div class="ch">Qué mirar</div>
+Cuando observes el inspector de la red, fíjate en que la salida tiene exactamente tres casillas, no ochenta ni una. Las ochenta entran (la rejilla); las tres salen (las acciones). Y mira la concatenación: es el punto donde «lo que veo del tablero» y «cómo se mueve la bola» se funden en una sola decisión.</div>
+
+<p>Que esa rama convolucional importe de verdad no es una suposición: lo medimos. Cuando, en un experimento de ablación, sustituimos el encoder convolucional por una simple lista plana procesada con una red densa corriente, el éxito se desplomó de <span class="mono">77%</span> a <span class="mono">57%</span>. El sesgo espacial de la convolución vale, en nuestra tarea, unos <span class="mono">20 puntos</span>. Ver el tablero <i>como un tablero</i>, y no como una ristra de ochenta números sueltos, es decisivo.</p>
+
+<h3 class="sub">El corazón del aprendizaje: el objetivo de Bellman</h3>
+
+<p>Llegamos al mecanismo por el que DQN realmente aprende. La pregunta es: si la red da una estimación <span class="mono">Q(s,a)</span> y no tenemos la etiqueta correcta, ¿hacia qué número la corregimos? La respuesta es una de las ideas más bonitas del campo, la <span class="term">ecuación de Bellman</span>, y dice algo casi de sentido común:</p>
+
+<div class="formula">y = r + γ · max<sub>a′</sub> Q(s′, a′)</div>
+
+<p>En palabras: el valor de tomar la acción <span class="mono">a</span> en el estado <span class="mono">s</span> debería ser igual a <b>la recompensa que recibo ahora</b> (<span class="mono">r</span>) <b>más</b> el valor descontado <b>de lo mejor que puedo hacer en el estado siguiente</b> <span class="mono">s′</span>. El futuro se descompone en «un paso ahora + todo el resto», y «todo el resto» es, otra vez, un valor Q. La función Q se define en términos de sí misma un paso más adelante. A ese morderse la cola controladamente lo llamamos <span class="term">bootstrapping</span>: la red aprende de sus propias estimaciones.</p>
+
+<p>Con ese objetivo <span class="mono">y</span> —que llamamos <i>target</i>— ya tenemos contra qué comparar. El error es la diferencia entre lo que la red predijo y ese objetivo, y entrenar consiste en empujar la predicción hacia <span class="mono">y</span> mediante descenso de gradiente. Cuando <span class="mono">s′</span> es un estado terminal (perdimos la bola o limpiamos el nivel), no hay futuro que valorar, así que el término del futuro se anula y el objetivo es solo <span class="mono">r</span>.</p>
+
+<h3 class="sub">Mini-ejemplo numérico: una actualización paso a paso</h3>
+
+<p>Hagamos las cuentas con un caso inventado pero plausible, para ver el engranaje girar. Supongamos esta transición:</p>
+
+<div class="defs">
+<dt>Estado <span class="mono">s</span></dt><dd>La bola baja hacia la pala; quedan ladrillos.</dd>
+<dt>Acción tomada <span class="mono">a</span></dt><dd>«derecha».</dd>
+<dt>Recompensa <span class="mono">r</span></dt><dd><span class="mono">+0,2</span> (la pala interceptó la bola: bonus por rebote en pala).</dd>
+<dt>Estado siguiente <span class="mono">s′</span></dt><dd>La bola sube de nuevo hacia los ladrillos.</dd>
+</div>
+
+<p>Supongamos que la red <i>actual</i> estima para la acción tomada un valor <span class="mono">Q(s, derecha) = 1,50</span>. Y supongamos que, evaluando el estado siguiente <span class="mono">s′</span>, los tres valores Q son:</p>
+
+<table class="compare">
+<tr><th>Acción en s′</th><th>Q(s′, a′)</th></tr>
+<tr><td>izquierda</td><td>0,90</td></tr>
+<tr><td>mantener</td><td>2,40</td></tr>
+<tr><td>derecha</td><td>1,10</td></tr>
+</table>
+
+<p>El término del futuro usa <span class="mono">max<sub>a′</sub> Q(s′, a′)</span>, que es el mayor de los tres: <span class="mono">2,40</span> (la acción «mantener»). Aplicamos Bellman con <span class="mono">γ = 0,99</span>:</p>
+
+<div class="formula">y = 0,2 + 0,99 · 2,40 = 0,2 + 2,376 = 2,576</div>
+
+<p>Ese es el objetivo. La red había predicho <span class="mono">1,50</span> para la acción que tomó, pero Bellman dice que debería valer en torno a <span class="mono">2,576</span>. El error (la diferencia) es:</p>
+
+<div class="formula">error = y − Q(s, derecha) = 2,576 − 1,50 = +1,076</div>
+
+<p>El signo positivo significa que la red <i>infravaloraba</i> esa acción: en realidad llevaba a un futuro mejor de lo que pensaba. El entrenamiento ajustará los pesos para que, la próxima vez que vea un estado parecido, <span class="mono">Q(s, derecha)</span> suba acercándose a <span class="mono">2,576</span>. Importante: solo se corrige la salida correspondiente a la acción <i>que de verdad se tomó</i>; las otras dos no entran en esta actualización, porque para ellas no observamos qué habría pasado.</p>
+
+<div class="caja caja-juego"><div class="ch">Traducción al juego</div>
+Esta única actualización no «enseña a jugar». Solo refina un poquito el precio de una jugada concreta. Pero multiplica esto por millones de transiciones distintas, sacadas en lotes del replay, y la estimación de Q se va volviendo cada vez más fiel a la realidad del juego. La política óptima emerge sola, como subproducto de saber valorar bien.</div>
+
+<h3 class="sub">Una mejora necesaria: Double DQN</h3>
+
+<p>El <span class="mono">max</span> de la fórmula de Bellman tiene un defecto conocido: tiende a <b>sobreestimar</b> los valores. Al elegir siempre el máximo de unas estimaciones que tienen ruido, sistemáticamente nos quedamos con las que el ruido infló por casualidad, y el optimismo se va acumulando. Nuestro DQN incorpora la corrección estándar, <span class="term">Double DQN</span>: una red elige cuál es la mejor acción en <span class="mono">s′</span> y <i>otra</i> red dice cuánto vale esa acción. Al separar «quién elige» de «quién evalúa», se rompe el sesgo optimista. En el bloque de expertos verás la fórmula exacta.</p>
+
+<h3 class="sub">¿Y cómo explora? El épsilon-greedy</h3>
+
+<p>Queda un cabo suelto. Si el agente eligiera <i>siempre</i> el <span class="mono">argmax</span>, al principio —cuando sus valores Q son basura, recién inicializados al azar— se quedaría atascado repitiendo tonterías sin descubrir nada mejor. Necesita explorar. La receta clásica es <span class="term">épsilon-greedy</span>: con probabilidad <span class="mono">ε</span> el agente actúa al azar (explora), y con probabilidad <span class="mono">1−ε</span> hace caso a su <span class="mono">argmax Q</span> (explota lo que sabe).</p>
+
+<p>En nuestro laboratorio, <span class="mono">ε</span> arranca en <span class="mono">1,0</span> (al comienzo el agente actúa totalmente al azar) y desciende hasta <span class="mono">0,05</span> a lo largo de <span class="mono">25.000</span> pasos. Es decir: mucha curiosidad al principio, casi pura explotación al final. Conviene no confundir esto con la evaluación: cuando <i>medimos</i> el rendimiento del agente lo hacemos en modo <span class="term">greedy</span> puro (<span class="mono">ε = 0</span>), sin ninguna jugada al azar, para ver lo que de verdad ha aprendido.</p>
+
+<div class="caja caja-formula"><div class="ch">Antes de la fórmula</div>
+Reúne todos los hiperparámetros en la cabeza antes de mirar las curvas, porque dan forma a todo lo que verás: replay de <span class="mono">100.000</span>, lote de <span class="mono">128</span>, <span class="mono">γ = 0,99</span>, soft update <span class="mono">τ = 0,01</span> y <span class="mono">ε</span> de <span class="mono">1,0</span> a <span class="mono">0,05</span> en <span class="mono">25.000</span> pasos. No son cifras mágicas: son las que fijamos en nuestro protocolo y mantenemos congeladas para que las comparaciones sean justas.</div>
+
+<h3 class="sub">El resultado honesto de DQN</h3>
+
+<p>Ahora la parte que de verdad importa: ¿funciona? Sí, y de forma notablemente fiable. Las cifras que siguen son la <b>media de cinco semillas</b> distintas (no un golpe de suerte de una ejecución afortunada) y se midieron en modo <b>greedy</b>, con el éxito definido como <i>limpiar niveles que el agente nunca vio durante el entrenamiento</i>. Esa última condición es exigente y honesta: no premiamos memorizar, premiamos generalizar.</p>
+
+<figure><img src="assets/curvas_dqn.jpg"/><figcaption>Curvas de entrenamiento del laboratorio. La tendencia ascendente y la ausencia de derrumbes reflejan el carácter estable de DQN; el techo lo marca el presupuesto de pasos.</figcaption></figure>
+
+<table class="compare">
+<tr><th>Banco de pruebas</th><th>Éxito DQN (greedy, media de 5 semillas)</th></tr>
+<tr><td>TEST-ID (niveles del mismo tipo)</td><td>77%</td></tr>
+<tr><td>OOD-patrón (patrones nuevos)</td><td>74%</td></tr>
+<tr><td>OOD-dificultad (más difíciles)</td><td>64%</td></tr>
+</table>
+
+<p>Hay dos virtudes que merece la pena destacar. La primera es la <b>robustez</b>: <span class="mono">0%</span> de colapsos (ninguna semilla se vino abajo durante el entrenamiento) y <span class="mono">80%</span> de las semillas superaron el <span class="mono">80%</span> de éxito. DQN no es brillante, pero es de fiar; rara vez te deja tirado. La segunda es que <b>mejora de forma monótona con el presupuesto</b> de pasos. Si lo dejamos entrenar más, sube de manera ordenada:</p>
+
+<table class="compare">
+<tr><th>Presupuesto de pasos</th><th>Éxito TEST-ID</th></tr>
+<tr><td>700.000</td><td>67%</td></tr>
+<tr><td>1.500.000</td><td>77%</td></tr>
+<tr><td>3.000.000</td><td>85%</td></tr>
+</table>
+
+<p>Esa escalera tan limpia —67, 77, 85— es la firma de un método sano: no se atasca ni se desestabiliza, simplemente quiere tiempo. La frase que mejor resume a DQN es: <b>el cimiento simple y fiable, que necesita presupuesto</b>. Cuando un nivel limpia, lo hace en torno a los <span class="mono">2.125</span> pasos.</p>
+
+<div class="caja caja-limite"><div class="ch">Qué no demuestra</div>
+Que DQN saque <span class="mono">77%</span> en TEST-ID no prueba que sea el mejor algoritmo, ni que <span class="mono">3M</span> de pasos sean «suficientes». Tampoco la cifra de OOD-dificultad (<span class="mono">64%</span>) es comparable directamente con la de TEST-ID: son bancos de prueba distintos, con niveles de dificultad distintos. Y todo esto es <i>nuestro</i> Arkanoid con <i>nuestra</i> formulación; no son resultados de Atari ni cifras de DeepMind. Lo único que estas cifras demuestran es que, <b>en esta tarea bien planteada</b>, DQN aprende a generalizar a niveles nuevos de forma estable.</div>
+
+<h3 class="sub">Lectura crítica: lo que de verdad desbloqueó el problema</h3>
+
+<p>Es tentador pensar que estos resultados vienen «de DQN». Pero la evidencia de nuestras ablaciones apunta a otra cosa, y es la tesis que recorre todo el libro. Mira qué pasa cuando, partiendo del DQN que logra <span class="mono">77%</span>, estropeamos un solo ingrediente de la <i>formulación</i> de la tarea:</p>
+
+<table class="compare">
+<tr><th>Qué cambiamos</th><th>Éxito resultante</th></tr>
+<tr><td>DQN completo (referencia)</td><td>77%</td></tr>
+<tr><td>Escala de la señal de recompensa demasiado baja</td><td>1% (cae 76 puntos, 100% colapsos)</td></tr>
+<tr><td>Encoder convolucional → lista plana (MLP)</td><td>57%</td></tr>
+<tr><td>Timeout proporcional → constante</td><td>54%</td></tr>
+</table>
+
+<p>El dato más elocuente es el primero: bajar la escala de la recompensa hunde el éxito al <span class="mono">1%</span> con colapsos totales. El algoritmo es el mismo DQN; lo único que cambió fue <i>cómo está formulada</i> la señal. La conclusión es contundente y va contra la intuición habitual: el problema no se desbloqueó por elegir un algoritmo más listo ni por entrenar más horas, sino por <b>formular bien la tarea</b> —un reloj justo (timeout proporcional), una recompensa con la escala adecuada, una observación que incluye los ladrillos como rejilla 8×10, un encoder que respeta el espacio, y una evaluación honesta en niveles no vistos—. DQN es un buen motor, pero estos números son, sobre todo, el premio a un buen planteamiento.</p>
+
+<figure><img src="assets/app_dqn.jpg"/><figcaption>DQN jugando en la aplicación del laboratorio. El agente intercepta la bola y desgasta el muro de ladrillos con un juego sobrio y consistente, fiel a su perfil: nada espectacular, pero rara vez falla.</figcaption></figure>
+
+<figure><img src="assets/gridcard_dqn.svg"/><figcaption>Ficha-resumen de DQN: familia (basado en valor, off-policy), piezas clave (replay, red objetivo, Double DQN, Huber) e hiperparámetros del laboratorio de un vistazo.</figcaption></figure>
+
+<div class="takeaway"><div class="t">Quédate con esto</div><div class="bd">DQN aprende a <i>valorar</i> cada acción en cada estado con la función <span class="mono">Q(s,a)</span>; jugar es entonces tan fácil como elegir <span class="mono">argmax Q</span>. Una red profunda de dos ramas (convolucional para los ladrillos, densa para la cinemática) aproxima esa Q, y el objetivo de Bellman —recompensa de ahora más lo mejor del estado siguiente— la va corrigiendo. El replay y la red objetivo lo estabilizan. Resultado: <span class="mono">77%</span> en TEST-ID (media de 5 semillas, greedy), <span class="mono">0%</span> de colapsos y mejora monótona con el presupuesto (67→77→85). Un cimiento simple y fiable. Y, sobre todo: lo que desbloqueó el problema fue formular bien la tarea, no el algoritmo.</div></div>
+
+<div class="autocheck"><div class="ch">Autocomprobación</div><ol>
+<li>¿Qué representa <span class="mono">Q(s,a)</span> y por qué no es lo mismo que la recompensa inmediata <span class="mono">r</span>?</li>
+<li>Si en un estado los valores son <span class="mono">Q=(1,2; 0,5; 1,9)</span> para (izquierda; mantener; derecha), ¿qué devuelve <span class="mono">argmax Q</span> y qué devuelve <span class="mono">max Q</span>?</li>
+<li>Con <span class="mono">r = −1,0</span> (perdiste la bola, estado terminal) y <span class="mono">γ = 0,99</span>, ¿cuánto vale el objetivo de Bellman <span class="mono">y</span>? (Pista: si el estado es terminal, no hay futuro.)</li>
+</ol></div>
+
+<div class="ejercicio"><div class="ch">Ejercicio</div>
+Repite el mini-ejemplo numérico, pero ahora la recompensa inmediata es <span class="mono">r = +1,0</span> (rompiste un ladrillo) y los valores en el estado siguiente <span class="mono">s′</span> son <span class="mono">Q(s′) = (0,5; 1,8; 3,2)</span> para (izquierda; mantener; derecha). La red predijo <span class="mono">Q(s, a) = 2,0</span> para la acción tomada. Calcula el objetivo de Bellman <span class="mono">y</span> y el error de la predicción, y di si la red estaba infravalorando o sobrevalorando la acción.
+<br><b>Pista:</b> usa <span class="mono">y = r + γ·max<sub>a′</sub>Q(s′,a′)</span> con <span class="mono">γ = 0,99</span>; el máximo de los tres valores de <span class="mono">s′</span> es <span class="mono">3,2</span>.
+<br><b>Respuesta:</b> <span class="mono">y = 1,0 + 0,99·3,2 = 1,0 + 3,168 = 4,168</span>. El error es <span class="mono">4,168 − 2,0 = +2,168</span>: positivo, luego la red <i>infravaloraba</i> la acción, y el entrenamiento empujará <span class="mono">Q(s,a)</span> hacia arriba.
+</div>
+
+<div class="experto"><div class="ch">🎓 Y ahora, para expertos <span class="lvl lvl-tec">nivel experto</span></div>
+<p>Formalicemos. DQN ajusta <span class="mono">Q<sub>θ</sub>(s,a)</span> minimizando, sobre lotes de <span class="mono">128</span> muestras extraídas i.i.d. del <i>replay buffer</i> (capacidad <span class="mono">10⁵</span>), la <b>pérdida de Huber</b> entre la predicción y el objetivo, en lugar del error cuadrático: la Huber es cuadrática para residuos pequeños y lineal para los grandes, lo que acota el gradiente ante <i>outliers</i> de TD y mejora la estabilidad. El objetivo emplea la corrección <b>Double DQN</b> (van Hasselt et al., 2016), que desacopla selección y evaluación de la acción: <span class="mono">y = r + γ·(1−done)·Q<sub>obj</sub>(s′, argmax<sub>a</sub> Q<sub>θ</sub>(s′,a))</span>. La red online <span class="mono">Q<sub>θ</sub></span> elige el <span class="mono">argmax</span> en <span class="mono">s′</span>; la red objetivo <span class="mono">Q<sub>obj</sub></span> lo cuantifica; el factor <span class="mono">(1−done)</span> anula el bootstrapping en estados terminales. La red objetivo se mantiene con <b>soft update de Polyak</b>, <span class="mono">θ<sub>obj</sub> ← τ·θ + (1−τ)·θ<sub>obj</sub></span> con <span class="mono">τ = 0,01</span> por paso, evitando los saltos de la copia dura periódica. Restantes: <span class="mono">γ = 0,99</span>; exploración <span class="mono">ε</span>-greedy <span class="mono">1,0→0,05</span> linealmente en <span class="mono">25.000</span> pasos; evaluación greedy. La razón de ser de <i>replay</i> y red objetivo es contener la <b>tríada letal</b> (Sutton & Barto): la combinación de aproximación de funciones, <i>bootstrapping</i> y aprendizaje <i>off-policy</i> puede divergir; el <i>replay</i> rompe la correlación temporal y aproxima muestras independientes, y la red objetivo congela parcialmente el blanco del operador de Bellman, transformando un objetivo móvil y autorreferente en uno casi estacionario que el descenso de gradiente sí puede perseguir con garantías prácticas. La sobreestimación residual del <span class="mono">max</span> —sesgo de Jensen sobre estimadores ruidosos— la mitiga, precisamente, el desacoplo de Double DQN.</p></div>
