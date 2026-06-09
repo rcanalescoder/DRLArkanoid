@@ -18,17 +18,17 @@ Además, una pestaña **🏁 Comparativa** entrena los cinco con el mismo presup
 
 ## 📄 Cuaderno PDF — descárgalo
 
-Un cuaderno divulgativo de **222 páginas** en castellano (**Edición 3**) que cuenta el viaje completo: de un agente **ciego** que parecía aprender pero sacaba **0%** en niveles dispersos, al **diagnóstico** de por qué fallaba (no era el algoritmo, era la *formulación* de la tarea), la **receta** que lo desbloquea, los **fundamentos de RL y Deep RL** (el bucle agente–entorno, MDP/POMDP, valor y Bellman, exploración, replay, redes y entrenamiento) y un capítulo a fondo por cada uno de los **cinco algoritmos** —red (con diagramas), **función de pérdida**, hiperparámetros (con **búsqueda en rejilla**), resultados y comparación—. Cierra con la **medición** (por qué la evaluación **greedy** sobre niveles no vistos es la forma justa de comparar), la **ablación** que prueba la tesis y el **veredicto** con datos reales. Cada tema lleva **doble pista de lectura**: una explicación pedagógica y un recuadro rojo **«Y ahora, para expertos»** con el formalismo. Más de **100 figuras** —infografías, esquemas, capturas y gráficas derivadas de `results/ledger.csv`.
+Un cuaderno divulgativo de **244 páginas** en castellano (**Edición 3 · versión visual Codex**) que cuenta el viaje completo: de un agente **ciego** que parecía aprender pero sacaba **0%** en niveles dispersos, al **diagnóstico** de por qué fallaba (no era el algoritmo, era la *formulación* de la tarea), la **receta** que lo desbloquea, los **fundamentos de RL y Deep RL** (el bucle agente–entorno, MDP/POMDP, valor y Bellman, exploración, replay, redes y entrenamiento) y un capítulo a fondo por cada uno de los **cinco algoritmos** —red (con diagramas), **función de pérdida**, hiperparámetros (con **búsqueda en rejilla**), resultados y comparación—. Cierra con la **medición** (por qué la evaluación **greedy** sobre niveles no vistos es la forma justa de comparar), la **ablación** que prueba la tesis y el **veredicto** con datos reales. Cada tema lleva **doble pista de lectura**: una explicación pedagógica y un recuadro rojo **«Y ahora, para expertos»** con el formalismo. Más de **100 figuras** —infografías, esquemas, capturas y gráficas derivadas de `results/ledger.csv`.
 
 <p align="center">
-  <a href="docs/Arkanoid-DRL-Learning-Lab-v3.pdf"><img src="docs/assets/pdf_cover.jpg" width="340" alt="Portada del cuaderno PDF (Edición 3)" /></a>
+  <a href="docs/Arkanoid-DRL-Learning-Lab-v3-version-codex.pdf"><img src="docs/assets/pdf_cover.jpg" width="340" alt="Portada del cuaderno PDF (Edición 3 · versión visual Codex)" /></a>
 </p>
 <p align="center">
-  <a href="docs/Arkanoid-DRL-Learning-Lab-v3.pdf"><b>⬇️&nbsp;&nbsp;Descargar el PDF</b></a>
-  &nbsp;&nbsp;·&nbsp;&nbsp;222 páginas&nbsp;&nbsp;·&nbsp;&nbsp;~13 MB&nbsp;&nbsp;·&nbsp;&nbsp;español
+  <a href="docs/Arkanoid-DRL-Learning-Lab-v3-version-codex.pdf"><b>⬇️&nbsp;&nbsp;Descargar el PDF</b></a>
+  &nbsp;&nbsp;·&nbsp;&nbsp;244 páginas&nbsp;&nbsp;·&nbsp;&nbsp;~22 MB&nbsp;&nbsp;·&nbsp;&nbsp;español
 </p>
 <p align="center">
-  <a href="docs/Arkanoid-DRL-Learning-Lab-v3.pdf"><img src="docs/assets/pdf_preview.jpg" width="820" alt="Páginas de muestra del cuaderno (Edición 3)" /></a>
+  <a href="docs/Arkanoid-DRL-Learning-Lab-v3-version-codex.pdf"><img src="docs/assets/pdf_preview.jpg" width="820" alt="Páginas de muestra del cuaderno (Edición 3 · versión visual Codex)" /></a>
 </p>
 
 > 💡 En GitHub puedes leerlo online (clic en la portada) o descargarlo desde el visor.
@@ -157,7 +157,7 @@ Una segunda pestaña entrena los cinco con el **mismo presupuesto** y los evalú
 
 ## 🔄 Cómo funciona por dentro (resumen)
 
-Una iteración de entrenamiento siempre hace lo mismo (ver el detalle ilustrado en el [cuaderno PDF](docs/Arkanoid-DRL-Learning-Lab-v3.pdf)):
+Una iteración de entrenamiento siempre hace lo mismo (ver el detalle ilustrado en el [cuaderno PDF](docs/Arkanoid-DRL-Learning-Lab-v3-version-codex.pdf)):
 
 1. **Observar** los estados de los N entornos (un vector de 6 números por partida).
 2. La **red decide** las N acciones de una sola pasada por la GPU (inferencia en lote).
