@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Receta causal del capitulo 1.6</title>
+  <desc id="desc">Impacto pedagogico de los cinco ingredientes de la receta al quitar cada pieza.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 19px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .num{font:900 28px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="48" y="58">La receta entera: que duele al quitarlo y que ensena</text>
+  <text class="body muted" x="48" y="88">La cifra exacta depende de DQN y esta tanda; la lectura pedagogica es la jerarquia de causas.</text>
+
+  <g transform="translate(74 136)">
+    <rect width="1052" height="92" rx="22" fill="#f8fafc" stroke="#dbe2ea" class="shadow"/>
+    <text class="tiny" x="28" y="34" fill="#475569">BASE DE COMPARACION</text>
+    <text class="label ink" x="28" y="66">DQN con receta completa: 77% en TEST-ID</text>
+    <text class="small muted" x="760" y="56">Cada fila quita una pieza y mira el cambio.</text>
+  </g>
+
+  <g transform="translate(74 258)">
+    <rect width="1052" height="70" rx="18" fill="#fff7ed" stroke="#fed7aa"/>
+    <text class="label ink" x="28" y="43">Reloj proporcional</text>
+    <text class="small muted" x="285" y="43">Si falta, la tarea vuelve a cortarse pronto.</text>
+    <text class="num" x="944" y="45" text-anchor="middle" fill="#c2410c">-23,5</text>
+  </g>
+  <g transform="translate(74 346)">
+    <rect width="1052" height="70" rx="18" fill="#f5f3ff" stroke="#ddd6fe"/>
+    <text class="label ink" x="28" y="43">Shaping Phi</text>
+    <text class="small muted" x="285" y="43">Si se quita, desaparece el proxy saboteador.</text>
+    <text class="num" x="944" y="45" text-anchor="middle" fill="#6d28d9">+8,0</text>
+  </g>
+  <g transform="translate(74 434)">
+    <rect width="1052" height="70" rx="18" fill="#eff6ff" stroke="#bfdbfe"/>
+    <text class="label ink" x="28" y="43">Matriz 8x10</text>
+    <text class="small muted" x="285" y="43">Sin ella, no hay objetivo observable.</text>
+    <text class="num" x="944" y="45" text-anchor="middle" fill="#1d4ed8">critico</text>
+  </g>
+  <g transform="translate(74 522)">
+    <rect width="1052" height="70" rx="18" fill="#ecfeff" stroke="#bae6fd"/>
+    <text class="label ink" x="28" y="43">Encoder conv</text>
+    <text class="small muted" x="285" y="43">Aplanar la matriz tira la geometria.</text>
+    <text class="num" x="944" y="45" text-anchor="middle" fill="#0e7490">-20,4</text>
+  </g>
+  <g transform="translate(74 610)">
+    <rect width="1052" height="70" rx="18" fill="#ecfdf5" stroke="#bbf7d0"/>
+    <text class="label ink" x="28" y="43">Curriculo + generador</text>
+    <text class="small muted" x="285" y="43">El curriculo mueve poco; el generador hace honesta la evaluacion.</text>
+    <text class="num" x="944" y="45" text-anchor="middle" fill="#047857">robustez</text>
+  </g>
+
+  <rect x="246" y="706" width="708" height="42" rx="21" fill="#111827"/>
+  <text class="body" x="600" y="733" text-anchor="middle" fill="#fff">Conclusión: lo que desbloquea no es una pieza aislada, sino una formulacion acoplada.</text>
+</svg>

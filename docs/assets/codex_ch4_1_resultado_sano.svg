@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Veredicto sano: alto, estable y declarado</title>
+<desc id="desc">El resultado fuerte no es solo la media alta, sino su contexto experimental.</desc>
+<defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}.line{stroke:#dbe2ea}.white{fill:#fff}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.35px}
+      .num{font:900 34px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#0e7490"/></marker>
+  </defs>
+<rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="52" y="58">Veredicto sano: alto, estable y declarado</text>
+  <text class="body muted" x="52" y="88">El resultado fuerte no es solo la media alta, sino su contexto experimental.</text>
+
+<g transform="translate(67 140)">
+<rect width="250" height="310" rx="22" fill="#f5f3ff" stroke="#ddd6fe" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#7c3aed">PPO</text>
+<text class="label ink" x="24" y="68">Sube pronto</text>
+<text class="small muted" x="24" y="108">alto exito y buena</text>
+<text class="small muted" x="24" y="130">estabilidad en la lectura</text>
+<text class="small muted" x="24" y="152">principal</text>
+<rect x="24" y="252" width="202" height="38" rx="19" fill="#7c3aed"/>
+<text class="small" x="125" y="276" text-anchor="middle" fill="#fff">referencia</text>
+</g>
+<g transform="translate(339 140)">
+<rect width="250" height="310" rx="22" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#2563eb">DQN</text>
+<text class="label ink" x="24" y="68">Competitivo</text>
+<text class="small muted" x="24" y="108">base solida cuando la</text>
+<text class="small muted" x="24" y="130">receta de formulacion</text>
+<text class="small muted" x="24" y="152">esta completa</text>
+<rect x="24" y="252" width="202" height="38" rx="19" fill="#2563eb"/>
+<text class="small" x="125" y="276" text-anchor="middle" fill="#fff">valor</text>
+</g>
+<g transform="translate(611 140)">
+<rect width="250" height="310" rx="22" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#d97706">WM</text>
+<text class="label ink" x="24" y="68">Techo visible</text>
+<text class="small muted" x="24" y="108">aprende, pero el modelo</text>
+<text class="small muted" x="24" y="130">imperfecto limita la</text>
+<text class="small muted" x="24" y="152">subida</text>
+<rect x="24" y="252" width="202" height="38" rx="19" fill="#d97706"/>
+<text class="small" x="125" y="276" text-anchor="middle" fill="#fff">bias</text>
+</g>
+<g transform="translate(883 140)">
+<rect width="250" height="310" rx="22" fill="#fdf2f8" stroke="#fbcfe8" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#db2777">COLAPSOS</text>
+<text class="label ink" x="24" y="68">No esconderlos</text>
+<text class="small muted" x="24" y="108">semillas hundidas cambian</text>
+<text class="small muted" x="24" y="130">la interpretacion de una</text>
+<text class="small muted" x="24" y="152">media</text>
+<rect x="24" y="252" width="202" height="38" rx="19" fill="#db2777"/>
+<text class="small" x="125" y="276" text-anchor="middle" fill="#fff">honestidad</text>
+</g>
+<rect x="210" y="650" width="780" height="54" rx="27" fill="#111827"/>
+<text class="body" x="600" y="683" text-anchor="middle" fill="#fff">El ganador metodologico se lee con media, varianza, coste y split.</text>
+</svg>

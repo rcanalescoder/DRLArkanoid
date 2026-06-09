@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Una transicion leida como frase</title>
+<desc id="desc">La tupla no es notacion decorativa: es una frase completa sobre una decision.</desc>
+<defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}.line{stroke:#dbe2ea}.white{fill:#fff}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.35px}
+      .num{font:900 34px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#0e7490"/></marker>
+  </defs>
+<rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="52" y="58">Una transicion leida como frase</text>
+  <text class="body muted" x="52" y="88">La tupla no es notacion decorativa: es una frase completa sobre una decision.</text>
+
+<g transform="translate(23 230)">
+<rect width="210" height="170" rx="22" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#2563eb">s</text>
+<text class="label ink" x="24" y="68">Estado</text>
+<text class="small muted" x="24" y="108">lo que el agente</text>
+<text class="small muted" x="24" y="130">sabe ahora: 6</text>
+<text class="small muted" x="24" y="152">cinematicos mas</text>
+<text class="small muted" x="24" y="174">matriz 8x10</text>
+</g>
+<path d="M241 315H249" stroke="#0e7490" stroke-width="5" fill="none" marker-end="url(#arrow)"/>
+<g transform="translate(259 230)">
+<rect width="210" height="170" rx="22" fill="#f5f3ff" stroke="#ddd6fe" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#7c3aed">a</text>
+<text class="label ink" x="24" y="68">Accion</text>
+<text class="small muted" x="24" y="108">una decision</text>
+<text class="small muted" x="24" y="130">discreta: izquierda,</text>
+<text class="small muted" x="24" y="152">quieto o derecha</text>
+</g>
+<path d="M477 315H485" stroke="#0e7490" stroke-width="5" fill="none" marker-end="url(#arrow)"/>
+<g transform="translate(495 230)">
+<rect width="210" height="170" rx="22" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#047857">r</text>
+<text class="label ink" x="24" y="68">Recompensa</text>
+<text class="small muted" x="24" y="108">la consecuencia</text>
+<text class="small muted" x="24" y="130">local de ese paso, a</text>
+<text class="small muted" x="24" y="152">menudo cero</text>
+</g>
+<path d="M713 315H721" stroke="#0e7490" stroke-width="5" fill="none" marker-end="url(#arrow)"/>
+<g transform="translate(731 230)">
+<rect width="210" height="170" rx="22" fill="#ecfeff" stroke="#bae6fd" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#0891b2">s'</text>
+<text class="label ink" x="24" y="68">Nuevo estado</text>
+<text class="small muted" x="24" y="108">la escena despues de</text>
+<text class="small muted" x="24" y="130">avanzar la fisica</text>
+</g>
+<path d="M949 315H957" stroke="#0e7490" stroke-width="5" fill="none" marker-end="url(#arrow)"/>
+<g transform="translate(967 230)">
+<rect width="210" height="170" rx="22" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#d97706">done</text>
+<text class="label ink" x="24" y="68">Final?</text>
+<text class="small muted" x="24" y="108">si el episodio</text>
+<text class="small muted" x="24" y="130">acaba, el futuro</text>
+<text class="small muted" x="24" y="152">deja de contar</text>
+</g>
+<rect x="190" y="620" width="820" height="56" rx="28" fill="#111827"/>
+<text class="body" x="600" y="654" text-anchor="middle" fill="#fff">Cada algoritmo aprende procesando millones de frases como esta.</text>
+</svg>

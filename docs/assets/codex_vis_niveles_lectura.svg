@@ -1,96 +1,101 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 540" role="img" aria-labelledby="title desc">
-  <title id="title">Cuatro capas de lectura sobre la misma pagina</title>
-  <desc id="desc">Diagrama pedagogico que muestra una pagina con cuatro capas: intuicion, tecnica, codigo y reproducibilidad. A la derecha, tres rutas de lectura segun el objetivo del lector.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Mapa de lectura por rutas</title>
+  <desc id="desc">Una pagina del informe con capas superpuestas y tres rutas de lectura: entender, construir y auditar.</desc>
   <defs>
     <style>
-      .bg{fill:#fff}
-      .ink{fill:#111827}
-      .muted{fill:#64748b}
-      .line{stroke:#dbe2ea}
-      .tiny{font:500 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-      .small{font:600 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 30px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
       .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-      .label{font:800 18px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-      .title{font:800 26px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-      .mono{font:700 14px "SFMono-Regular",Menlo,Consolas,monospace}
-      .pill{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.4px}
+      .label{font:800 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
       .shadow{filter:url(#shadow)}
     </style>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
-      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0f172a" flood-opacity=".12"/>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="14" stdDeviation="15" flood-color="#0f172a" flood-opacity=".14"/>
     </filter>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
-      <path d="M0,0 L7,3 L0,6 Z" fill="#64748b"/>
-    </marker>
+    <marker id="arrow-blue" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker>
+    <marker id="arrow-cyan" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0891b2"/></marker>
+    <marker id="arrow-green" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0f9f6e"/></marker>
   </defs>
 
-  <rect class="bg" width="1100" height="540"/>
-  <text class="title ink" x="42" y="54">Cuatro capas sobre la misma pagina</text>
-  <text class="body muted" x="42" y="82">La intuicion mantiene el hilo; las demas capas anaden precision, construccion y evidencia.</text>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="46" y="58">No hay una sola forma de leer esta guia</text>
+  <text class="body muted" x="46" y="88">La misma pagina admite tres rutas: entender la idea, construir el mecanismo o auditar la evidencia.</text>
 
-  <line x1="70" y1="430" x2="70" y2="134" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
-  <text class="pill muted" x="54" y="466" transform="rotate(-90 54 466)">MAS PROFUNDIDAD</text>
+  <rect x="52" y="126" width="702" height="500" rx="28" fill="#f8fafc" stroke="#dbe2ea" class="shadow"/>
+  <text class="tiny muted" x="90" y="166">PAGINA TIPO DEL LIBRO</text>
+  <rect x="90" y="184" width="474" height="390" rx="18" fill="#ffffff" stroke="#cbd5e1"/>
+  <rect x="116" y="212" width="220" height="18" rx="9" fill="#cbd5e1"/>
+  <rect x="116" y="247" width="390" height="46" rx="12" fill="#eff6ff" stroke="#93c5fd"/>
+  <text class="label" x="136" y="270" fill="#1d4ed8">Pregunta + escena</text>
+  <text class="small muted" x="136" y="287">Que problema de Arkanoid estamos resolviendo?</text>
 
-  <rect x="104" y="118" width="640" height="324" rx="22" fill="#f8fafc" stroke="#dbe2ea" stroke-width="1.4" class="shadow"/>
-  <rect x="126" y="139" width="596" height="62" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
-  <rect x="126" y="214" width="596" height="62" rx="14" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/>
-  <rect x="126" y="289" width="596" height="62" rx="14" fill="#ecfeff" stroke="#0891b2" stroke-width="1.5"/>
-  <rect x="126" y="364" width="596" height="62" rx="14" fill="#ecfdf5" stroke="#0f9f6e" stroke-width="1.5"/>
+  <rect x="116" y="312" width="390" height="54" rx="12" fill="#f5f3ff" stroke="#c4b5fd"/>
+  <text class="label" x="136" y="336" fill="#6d28d9">Concepto tecnico</text>
+  <text class="mono" x="136" y="354" fill="#6d28d9">Q(s,a), V(s), gamma, pi(a|s)</text>
 
-  <circle cx="159" cy="170" r="18" fill="#2563eb"/>
-  <text class="small" x="159" y="176" text-anchor="middle" fill="#fff">1</text>
-  <text class="label" x="190" y="163" fill="#2563eb">Intuicion</text>
-  <text class="tiny ink" x="190" y="184">pregunta, escena de Arkanoid, idea en palabras</text>
-  <rect x="586" y="152" width="112" height="26" rx="13" fill="#dbeafe"/>
-  <text class="pill" x="642" y="170" text-anchor="middle" fill="#1d4ed8">AUTOSUFICIENTE</text>
-  <rect x="474" y="157" width="20" height="13" rx="3" fill="#60a5fa"/>
-  <rect x="499" y="157" width="20" height="13" rx="3" fill="#60a5fa"/>
-  <rect x="524" y="157" width="20" height="13" rx="3" fill="#60a5fa"/>
-  <circle cx="512" cy="184" r="6" fill="#1d4ed8"/>
-  <rect x="490" y="191" width="55" height="7" rx="3.5" fill="#1d4ed8"/>
+  <rect x="116" y="385" width="390" height="54" rx="12" fill="#ecfeff" stroke="#67e8f9"/>
+  <text class="label" x="136" y="409" fill="#0e7490">Implementacion</text>
+  <text class="mono" x="136" y="427" fill="#0e7490">buffer -> red -> perdida -> gradiente</text>
 
-  <circle cx="159" cy="245" r="18" fill="#7c3aed"/>
-  <text class="small" x="159" y="251" text-anchor="middle" fill="#fff">2</text>
-  <text class="label" x="190" y="238" fill="#7c3aed">Tecnica</text>
-  <text class="tiny ink" x="190" y="259">definiciones, variables, formulas y tablas</text>
-  <text class="mono" x="584" y="249" fill="#6d28d9">Q(s,a) = r + gamma max Q</text>
+  <rect x="116" y="458" width="390" height="54" rx="12" fill="#ecfdf5" stroke="#86efac"/>
+  <text class="label" x="136" y="482" fill="#047857">Evidencia</text>
+  <text class="small muted" x="136" y="500">5 semillas, test disjunto, frozen_hash</text>
+  <rect x="116" y="534" width="160" height="16" rx="8" fill="#cbd5e1"/>
+  <rect x="292" y="534" width="98" height="16" rx="8" fill="#e2e8f0"/>
 
-  <circle cx="159" cy="320" r="18" fill="#0891b2"/>
-  <text class="small" x="159" y="326" text-anchor="middle" fill="#fff">3</text>
-  <text class="label" x="190" y="313" fill="#0891b2">Codigo</text>
-  <text class="tiny ink" x="190" y="334">pseudocodigo, red, buffers y bucle de entrenamiento</text>
-  <rect x="574" y="304" width="124" height="32" rx="8" fill="#cffafe" stroke="#67e8f9"/>
-  <text class="mono" x="590" y="325" fill="#0e7490">for step in env</text>
+  <rect x="590" y="228" width="118" height="52" rx="13" fill="#dbeafe" stroke="#2563eb"/>
+  <text class="tiny" x="649" y="251" text-anchor="middle" fill="#1d4ed8">CAPA 1</text>
+  <text class="small" x="649" y="268" text-anchor="middle" fill="#1d4ed8">intuicion</text>
+  <path d="M590,254 C552,256 540,262 506,270" fill="none" stroke="#2563eb" stroke-width="2.2" marker-end="url(#arrow-blue)"/>
 
-  <circle cx="159" cy="395" r="18" fill="#0f9f6e"/>
-  <text class="small" x="159" y="401" text-anchor="middle" fill="#fff">4</text>
-  <text class="label" x="190" y="388" fill="#0f9f6e">Reproducibilidad</text>
-  <text class="tiny ink" x="190" y="409">5 semillas, splits disjuntos, ledger.csv y frozen_hash</text>
-  <rect x="560" y="379" width="138" height="32" rx="8" fill="#d1fae5" stroke="#86efac"/>
-  <text class="mono" x="581" y="400" fill="#047857">a1ab7ce18d...</text>
+  <rect x="590" y="310" width="118" height="52" rx="13" fill="#ede9fe" stroke="#7c3aed"/>
+  <text class="tiny" x="649" y="333" text-anchor="middle" fill="#6d28d9">CAPA 2</text>
+  <text class="small" x="649" y="350" text-anchor="middle" fill="#6d28d9">tecnica</text>
 
-  <text class="small muted" x="330" y="462">mismo texto, distinta profundidad</text>
+  <rect x="590" y="392" width="118" height="52" rx="13" fill="#cffafe" stroke="#0891b2"/>
+  <text class="tiny" x="649" y="415" text-anchor="middle" fill="#0e7490">CAPA 3</text>
+  <text class="small" x="649" y="432" text-anchor="middle" fill="#0e7490">codigo</text>
+  <path d="M590,418 C552,418 540,414 506,412" fill="none" stroke="#0891b2" stroke-width="2.2" marker-end="url(#arrow-cyan)"/>
 
-  <rect x="788" y="118" width="270" height="324" rx="22" fill="#ffffff" stroke="#dbe2ea" stroke-width="1.4" class="shadow"/>
-  <text class="label ink" x="816" y="154">Elige hasta donde bajar</text>
-  <text class="tiny muted" x="816" y="178">No es una escalera obligatoria:</text>
-  <text class="tiny muted" x="816" y="196">es un control de zoom.</text>
+  <rect x="590" y="474" width="118" height="52" rx="13" fill="#d1fae5" stroke="#0f9f6e"/>
+  <text class="tiny" x="649" y="497" text-anchor="middle" fill="#047857">CAPA 4</text>
+  <text class="small" x="649" y="514" text-anchor="middle" fill="#047857">evidencia</text>
+  <path d="M590,500 C552,500 540,492 506,486" fill="none" stroke="#0f9f6e" stroke-width="2.2" marker-end="url(#arrow-green)"/>
 
-  <rect x="816" y="222" width="214" height="50" rx="12" fill="#eff6ff" stroke="#bfdbfe"/>
-  <rect x="832" y="236" width="12" height="22" rx="6" fill="#2563eb"/>
-  <text class="small ink" x="858" y="242">Primera lectura</text>
-  <text class="tiny muted" x="858" y="260">lee solo la capa 1</text>
+  <rect x="810" y="126" width="338" height="500" rx="28" fill="#ffffff" stroke="#dbe2ea" class="shadow"/>
+  <text class="tiny muted" x="846" y="166">TRES RUTAS LEGITIMAS</text>
 
-  <rect x="816" y="287" width="214" height="50" rx="12" fill="#ecfeff" stroke="#bae6fd"/>
-  <rect x="832" y="301" width="12" height="22" rx="6" fill="#0891b2"/>
-  <text class="small ink" x="858" y="307">Construir algo</text>
-  <text class="tiny muted" x="858" y="325">baja hasta codigo</text>
+  <rect x="846" y="190" width="266" height="104" rx="18" fill="#eff6ff" stroke="#bfdbfe"/>
+  <circle cx="878" cy="224" r="18" fill="#2563eb"/>
+  <text class="label" x="878" y="230" text-anchor="middle" fill="#fff">A</text>
+  <text class="label ink" x="908" y="217">Entender</text>
+  <text class="small muted" x="908" y="238">Solo sigues pregunta, escena</text>
+  <text class="small muted" x="908" y="256">y conclusion. Ya vale.</text>
+  <rect x="908" y="267" width="92" height="16" rx="8" fill="#bfdbfe"/>
 
-  <rect x="816" y="352" width="214" height="50" rx="12" fill="#ecfdf5" stroke="#bbf7d0"/>
-  <rect x="832" y="366" width="12" height="22" rx="6" fill="#0f9f6e"/>
-  <text class="small ink" x="858" y="372">Auditar cifras</text>
-  <text class="tiny muted" x="858" y="390">baja hasta evidencia</text>
+  <rect x="846" y="324" width="266" height="104" rx="18" fill="#ecfeff" stroke="#bae6fd"/>
+  <circle cx="878" cy="358" r="18" fill="#0891b2"/>
+  <text class="label" x="878" y="364" text-anchor="middle" fill="#fff">B</text>
+  <text class="label ink" x="908" y="351">Construir</text>
+  <text class="small muted" x="908" y="372">Bajas hasta pseudocodigo,</text>
+  <text class="small muted" x="908" y="390">redes, buffers y bucles.</text>
+  <rect x="908" y="401" width="142" height="16" rx="8" fill="#a5f3fc"/>
 
-  <rect x="42" y="488" width="1016" height="32" rx="16" fill="#f8fafc" stroke="#e2e8f0"/>
-  <text class="tiny muted" x="550" y="509" text-anchor="middle">Regla practica: si la capa superior ya responde tu pregunta, puedes seguir avanzando sin culpa.</text>
+  <rect x="846" y="458" width="266" height="104" rx="18" fill="#ecfdf5" stroke="#bbf7d0"/>
+  <circle cx="878" cy="492" r="18" fill="#0f9f6e"/>
+  <text class="label" x="878" y="498" text-anchor="middle" fill="#fff">C</text>
+  <text class="label ink" x="908" y="485">Auditar</text>
+  <text class="small muted" x="908" y="506">Llegas al protocolo:</text>
+  <text class="small muted" x="908" y="524">semillas, splits y ledger.</text>
+  <rect x="908" y="535" width="166" height="16" rx="8" fill="#86efac"/>
+
+  <path d="M742,254 C790,252 806,230 846,230" fill="none" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+  <path d="M742,418 C790,418 806,376 846,376" fill="none" stroke="#0891b2" stroke-width="2.5" marker-end="url(#arrow-cyan)"/>
+  <path d="M742,500 C790,500 806,510 846,510" fill="none" stroke="#0f9f6e" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+
+  <rect x="150" y="652" width="900" height="36" rx="18" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text class="body ink" x="600" y="676" text-anchor="middle">El contrato no es "leelo todo": es "elige el zoom correcto para tu objetivo".</text>
 </svg>

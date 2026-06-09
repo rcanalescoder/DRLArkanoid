@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">DQN en una ficha funcional</title>
+<desc id="desc">DQN aprende una tabla aproximada de cuanto promete cada accion.</desc>
+<defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}.line{stroke:#dbe2ea}.white{fill:#fff}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.35px}
+      .num{font:900 34px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#0e7490"/></marker>
+  </defs>
+<rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="52" y="58">DQN en una ficha funcional</text>
+  <text class="body muted" x="52" y="88">DQN aprende una tabla aproximada de cuanto promete cada accion.</text>
+
+<g transform="translate(67 140)">
+<rect width="250" height="310" rx="22" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#2563eb">IDEA</text>
+<text class="label ink" x="24" y="68">Valorar acciones</text>
+<text class="small muted" x="24" y="108">Q(s,a) estima retorno</text>
+<text class="small muted" x="24" y="130">esperado si hago a en s</text>
+<rect x="24" y="252" width="202" height="38" rx="19" fill="#2563eb"/>
+<text class="small" x="125" y="276" text-anchor="middle" fill="#fff">valor</text>
+</g>
+<g transform="translate(339 140)">
+<rect width="250" height="310" rx="22" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#047857">APRENDE</text>
+<text class="label ink" x="24" y="68">Bellman target</text>
+<text class="small muted" x="24" y="108">corrige la prediccion</text>
+<text class="small muted" x="24" y="130">hacia r mas futuro</text>
+<text class="small muted" x="24" y="152">descontado</text>
+<rect x="24" y="252" width="202" height="38" rx="19" fill="#047857"/>
+<text class="small" x="125" y="276" text-anchor="middle" fill="#fff">TD-error</text>
+</g>
+<g transform="translate(611 140)">
+<rect width="250" height="310" rx="22" fill="#f5f3ff" stroke="#ddd6fe" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#7c3aed">ESTABILIZA</text>
+<text class="label ink" x="24" y="68">Replay + target</text>
+<text class="small muted" x="24" y="108">mezcla datos y usa una</text>
+<text class="small muted" x="24" y="130">red objetivo lenta</text>
+<rect x="24" y="252" width="202" height="38" rx="19" fill="#7c3aed"/>
+<text class="small" x="125" y="276" text-anchor="middle" fill="#fff">DQN clasico</text>
+</g>
+<g transform="translate(883 140)">
+<rect width="250" height="310" rx="22" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#d97706">RIESGO</text>
+<text class="label ink" x="24" y="68">Sobreestimar</text>
+<text class="small muted" x="24" y="108">si las dianas son</text>
+<text class="small muted" x="24" y="130">ruidosas, puede confiar</text>
+<text class="small muted" x="24" y="152">demasiado en Q altos</text>
+<rect x="24" y="252" width="202" height="38" rx="19" fill="#d97706"/>
+<text class="small" x="125" y="276" text-anchor="middle" fill="#fff">control</text>
+</g>
+<rect x="210" y="650" width="780" height="54" rx="27" fill="#111827"/>
+<text class="body" x="600" y="683" text-anchor="middle" fill="#fff">Si la tarea esta bien formulada, DQN es una base fuerte y transparente.</text>
+</svg>

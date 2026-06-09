@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Resumen visual del capitulo 1.5</title>
+  <desc id="desc">Resumen de los tres muros: reloj justo, meta limpia y vista espacial antes de elegir algoritmo.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .num{font:900 34px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Cierre de 1.5: formula bien la tarea antes de comparar algoritmos</text>
+  <text class="body muted" x="48" y="88">Los tres muros no pedian un optimizador nuevo; pedian un problema resoluble.</text>
+
+  <g transform="translate(88 150)">
+    <rect width="300" height="250" rx="24" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+    <text class="tiny" x="30" y="42" fill="#c2410c">1 - TIEMPO</text>
+    <text class="label ink" x="30" y="78">Reloj justo</text>
+    <text class="small muted" x="30" y="112">600 pasos cortaban</text>
+    <text class="small muted" x="30" y="134">el episodio demasiado pronto.</text>
+    <text class="num" x="30" y="196" fill="#c2410c">7200</text>
+    <text class="small muted" x="140" y="190">pasos para</text>
+    <text class="small muted" x="140" y="212">8x10 con 80 ladrillos.</text>
+  </g>
+
+  <g transform="translate(450 150)">
+    <rect width="300" height="250" rx="24" fill="#f5f3ff" stroke="#ddd6fe" class="shadow"/>
+    <text class="tiny" x="30" y="42" fill="#6d28d9">2 - META</text>
+    <text class="label ink" x="30" y="78">Recompensa limpia</text>
+    <text class="small muted" x="30" y="112">Phi premiaba el proxy:</text>
+    <text class="small muted" x="30" y="134">seguir la bola.</text>
+    <text class="num" x="30" y="196" fill="#6d28d9">+8</text>
+    <text class="small muted" x="110" y="190">puntos al quitar</text>
+    <text class="small muted" x="110" y="212">esa ayuda.</text>
+  </g>
+
+  <g transform="translate(812 150)">
+    <rect width="300" height="250" rx="24" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+    <text class="tiny" x="30" y="42" fill="#1d4ed8">3 - VISTA</text>
+    <text class="label ink" x="30" y="78">Mapa visible</text>
+    <text class="small muted" x="30" y="112">Sin ladrillos en la entrada</text>
+    <text class="small muted" x="30" y="134">no hay punteria posible.</text>
+    <text class="num" x="30" y="196" fill="#1d4ed8">8x10</text>
+    <text class="small muted" x="130" y="190">matriz con</text>
+    <text class="small muted" x="130" y="212">encoder convolucional.</text>
+  </g>
+
+  <g transform="translate(208 478)">
+    <rect width="784" height="76" rx="22" fill="#ecfeff" stroke="#bae6fd"/>
+    <text class="label" x="392" y="32" text-anchor="middle" fill="#0e7490">Orden de trabajo</text>
+    <text class="body ink" x="392" y="58" text-anchor="middle">1. Haz el objetivo alcanzable  2. Premia lo correcto  3. Dale al agente lo que debe ver</text>
+  </g>
+
+  <rect x="254" y="616" width="692" height="48" rx="24" fill="#111827"/>
+  <text class="body" x="600" y="647" text-anchor="middle" fill="#fff">Despues de eso, comparar DQN, PPO, SAC o modelos del mundo ya tiene sentido.</text>
+</svg>

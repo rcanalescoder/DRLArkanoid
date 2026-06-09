@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Proxy frente a objetivo real</title>
+  <desc id="desc">Infografia que separa lo que premiamos durante entrenamiento de lo que queremos medir al final.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 30px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 19px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+    <marker id="arrow" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#334155"/></marker>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">La trampa: optimizar el proxy equivocado</text>
+  <text class="body muted" x="48" y="88">El agente no sabe lo que querias decir. Optimiza literalmente el numero que le diste.</text>
+
+  <rect x="70" y="146" width="430" height="350" rx="30" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+  <text class="tiny" x="112" y="190" fill="#1d4ed8">LO QUE PREMIAMOS PASO A PASO</text>
+  <text class="label ink" x="112" y="226">Proxy de entrenamiento</text>
+  <g transform="translate(112 262)">
+    <rect width="268" height="42" rx="21" fill="#dbeafe" stroke="#93c5fd"/>
+    <text class="mono" x="134" y="27" text-anchor="middle" fill="#1d4ed8">+0.2 por rebotar</text>
+    <rect y="62" width="268" height="42" rx="21" fill="#dbeafe" stroke="#93c5fd"/>
+    <text class="mono" x="134" y="89" text-anchor="middle" fill="#1d4ed8">+1.0 por ladrillo</text>
+    <rect y="124" width="268" height="42" rx="21" fill="#dbeafe" stroke="#93c5fd"/>
+    <text class="mono" x="134" y="151" text-anchor="middle" fill="#1d4ed8">+5.0 por limpiar</text>
+  </g>
+  <text class="small muted" x="112" y="462">Sirve para guiar el aprendizaje.</text>
+
+  <rect x="700" y="146" width="430" height="350" rx="30" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+  <text class="tiny" x="742" y="190" fill="#047857">LO QUE QUEREMOS DEMOSTRAR</text>
+  <text class="label ink" x="742" y="226">Objetivo real</text>
+  <g transform="translate(742 264)">
+    <rect width="270" height="64" rx="24" fill="#d1fae5" stroke="#86efac"/>
+    <text class="label" x="135" y="30" text-anchor="middle" fill="#047857">nivel limpio</text>
+    <text class="small" x="135" y="50" text-anchor="middle" fill="#047857">si / no</text>
+    <rect y="94" width="270" height="64" rx="24" fill="#d1fae5" stroke="#86efac"/>
+    <text class="label" x="135" y="120" text-anchor="middle" fill="#047857">% niveles limpiados</text>
+    <text class="small" x="135" y="142" text-anchor="middle" fill="#047857">en test no visto</text>
+  </g>
+  <text class="small muted" x="742" y="462">Sirve para juzgar el resultado.</text>
+
+  <path d="M504,318 C570,278 628,278 694,318" fill="none" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M694,372 C628,414 570,414 504,372" fill="none" stroke="#dc2626" stroke-width="3" marker-end="url(#arrow)"/>
+  <text class="tiny" x="600" y="290" text-anchor="middle" fill="#334155">BIEN SI ALINEA</text>
+  <text class="tiny" x="600" y="428" text-anchor="middle" fill="#dc2626">PELIGRO SI SE SEPARA</text>
+
+  <rect x="252" y="574" width="696" height="54" rx="27" fill="#111827"/>
+  <text class="body" x="600" y="608" text-anchor="middle" fill="#fff">Reward hacking = el proxy sube mientras el objetivo real sigue sin resolverse.</text>
+</svg>

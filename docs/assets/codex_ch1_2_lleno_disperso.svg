@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Muro lleno frente a nivel disperso</title>
+  <desc id="desc">Comparacion visual del espejismo del 56 por ciento: muro lleno con muchos impactos por fisica frente a nivel disperso con huecos.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 30px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 18px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .big{font:900 48px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="48" y="58">El 56% era fisica, no punteria</text>
+  <text class="body muted" x="48" y="88">La misma politica de supervivencia parece buena cuando la pared esta llena y queda expuesta cuando hay huecos.</text>
+
+  <rect x="70" y="142" width="500" height="448" rx="30" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+  <text class="tiny" x="112" y="184" fill="#c2410c">REJILLA LLENA</text>
+  <text class="big" x="112" y="246" fill="#c2410c">56%</text>
+  <text class="small muted" x="250" y="232">exito aparente</text>
+  <text class="small muted" x="250" y="254">por acumulacion de rebotes</text>
+  <rect x="116" y="292" width="340" height="190" rx="20" fill="#0b1020"/>
+  <g transform="translate(146 318)">
+    <rect x="0" y="0" width="28" height="10" rx="3" fill="#fb7185"/><rect x="34" y="0" width="28" height="10" rx="3" fill="#fb7185"/><rect x="68" y="0" width="28" height="10" rx="3" fill="#fb7185"/><rect x="102" y="0" width="28" height="10" rx="3" fill="#fb7185"/><rect x="136" y="0" width="28" height="10" rx="3" fill="#fb7185"/><rect x="170" y="0" width="28" height="10" rx="3" fill="#fb7185"/><rect x="204" y="0" width="28" height="10" rx="3" fill="#fb7185"/><rect x="238" y="0" width="28" height="10" rx="3" fill="#fb7185"/>
+    <rect x="0" y="18" width="28" height="10" rx="3" fill="#f59e0b"/><rect x="34" y="18" width="28" height="10" rx="3" fill="#f59e0b"/><rect x="68" y="18" width="28" height="10" rx="3" fill="#f59e0b"/><rect x="102" y="18" width="28" height="10" rx="3" fill="#f59e0b"/><rect x="136" y="18" width="28" height="10" rx="3" fill="#f59e0b"/><rect x="170" y="18" width="28" height="10" rx="3" fill="#f59e0b"/><rect x="204" y="18" width="28" height="10" rx="3" fill="#f59e0b"/><rect x="238" y="18" width="28" height="10" rx="3" fill="#f59e0b"/>
+    <rect x="0" y="36" width="28" height="10" rx="3" fill="#34d399"/><rect x="34" y="36" width="28" height="10" rx="3" fill="#34d399"/><rect x="68" y="36" width="28" height="10" rx="3" fill="#34d399"/><rect x="102" y="36" width="28" height="10" rx="3" fill="#34d399"/><rect x="136" y="36" width="28" height="10" rx="3" fill="#34d399"/><rect x="170" y="36" width="28" height="10" rx="3" fill="#34d399"/><rect x="204" y="36" width="28" height="10" rx="3" fill="#34d399"/><rect x="238" y="36" width="28" height="10" rx="3" fill="#34d399"/>
+    <polyline points="18,152 112,70 190,120 260,48" fill="none" stroke="#fbbf24" stroke-width="4"/>
+    <circle cx="260" cy="48" r="7" fill="#fff"/>
+    <rect x="100" y="162" width="64" height="10" rx="5" fill="#818cf8"/>
+  </g>
+  <text class="small muted" x="112" y="532">Alta densidad: casi cualquier trayectoria toca algo.</text>
+
+  <rect x="630" y="142" width="500" height="448" rx="30" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+  <text class="tiny" x="672" y="184" fill="#1d4ed8">NIVEL DISPERSO</text>
+  <text class="big" x="672" y="246" fill="#1d4ed8">0%</text>
+  <text class="small muted" x="790" y="232">exito real</text>
+  <text class="small muted" x="790" y="254">cuando hay que apuntar</text>
+  <rect x="676" y="292" width="340" height="190" rx="20" fill="#0b1020"/>
+  <g transform="translate(706 318)">
+    <rect x="0" y="0" width="28" height="10" rx="3" fill="#fb7185"/><rect x="136" y="0" width="28" height="10" rx="3" fill="#fb7185"/><rect x="238" y="0" width="28" height="10" rx="3" fill="#fb7185"/>
+    <rect x="68" y="24" width="28" height="10" rx="3" fill="#f59e0b"/><rect x="204" y="24" width="28" height="10" rx="3" fill="#f59e0b"/>
+    <rect x="34" y="48" width="28" height="10" rx="3" fill="#34d399"/><rect x="170" y="48" width="28" height="10" rx="3" fill="#34d399"/>
+    <polyline points="18,152 112,70 190,120 260,48" fill="none" stroke="#22d3ee" stroke-width="4"/>
+    <circle cx="260" cy="48" r="7" fill="#fff"/>
+    <rect x="100" y="162" width="64" height="10" rx="5" fill="#818cf8"/>
+  </g>
+  <text class="small muted" x="672" y="532">Baja densidad: sin punteria, la bola atraviesa huecos.</text>
+
+  <rect x="194" y="646" width="812" height="46" rx="23" fill="#111827"/>
+  <text class="body" x="600" y="676" text-anchor="middle" fill="#fff">Misma supervivencia, distinto campo: el numero alto no demuestra estrategia.</text>
+</svg>

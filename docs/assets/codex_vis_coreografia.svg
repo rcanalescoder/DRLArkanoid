@@ -1,131 +1,126 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 560" role="img" aria-labelledby="title desc">
-  <title id="title">Coreografia pedagogica de cada capitulo</title>
-  <desc id="desc">Diagrama de nueve pasos agrupados en cinco fases: abrir el problema, explicar, construir, medir y cerrar.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Capitulo como pipeline narrativo experimental</title>
+  <desc id="desc">Los nueve pasos del capitulo distribuidos en tres carriles: relato para entender, mecanismo para construir y evidencia para juzgar.</desc>
   <defs>
     <style>
-      .bg{fill:#fff}
-      .ink{fill:#111827}
-      .muted{fill:#64748b}
-      .title{font:800 26px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 30px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
       .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-      .phase{font:800 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.5px}
+      .lane{font:800 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.55px}
       .label{font:800 16px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
       .small{font:500 12.5px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-      .num{font:800 16px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-      .tiny{font:700 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .num{font:800 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .mono{font:700 12px "SFMono-Regular",Menlo,Consolas,monospace}
       .shadow{filter:url(#shadow)}
     </style>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
-      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0f172a" flood-opacity=".10"/>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
     </filter>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
-      <path d="M0,0 L7,3 L0,6 Z" fill="#94a3b8"/>
-    </marker>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#94a3b8"/></marker>
   </defs>
 
-  <rect class="bg" width="1100" height="560"/>
-  <text class="title ink" x="42" y="54">La coreografia de cada capitulo</text>
-  <text class="body muted" x="42" y="82">El lector no solo ve una lista de pasos: ve por que cada bloque aparece en ese momento.</text>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="46" y="58">Un capitulo es una investigacion contada en orden</text>
+  <text class="body muted" x="46" y="88">Primero entiendes el problema, luego ves el mecanismo, despues juzgas el resultado.</text>
 
-  <rect x="42" y="118" width="1016" height="322" rx="24" fill="#f8fafc" stroke="#dbe2ea" class="shadow"/>
+  <rect x="64" y="130" width="1072" height="470" rx="30" fill="#f8fafc" stroke="#dbe2ea" class="shadow"/>
 
-  <rect x="72" y="144" width="190" height="42" rx="14" fill="#dbeafe" stroke="#bfdbfe"/>
-  <text class="phase" x="167" y="171" text-anchor="middle" fill="#1d4ed8">ABRIR EL PROBLEMA</text>
-  <rect x="278" y="144" width="306" height="42" rx="14" fill="#ede9fe" stroke="#ddd6fe"/>
-  <text class="phase" x="431" y="171" text-anchor="middle" fill="#6d28d9">EXPLICAR CON PRECISION</text>
-  <rect x="600" y="144" width="116" height="42" rx="14" fill="#cffafe" stroke="#a5f3fc"/>
-  <text class="phase" x="658" y="171" text-anchor="middle" fill="#0e7490">CONSTRUIR</text>
-  <rect x="732" y="144" width="204" height="42" rx="14" fill="#dcfce7" stroke="#bbf7d0"/>
-  <text class="phase" x="834" y="171" text-anchor="middle" fill="#047857">MEDIR Y LEER</text>
-  <rect x="952" y="144" width="76" height="42" rx="14" fill="#ecfdf5" stroke="#bbf7d0"/>
-  <text class="phase" x="990" y="171" text-anchor="middle" fill="#047857">CERRAR</text>
+  <rect x="96" y="166" width="1008" height="104" rx="22" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text class="lane" x="126" y="200" fill="#1d4ed8">CARRIL 1: RELATO PARA ENTENDER</text>
+  <line x1="126" y1="232" x2="1042" y2="232" stroke="#bfdbfe" stroke-width="2"/>
 
-  <line x1="90" y1="266" x2="1018" y2="266" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round"/>
+  <rect x="126" y="292" width="1008" height="124" rx="22" fill="#f5f3ff" stroke="#ddd6fe"/>
+  <text class="lane" x="156" y="326" fill="#6d28d9">CARRIL 2: MECANISMO PARA CONSTRUIR</text>
+  <line x1="156" y1="360" x2="1072" y2="360" stroke="#ddd6fe" stroke-width="2"/>
 
-  <g transform="translate(72 208)">
-    <rect width="86" height="116" rx="16" fill="#ffffff" stroke="#bfdbfe"/>
-    <circle cx="43" cy="26" r="18" fill="#2563eb"/>
-    <text class="num" x="43" y="32" text-anchor="middle" fill="#fff">1</text>
-    <text class="label ink" x="43" y="67" text-anchor="middle">Pregunta</text>
-    <text class="small muted" x="43" y="88" text-anchor="middle">que</text>
-    <text class="small muted" x="43" y="104" text-anchor="middle">resolver</text>
+  <rect x="96" y="438" width="1008" height="126" rx="22" fill="#ecfdf5" stroke="#bbf7d0"/>
+  <text class="lane" x="126" y="472" fill="#047857">CARRIL 3: EVIDENCIA PARA JUZGAR</text>
+  <line x1="126" y1="506" x2="1042" y2="506" stroke="#bbf7d0" stroke-width="2"/>
+
+  <g transform="translate(150 190)">
+    <circle cx="0" cy="42" r="20" fill="#2563eb"/>
+    <text class="num" x="0" y="48" text-anchor="middle" fill="#fff">1</text>
+    <rect x="28" y="18" width="112" height="48" rx="14" fill="#ffffff" stroke="#bfdbfe"/>
+    <text class="label ink" x="84" y="38" text-anchor="middle">Pregunta</text>
+    <text class="small muted" x="84" y="55" text-anchor="middle">por que importa</text>
   </g>
-  <line x1="164" y1="266" x2="184" y2="266" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
-  <g transform="translate(190 208)">
-    <rect width="86" height="116" rx="16" fill="#ffffff" stroke="#bfdbfe"/>
-    <circle cx="43" cy="26" r="18" fill="#2563eb"/>
-    <text class="num" x="43" y="32" text-anchor="middle" fill="#fff">2</text>
-    <text class="label ink" x="43" y="67" text-anchor="middle">Intuicion</text>
-    <text class="small muted" x="43" y="88" text-anchor="middle">imagen</text>
-    <text class="small muted" x="43" y="104" text-anchor="middle">mental</text>
+  <path d="M294,232 H370" stroke="#94a3b8" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <g transform="translate(398 190)">
+    <circle cx="0" cy="42" r="20" fill="#2563eb"/>
+    <text class="num" x="0" y="48" text-anchor="middle" fill="#fff">2</text>
+    <rect x="28" y="18" width="128" height="48" rx="14" fill="#ffffff" stroke="#bfdbfe"/>
+    <text class="label ink" x="92" y="38" text-anchor="middle">Intuicion</text>
+    <text class="small muted" x="92" y="55" text-anchor="middle">escena jugable</text>
   </g>
-  <line x1="282" y1="266" x2="302" y2="266" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
-  <g transform="translate(308 208)">
-    <rect width="86" height="116" rx="16" fill="#ffffff" stroke="#ddd6fe"/>
-    <circle cx="43" cy="26" r="18" fill="#7c3aed"/>
-    <text class="num" x="43" y="32" text-anchor="middle" fill="#fff">3</text>
-    <text class="label ink" x="43" y="67" text-anchor="middle">Concepto</text>
-    <text class="small muted" x="43" y="88" text-anchor="middle">definir</text>
-    <text class="small muted" x="43" y="104" text-anchor="middle">sin humo</text>
-  </g>
-  <line x1="400" y1="266" x2="420" y2="266" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
-  <g transform="translate(426 208)">
-    <rect width="86" height="116" rx="16" fill="#ffffff" stroke="#ddd6fe"/>
-    <circle cx="43" cy="26" r="18" fill="#7c3aed"/>
-    <text class="num" x="43" y="32" text-anchor="middle" fill="#fff">4</text>
-    <text class="label ink" x="43" y="67" text-anchor="middle">Juego</text>
-    <text class="small muted" x="43" y="88" text-anchor="middle">bola, pala,</text>
-    <text class="small muted" x="43" y="104" text-anchor="middle">ladrillos</text>
-  </g>
-  <line x1="518" y1="266" x2="538" y2="266" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
-  <g transform="translate(544 208)">
-    <rect width="86" height="116" rx="16" fill="#ffffff" stroke="#ddd6fe"/>
-    <circle cx="43" cy="26" r="18" fill="#7c3aed"/>
-    <text class="num" x="43" y="32" text-anchor="middle" fill="#fff">5</text>
-    <text class="label ink" x="43" y="67" text-anchor="middle">Ejemplo</text>
-    <text class="small muted" x="43" y="88" text-anchor="middle">un caso</text>
-    <text class="small muted" x="43" y="104" text-anchor="middle">a mano</text>
-  </g>
-  <line x1="636" y1="266" x2="656" y2="266" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
-  <g transform="translate(662 208)">
-    <rect width="86" height="116" rx="16" fill="#ffffff" stroke="#a5f3fc"/>
-    <circle cx="43" cy="26" r="18" fill="#0891b2"/>
-    <text class="num" x="43" y="32" text-anchor="middle" fill="#fff">6</text>
-    <text class="label ink" x="43" y="67" text-anchor="middle">Codigo</text>
-    <text class="small muted" x="43" y="88" text-anchor="middle">hacerlo</text>
-    <text class="small muted" x="43" y="104" text-anchor="middle">ejecutable</text>
-  </g>
-  <line x1="754" y1="266" x2="774" y2="266" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
-  <g transform="translate(780 208)">
-    <rect width="86" height="116" rx="16" fill="#ffffff" stroke="#bbf7d0"/>
-    <circle cx="43" cy="26" r="18" fill="#0f9f6e"/>
-    <text class="num" x="43" y="32" text-anchor="middle" fill="#fff">7</text>
-    <text class="label ink" x="43" y="67" text-anchor="middle">Resultado</text>
-    <text class="small muted" x="43" y="88" text-anchor="middle">medir con</text>
-    <text class="small muted" x="43" y="104" text-anchor="middle">condiciones</text>
-  </g>
-  <line x1="872" y1="266" x2="892" y2="266" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
-  <g transform="translate(898 208)">
-    <rect width="86" height="116" rx="16" fill="#ffffff" stroke="#bbf7d0"/>
-    <circle cx="43" cy="26" r="18" fill="#0f9f6e"/>
-    <text class="num" x="43" y="32" text-anchor="middle" fill="#fff">8</text>
-    <text class="label ink" x="43" y="67" text-anchor="middle">Critica</text>
-    <text class="small muted" x="43" y="88" text-anchor="middle">alcance y</text>
-    <text class="small muted" x="43" y="104" text-anchor="middle">limites</text>
-  </g>
-  <line x1="990" y1="266" x2="1010" y2="266" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
-  <g transform="translate(996 208)">
-    <rect width="48" height="116" rx="16" fill="#ffffff" stroke="#bbf7d0"/>
-    <circle cx="24" cy="26" r="18" fill="#0f9f6e"/>
-    <text class="num" x="24" y="32" text-anchor="middle" fill="#fff">9</text>
-    <text class="tiny ink" x="24" y="67" text-anchor="middle">Auto</text>
-    <text class="small muted" x="24" y="88" text-anchor="middle">3</text>
-    <text class="small muted" x="24" y="104" text-anchor="middle">preg.</text>
+  <g transform="translate(644 184)">
+    <rect x="0" y="0" width="168" height="72" rx="16" fill="#ffffff" stroke="#bfdbfe"/>
+    <rect x="24" y="16" width="88" height="14" rx="7" fill="#93c5fd"/>
+    <circle cx="66" cy="46" r="7" fill="#2563eb"/>
+    <rect x="39" y="56" width="58" height="6" rx="3" fill="#1d4ed8"/>
+    <text class="small muted" x="132" y="36" text-anchor="middle">Arkanoid</text>
   </g>
 
-  <rect x="92" y="362" width="916" height="44" rx="16" fill="#ffffff" stroke="#e2e8f0"/>
-  <text class="body ink" x="550" y="389" text-anchor="middle">pregunta → mecanismo → implementacion → evidencia → comprobacion</text>
+  <g transform="translate(160 326)">
+    <circle cx="0" cy="34" r="20" fill="#7c3aed"/>
+    <text class="num" x="0" y="40" text-anchor="middle" fill="#fff">3</text>
+    <rect x="28" y="10" width="116" height="48" rx="14" fill="#ffffff" stroke="#ddd6fe"/>
+    <text class="label ink" x="86" y="30" text-anchor="middle">Concepto</text>
+    <text class="mono" x="86" y="48" text-anchor="middle" fill="#6d28d9">Q,V,pi</text>
+  </g>
+  <path d="M308,360 H360" stroke="#94a3b8" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <g transform="translate(386 326)">
+    <circle cx="0" cy="34" r="20" fill="#7c3aed"/>
+    <text class="num" x="0" y="40" text-anchor="middle" fill="#fff">4</text>
+    <rect x="28" y="10" width="132" height="48" rx="14" fill="#ffffff" stroke="#ddd6fe"/>
+    <text class="label ink" x="94" y="30" text-anchor="middle">Traduccion</text>
+    <text class="small muted" x="94" y="48" text-anchor="middle">a estado y accion</text>
+  </g>
+  <path d="M550,360 H602" stroke="#94a3b8" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <g transform="translate(628 326)">
+    <circle cx="0" cy="34" r="20" fill="#7c3aed"/>
+    <text class="num" x="0" y="40" text-anchor="middle" fill="#fff">5</text>
+    <rect x="28" y="10" width="126" height="48" rx="14" fill="#ffffff" stroke="#ddd6fe"/>
+    <text class="label ink" x="91" y="30" text-anchor="middle">Mini-ejemplo</text>
+    <text class="small muted" x="91" y="48" text-anchor="middle">una transicion</text>
+  </g>
+  <path d="M786,360 H838" stroke="#94a3b8" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <g transform="translate(864 326)">
+    <circle cx="0" cy="34" r="20" fill="#0891b2"/>
+    <text class="num" x="0" y="40" text-anchor="middle" fill="#fff">6</text>
+    <rect x="28" y="10" width="126" height="48" rx="14" fill="#ffffff" stroke="#a5f3fc"/>
+    <text class="label ink" x="91" y="30" text-anchor="middle">Codigo</text>
+    <text class="mono" x="91" y="48" text-anchor="middle" fill="#0e7490">train_step()</text>
+  </g>
 
-  <rect x="42" y="472" width="1016" height="46" rx="20" fill="#fff7ed" stroke="#fed7aa"/>
-  <text class="small" x="550" y="501" text-anchor="middle" fill="#9a3412">Nota honesta: no todos los capitulos usan los nueve pasos, pero cuando aparecen mantienen este orden.</text>
+  <g transform="translate(154 474)">
+    <circle cx="0" cy="32" r="20" fill="#0f9f6e"/>
+    <text class="num" x="0" y="38" text-anchor="middle" fill="#fff">7</text>
+    <rect x="28" y="4" width="184" height="56" rx="14" fill="#ffffff" stroke="#bbf7d0"/>
+    <text class="label ink" x="93" y="27" text-anchor="middle">Resultado</text>
+    <rect x="62" y="39" width="30" height="11" rx="4" fill="#86efac"/>
+    <rect x="100" y="30" width="30" height="20" rx="4" fill="#4ade80"/>
+    <rect x="138" y="18" width="30" height="32" rx="4" fill="#22c55e"/>
+  </g>
+  <path d="M356,506 H438" stroke="#94a3b8" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <g transform="translate(466 474)">
+    <circle cx="0" cy="32" r="20" fill="#0f9f6e"/>
+    <text class="num" x="0" y="38" text-anchor="middle" fill="#fff">8</text>
+    <rect x="28" y="4" width="184" height="56" rx="14" fill="#ffffff" stroke="#bbf7d0"/>
+    <text class="label ink" x="120" y="27" text-anchor="middle">Lectura critica</text>
+    <text class="small muted" x="120" y="46" text-anchor="middle">que NO concluye</text>
+  </g>
+  <path d="M682,506 H764" stroke="#94a3b8" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <g transform="translate(792 474)">
+    <circle cx="0" cy="32" r="20" fill="#0f9f6e"/>
+    <text class="num" x="0" y="38" text-anchor="middle" fill="#fff">9</text>
+    <rect x="28" y="4" width="184" height="56" rx="14" fill="#ffffff" stroke="#bbf7d0"/>
+    <text class="label ink" x="120" y="27" text-anchor="middle">Autocomprobacion</text>
+    <text class="small muted" x="120" y="46" text-anchor="middle">puedo explicarlo?</text>
+  </g>
+
+  <path d="M488,260 C508,292 516,306 516,326" stroke="#94a3b8" stroke-width="2.2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M955,386 C1000,424 984,450 974,474" stroke="#94a3b8" stroke-width="2.2" fill="none" marker-end="url(#arrow)"/>
+
+  <rect x="116" y="632" width="968" height="42" rx="21" fill="#ffffff" stroke="#e2e8f0"/>
+  <text class="body ink" x="600" y="659" text-anchor="middle">La estructura evita el salto brusco: intuicion -> formalismo -> codigo -> resultado -> juicio.</text>
 </svg>

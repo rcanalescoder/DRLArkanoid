@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Timeout constante y atajo de supervivencia</title>
+  <desc id="desc">Infografia que muestra como un reloj fijo premia sobrevivir en muros densos y confunde el exito.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 31px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">El reloj fijo agravaba la salida barata</text>
+  <text class="body muted" x="48" y="88">Con tiempo igual para todos, sobrevivir mucho en un muro denso parece resolver.</text>
+
+  <rect x="96" y="152" width="460" height="356" rx="32" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+  <text class="tiny" x="136" y="196" fill="#c2410c">RELOJ CONSTANTE</text>
+  <text class="label ink" x="136" y="228">600 pasos para todos</text>
+  <text class="small muted" x="136" y="262">Mismo presupuesto aunque</text>
+  <text class="small muted" x="136" y="282">la tarea no tenga la misma escala.</text>
+  <g transform="translate(152 326)">
+    <circle cx="74" cy="74" r="58" fill="#ffedd5" stroke="#fdba74" stroke-width="3"/>
+    <path d="M74,32 L74,74 L108,92" fill="none" stroke="#c2410c" stroke-width="7" stroke-linecap="round"/>
+    <text class="mono" x="210" y="70" fill="#c2410c">600</text>
+    <text class="small muted" x="210" y="94">pasos fijos</text>
+  </g>
+
+  <rect x="644" y="152" width="460" height="356" rx="32" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+  <text class="tiny" x="684" y="196" fill="#1d4ed8">EFECTO</text>
+  <text class="label ink" x="684" y="228">Densidad decide la nota</text>
+  <g transform="translate(686 268)">
+    <rect width="156" height="104" rx="18" fill="#0f172a"/>
+    <g fill="#fb7185"><rect x="24" y="24" width="26" height="8" rx="3"/><rect x="58" y="24" width="26" height="8" rx="3"/><rect x="92" y="24" width="26" height="8" rx="3"/></g>
+    <g fill="#f59e0b"><rect x="24" y="44" width="26" height="8" rx="3"/><rect x="58" y="44" width="26" height="8" rx="3"/><rect x="92" y="44" width="26" height="8" rx="3"/></g>
+    <path d="M28,84 L78,52 L128,78" fill="none" stroke="#22d3ee" stroke-width="4"/>
+    <text class="small muted" x="196" y="38">Muro lleno:</text>
+    <text class="small muted" x="196" y="60">casi cualquier</text>
+    <text class="small muted" x="196" y="82">trayectoria toca algo.</text>
+  </g>
+  <g transform="translate(686 408)">
+    <rect width="156" height="74" rx="18" fill="#0f172a"/>
+    <rect x="34" y="24" width="24" height="8" rx="3" fill="#fb7185"/>
+    <rect x="94" y="42" width="24" height="8" rx="3" fill="#34d399"/>
+    <path d="M28,58 L78,22 L128,58" fill="none" stroke="#22d3ee" stroke-width="4"/>
+    <text class="small muted" x="196" y="30">Disperso:</text>
+    <text class="small muted" x="196" y="52">sin apuntar,</text>
+    <text class="small muted" x="196" y="74">atraviesa huecos.</text>
+  </g>
+
+  <rect x="232" y="610" width="736" height="48" rx="24" fill="#111827"/>
+  <text class="body" x="600" y="641" text-anchor="middle" fill="#fff">Un reloj justo debe escalar con la tarea, no premiar aguantar sin decidir.</text>
+</svg>

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">El reloj imposible</title>
+  <desc id="desc">Comparacion entre timeout constante de 600 pasos y timeout proporcional de 7200 pasos para una rejilla 8x10.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .big{font:900 44px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".11"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Muro 1: el reloj no media dificultad, cerraba la partida antes de tiempo</text>
+  <text class="body muted" x="48" y="88">Para 80 ladrillos, 600 pasos son solo el 8% del presupuesto razonable.</text>
+
+  <g transform="translate(70 142)">
+    <rect width="500" height="430" rx="24" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+    <text class="tiny" x="34" y="44" fill="#c2410c">ANTES - TIMEOUT CONSTANTE</text>
+    <text class="label ink" x="34" y="78">600 pasos para cualquier nivel</text>
+    <rect x="50" y="136" width="400" height="44" rx="22" fill="#fee2e2"/>
+    <rect x="50" y="136" width="33" height="44" rx="22" fill="#ef4444"/>
+    <text class="big" x="50" y="252" fill="#dc2626">600</text>
+    <text class="label ink" x="180" y="246">pasos</text>
+    <text class="small muted" x="50" y="294">Equivale a 7,5 pasos por ladrillo</text>
+    <text class="small muted" x="50" y="318">en una rejilla 8x10 de 80 ladrillos.</text>
+    <g transform="translate(50 354)">
+      <rect width="400" height="50" rx="16" fill="#fff" stroke="#fed7aa"/>
+      <text class="small" x="200" y="31" text-anchor="middle" fill="#9a3412">Resultado: casi nunca aparece el evento "nivel limpio".</text>
+    </g>
+  </g>
+
+  <g transform="translate(630 142)">
+    <rect width="500" height="430" rx="24" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="tiny" x="34" y="44" fill="#047857">DESPUES - TIMEOUT PROPORCIONAL</text>
+    <text class="label ink" x="34" y="78">90 pasos por ladrillo vivo</text>
+    <rect x="50" y="136" width="400" height="44" rx="22" fill="#d1fae5"/>
+    <rect x="50" y="136" width="400" height="44" rx="22" fill="#10b981"/>
+    <text class="big" x="50" y="252" fill="#047857">7200</text>
+    <text class="label ink" x="214" y="246">pasos</text>
+    <text class="small muted" x="50" y="294">90 x 80 = 7200.</text>
+    <text class="small muted" x="50" y="318">El reloj escala con el trabajo pedido.</text>
+    <g transform="translate(50 354)">
+      <rect width="400" height="50" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small" x="200" y="31" text-anchor="middle" fill="#047857">Resultado: limpiar el nivel se vuelve alcanzable.</text>
+    </g>
+  </g>
+
+  <g transform="translate(236 620)">
+    <rect width="728" height="48" rx="24" fill="#111827"/>
+    <text class="body" x="364" y="31" text-anchor="middle" fill="#fff">No era "juega mal"; era "la tarea termina antes de poder ser resuelta".</text>
+  </g>
+</svg>

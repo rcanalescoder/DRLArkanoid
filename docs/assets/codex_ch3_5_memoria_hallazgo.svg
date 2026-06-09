@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Memoria util frente a memoria sobrante</title>
+<desc id="desc">El resultado negativo es pedagogico: muestra cuando no conviene pagar complejidad.</desc>
+<defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}.line{stroke:#dbe2ea}.white{fill:#fff}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.35px}
+      .num{font:900 34px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#0e7490"/></marker>
+  </defs>
+<rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="52" y="58">Memoria util frente a memoria sobrante</text>
+  <text class="body muted" x="52" y="88">El resultado negativo es pedagogico: muestra cuando no conviene pagar complejidad.</text>
+<g transform="translate(70 155)">
+<rect width="480" height="420" rx="22" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#047857">UTIL</text>
+<text class="label ink" x="24" y="68">Falta informacion actual</text>
+<text class="small muted" x="24" y="108">si la observacion es parcial, recordar pasos</text>
+<text class="small muted" x="24" y="130">anteriores puede revelar velocidad, intencion o</text>
+<text class="small muted" x="24" y="152">contexto.</text>
+<rect x="24" y="362" width="432" height="38" rx="19" fill="#047857"/>
+<text class="small" x="240" y="386" text-anchor="middle" fill="#fff">memoria ayuda</text>
+</g><g transform="translate(650 155)">
+<rect width="480" height="420" rx="22" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#d97706">SOBRANTE</text>
+<text class="label ink" x="24" y="68">Estado casi suficiente</text>
+<text class="small muted" x="24" y="108">si el estado actual ya contiene el mapa y la fisica</text>
+<text class="small muted" x="24" y="130">relevante, la LSTM aprende poco y mete varianza.</text>
+<rect x="24" y="362" width="432" height="38" rx="19" fill="#d97706"/>
+<text class="small" x="240" y="386" text-anchor="middle" fill="#fff">aqui no ayuda</text>
+</g><path d="M570 365H630" stroke="#0e7490" stroke-width="5" fill="none" marker-end="url(#arrow)"/>
+<rect x="226" y="650" width="748" height="52" rx="26" fill="#111827"/>
+<text class="body" x="600" y="682" text-anchor="middle" fill="#fff">Un buen experimento tambien confirma que una idea atractiva no aporta.</text>
+</svg>

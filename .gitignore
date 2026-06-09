@@ -17,6 +17,10 @@ npm-debug.log*
 /tmp/
 *.tmp
 
+# Documentación: respaldo local de assets/QA intermedios regenerables.
+docs/Back/assets_intermedios/
+docs/Back/qa_visual_codex/
+
 # Python
 __pycache__/
 *.pyc

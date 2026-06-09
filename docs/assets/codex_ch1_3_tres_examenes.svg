@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Tres examenes de generalizacion</title>
+  <desc id="desc">Escala de distancia entre entrenamiento, TEST-ID, OOD patron y OOD dificultad.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 31px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+    <marker id="arrow" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#334155"/></marker>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Tres examenes, tres distancias al entrenamiento</text>
+  <text class="body muted" x="48" y="88">Todos usan niveles no vistos. Lo que cambia es cuanto se alejan de lo practicado.</text>
+
+  <rect x="76" y="160" width="208" height="320" rx="30" fill="#f8fafc" stroke="#cbd5e1" class="shadow"/>
+  <text class="tiny muted" x="112" y="204">CUADERNO</text>
+  <text class="label ink" x="112" y="236">Train</text>
+  <text class="small muted" x="112" y="268">Ejemplo visto:</text>
+  <rect x="112" y="292" width="118" height="82" rx="16" fill="#0f172a"/>
+  <rect x="130" y="314" width="82" height="8" rx="3" fill="#fb7185"/>
+  <rect x="130" y="336" width="82" height="8" rx="3" fill="#f59e0b"/>
+  <rect x="130" y="358" width="82" height="8" rx="3" fill="#34d399"/>
+  <text class="mono" x="171" y="410" text-anchor="middle" fill="#475569">filas medias</text>
+
+  <line x1="310" y1="516" x2="1010" y2="516" stroke="#cbd5e1" stroke-width="4" marker-end="url(#arrow)"/>
+  <text class="tiny muted" x="660" y="546" text-anchor="middle">MAS DISTANCIA RESPECTO A TRAIN</text>
+
+  <g transform="translate(340 182)">
+    <rect width="220" height="276" rx="28" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="tiny" x="34" y="42" fill="#047857">EXAMEN 1</text>
+    <text class="label ink" x="34" y="76">TEST-ID</text>
+    <text class="small muted" x="34" y="110">Misma familia,</text>
+    <text class="small muted" x="34" y="130">instancia nueva.</text>
+    <rect x="52" y="158" width="116" height="74" rx="15" fill="#0f172a"/>
+    <rect x="68" y="178" width="84" height="8" rx="3" fill="#fb7185"/>
+    <rect x="82" y="198" width="58" height="8" rx="3" fill="#f59e0b"/>
+    <rect x="64" y="218" width="88" height="8" rx="3" fill="#34d399"/>
+  </g>
+
+  <g transform="translate(590 182)">
+    <rect width="220" height="276" rx="28" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+    <text class="tiny" x="34" y="42" fill="#c2410c">EXAMEN 2</text>
+    <text class="label ink" x="34" y="76">OOD-patron</text>
+    <text class="small muted" x="34" y="110">Familia nueva,</text>
+    <text class="small muted" x="34" y="130">geometria ajena.</text>
+    <rect x="52" y="158" width="116" height="74" rx="15" fill="#0f172a"/>
+    <rect x="78" y="178" width="58" height="10" rx="3" fill="#34d399"/>
+    <rect x="78" y="196" width="58" height="10" rx="3" fill="#34d399"/>
+    <rect x="78" y="214" width="58" height="10" rx="3" fill="#34d399"/>
+  </g>
+
+  <g transform="translate(840 182)">
+    <rect width="220" height="276" rx="28" fill="#fef2f2" stroke="#fecaca" class="shadow"/>
+    <text class="tiny" x="34" y="42" fill="#dc2626">EXAMEN 3</text>
+    <text class="label ink" x="34" y="76">OOD-dificultad</text>
+    <text class="small muted" x="34" y="110">Misma idea,</text>
+    <text class="small muted" x="34" y="130">densidad nueva.</text>
+    <rect x="52" y="158" width="116" height="74" rx="15" fill="#0f172a"/>
+    <rect x="66" y="174" width="88" height="7" rx="3" fill="#fb7185"/>
+    <rect x="66" y="190" width="88" height="7" rx="3" fill="#f59e0b"/>
+    <rect x="66" y="206" width="88" height="7" rx="3" fill="#34d399"/>
+    <rect x="66" y="222" width="88" height="7" rx="3" fill="#38bdf8"/>
+  </g>
+
+  <rect x="218" y="606" width="764" height="48" rx="24" fill="#111827"/>
+  <text class="body" x="600" y="637" text-anchor="middle" fill="#fff">Aprobar mas lejos de train demuestra mas que aprobar cerca de lo practicado.</text>
+</svg>

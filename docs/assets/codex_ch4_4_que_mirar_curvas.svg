@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Curvas en vivo: cuatro patrones utiles</title>
+<desc id="desc">Cuando juegas con modelos entrenados, mira forma antes que emocion.</desc>
+<defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}.line{stroke:#dbe2ea}.white{fill:#fff}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.35px}
+      .num{font:900 34px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#0e7490"/></marker>
+  </defs>
+<rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="52" y="58">Curvas en vivo: cuatro patrones utiles</text>
+  <text class="body muted" x="52" y="88">Cuando juegas con modelos entrenados, mira forma antes que emocion.</text>
+
+<g transform="translate(67 140)">
+<rect width="250" height="310" rx="22" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#047857">SANA</text>
+<text class="label ink" x="24" y="68">Sube y aguanta</text>
+<text class="small muted" x="24" y="108">aprendizaje estable con</text>
+<text class="small muted" x="24" y="130">poca caida entre semillas</text>
+<rect x="24" y="252" width="202" height="38" rx="19" fill="#047857"/>
+<text class="small" x="125" y="276" text-anchor="middle" fill="#fff">converge</text>
+</g>
+<g transform="translate(339 140)">
+<rect width="250" height="310" rx="22" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#d97706">RUIDO</text>
+<text class="label ink" x="24" y="68">Oscila</text>
+<text class="small muted" x="24" y="108">exploracion o diana movil</text>
+<text class="small muted" x="24" y="130">pueden hacerla vibrar</text>
+<rect x="24" y="252" width="202" height="38" rx="19" fill="#d97706"/>
+<text class="small" x="125" y="276" text-anchor="middle" fill="#fff">cuidado</text>
+</g>
+<g transform="translate(611 140)">
+<rect width="250" height="310" rx="22" fill="#fdf2f8" stroke="#fbcfe8" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#db2777">COLAPSO</text>
+<text class="label ink" x="24" y="68">Se hunde</text>
+<text class="small muted" x="24" y="108">una politica que parecia</text>
+<text class="small muted" x="24" y="130">buena pierde control</text>
+<rect x="24" y="252" width="202" height="38" rx="19" fill="#db2777"/>
+<text class="small" x="125" y="276" text-anchor="middle" fill="#fff">semilla</text>
+</g>
+<g transform="translate(883 140)">
+<rect width="250" height="310" rx="22" fill="#f8fafc" stroke="#dbe2ea" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#475569">PLANA</text>
+<text class="label ink" x="24" y="68">No despega</text>
+<text class="small muted" x="24" y="108">puede faltar informacion,</text>
+<text class="small muted" x="24" y="130">recompensa o presupuesto</text>
+<rect x="24" y="252" width="202" height="38" rx="19" fill="#475569"/>
+<text class="small" x="125" y="276" text-anchor="middle" fill="#fff">diagnostico</text>
+</g>
+<rect x="210" y="650" width="780" height="54" rx="27" fill="#111827"/>
+<text class="body" x="600" y="683" text-anchor="middle" fill="#fff">Las curvas son termometros; no son el certificado final.</text>
+</svg>

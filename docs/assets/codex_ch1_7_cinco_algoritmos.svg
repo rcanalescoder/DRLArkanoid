@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Cinco algoritmos, cinco formas de aprender</title>
+  <desc id="desc">Mapa funcional de DQN, PPO, SAC, World Model y World Model RNN con su idea principal y resultado TEST-ID.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 21px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .pct{font:900 28px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="52" y="58">Cinco caminos distintos sobre el mismo enunciado</text>
+  <text class="body muted" x="52" y="88">El salto no depende de un unico metodo: todos heredan la misma tarea ya visible y medible.</text>
+
+  <g transform="translate(58 136)">
+    <rect width="204" height="428" rx="24" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+    <circle cx="102" cy="72" r="34" fill="#2563eb"/>
+    <text class="pct" x="102" y="82" text-anchor="middle" fill="#fff">77</text>
+    <text class="label ink" x="26" y="138">DQN</text>
+    <text class="tiny" x="26" y="166" fill="#2563eb">VALORA ACCIONES</text>
+    <text class="small muted" x="26" y="212">Aprende Q(s,a):</text>
+    <text class="small muted" x="26" y="236">cuanto promete</text>
+    <text class="small muted" x="26" y="260">cada movimiento.</text>
+    <rect x="26" y="330" width="152" height="48" rx="24" fill="#2563eb"/>
+    <text class="small" x="102" y="360" text-anchor="middle" fill="#fff">base solida</text>
+  </g>
+
+  <g transform="translate(280 136)">
+    <rect width="204" height="428" rx="24" fill="#f5f3ff" stroke="#ddd6fe" class="shadow"/>
+    <circle cx="102" cy="72" r="34" fill="#7c3aed"/>
+    <text class="pct" x="102" y="82" text-anchor="middle" fill="#fff">91</text>
+    <text class="label ink" x="26" y="138">PPO</text>
+    <text class="tiny" x="26" y="166" fill="#7c3aed">CAMBIA CON CUIDADO</text>
+    <text class="small muted" x="26" y="212">Ajusta la politica</text>
+    <text class="small muted" x="26" y="236">sin saltos grandes</text>
+    <text class="small muted" x="26" y="260">entre updates.</text>
+    <rect x="26" y="330" width="152" height="48" rx="24" fill="#7c3aed"/>
+    <text class="small" x="102" y="360" text-anchor="middle" fill="#fff">mas fiable</text>
+  </g>
+
+  <g transform="translate(502 136)">
+    <rect width="204" height="428" rx="24" fill="#fdf2f8" stroke="#fbcfe8" class="shadow"/>
+    <circle cx="102" cy="72" r="34" fill="#db2777"/>
+    <text class="pct" x="102" y="82" text-anchor="middle" fill="#fff">61</text>
+    <text class="label ink" x="26" y="138">SAC-H</text>
+    <text class="tiny" x="26" y="166" fill="#db2777">EXITO + ENTROPIA</text>
+    <text class="small muted" x="26" y="212">Mantiene variedad,</text>
+    <text class="small muted" x="26" y="236">pero esta variante</text>
+    <text class="small muted" x="26" y="260">puede colapsar.</text>
+    <rect x="26" y="330" width="152" height="48" rx="24" fill="#db2777"/>
+    <text class="small" x="102" y="360" text-anchor="middle" fill="#fff">bimodal</text>
+  </g>
+
+  <g transform="translate(724 136)">
+    <rect width="204" height="428" rx="24" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+    <circle cx="102" cy="72" r="34" fill="#d97706"/>
+    <text class="pct" x="102" y="82" text-anchor="middle" fill="#fff">55</text>
+    <text class="label ink" x="26" y="138">WM</text>
+    <text class="tiny" x="26" y="166" fill="#d97706">PRACTICA EN MAQUETA</text>
+    <text class="small muted" x="26" y="212">Aprende tambien</text>
+    <text class="small muted" x="26" y="236">con transiciones</text>
+    <text class="small muted" x="26" y="260">imaginadas.</text>
+    <rect x="26" y="330" width="152" height="48" rx="24" fill="#d97706"/>
+    <text class="small" x="102" y="360" text-anchor="middle" fill="#fff">techo medio</text>
+  </g>
+
+  <g transform="translate(946 136)">
+    <rect width="204" height="428" rx="24" fill="#ecfeff" stroke="#bae6fd" class="shadow"/>
+    <circle cx="102" cy="72" r="34" fill="#0891b2"/>
+    <text class="pct" x="102" y="82" text-anchor="middle" fill="#fff">35</text>
+    <text class="label ink" x="26" y="138">WM-RNN</text>
+    <text class="tiny" x="26" y="166" fill="#0891b2">MAQUETA CON MEMORIA</text>
+    <text class="small muted" x="26" y="212">La memoria suena</text>
+    <text class="small muted" x="26" y="236">util, pero aqui</text>
+    <text class="small muted" x="26" y="260">no ayuda.</text>
+    <rect x="26" y="330" width="152" height="48" rx="24" fill="#0891b2"/>
+    <text class="small" x="102" y="360" text-anchor="middle" fill="#fff">hallazgo negativo</text>
+  </g>
+
+  <rect x="210" y="646" width="780" height="54" rx="27" fill="#111827"/>
+  <text class="body" x="600" y="679" text-anchor="middle" fill="#fff">Parte II abre estas cajas: valor, politica, entropia, modelo y memoria.</text>
+</svg>

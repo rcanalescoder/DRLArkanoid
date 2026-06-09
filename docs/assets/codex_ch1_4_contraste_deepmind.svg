@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Contraste DeepMind y agente ciego</title>
+  <desc id="desc">Contraste entre aprender desde pantalla completa con muchos datos y aprender con seis numeros sin ladrillos.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 31px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">El contraste no era algoritmo: era informacion</text>
+  <text class="body muted" x="48" y="88">DeepMind demostro que se puede aprender desde pantalla completa. Nuestro primer intento ocultaba el muro.</text>
+
+  <rect x="92" y="150" width="460" height="360" rx="32" fill="#f8fafc" stroke="#cbd5e1" class="shadow"/>
+  <text class="tiny muted" x="132" y="194">REFERENCIA EXTERNA</text>
+  <text class="label ink" x="132" y="226">DQN 2015</text>
+  <text class="small muted" x="132" y="258">Entrada: pixeles de pantalla.</text>
+  <text class="small muted" x="132" y="278">Costo: muchos datos.</text>
+  <g transform="translate(154 314)">
+    <rect width="220" height="116" rx="18" fill="#0f172a"/>
+    <rect x="28" y="22" width="164" height="10" rx="4" fill="#fb7185"/>
+    <rect x="28" y="44" width="164" height="10" rx="4" fill="#f59e0b"/>
+    <rect x="28" y="66" width="164" height="10" rx="4" fill="#34d399"/>
+    <circle cx="164" cy="90" r="8" fill="#fff"/>
+    <rect x="80" y="102" width="64" height="6" rx="3" fill="#818cf8"/>
+  </g>
+  <rect x="406" y="324" width="92" height="60" rx="18" fill="#e2e8f0" stroke="#cbd5e1"/>
+  <text class="mono" x="452" y="360" text-anchor="middle" fill="#475569">CNN</text>
+
+  <rect x="648" y="150" width="460" height="360" rx="32" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+  <text class="tiny" x="688" y="194" fill="#c2410c">NUESTRO PRIMER INTENTO</text>
+  <text class="label ink" x="688" y="226">Agente ciego</text>
+  <text class="small muted" x="688" y="258">Entrada: seis cinematicos.</text>
+  <text class="small muted" x="688" y="278">Falta: estado del muro.</text>
+  <g transform="translate(710 318)">
+    <rect width="268" height="104" rx="20" fill="#ffffff" stroke="#fed7aa"/>
+    <text class="mono" x="28" y="36" fill="#c2410c">x, y, vx, vy</text>
+    <text class="mono" x="28" y="66" fill="#c2410c">x_pala, paso</text>
+    <rect x="154" y="28" width="88" height="46" rx="16" fill="#fee2e2" stroke="#fca5a5"/>
+    <text class="tiny" x="198" y="56" text-anchor="middle" fill="#dc2626">NO MURO</text>
+  </g>
+  <rect x="236" y="590" width="728" height="48" rx="24" fill="#111827"/>
+  <text class="body" x="600" y="621" text-anchor="middle" fill="#fff">Mas entrenamiento no inventa una variable que no esta en la observacion.</text>
+</svg>

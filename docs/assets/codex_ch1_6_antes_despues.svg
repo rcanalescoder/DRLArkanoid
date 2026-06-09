@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Antes y despues de la formulacion</title>
+  <desc id="desc">Comparacion entre una tarea mal planteada y la formulacion corregida de Arkanoid.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 21px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Antes y despues: el mismo agente, otro examen</text>
+  <text class="body muted" x="48" y="88">La receta no da la respuesta; arregla el enunciado para que aprender sea posible.</text>
+
+  <g transform="translate(76 142)">
+    <rect width="486" height="420" rx="24" fill="#fef2f2" stroke="#fecaca" class="shadow"/>
+    <text class="tiny" x="34" y="44" fill="#dc2626">ANTES - EXAMEN MAL PUESTO</text>
+    <text class="label ink" x="34" y="78">La tarea pedia limpiar, pero...</text>
+    <g transform="translate(34 116)">
+      <rect width="418" height="56" rx="16" fill="#fff" stroke="#fecaca"/>
+      <text class="small ink" x="22" y="34">1. El reloj se apagaba demasiado pronto.</text>
+    </g>
+    <g transform="translate(34 192)">
+      <rect width="418" height="56" rx="16" fill="#fff" stroke="#fecaca"/>
+      <text class="small ink" x="22" y="34">2. La recompensa premiaba un proxy facil.</text>
+    </g>
+    <g transform="translate(34 268)">
+      <rect width="418" height="56" rx="16" fill="#fff" stroke="#fecaca"/>
+      <text class="small ink" x="22" y="34">3. La observacion ocultaba los ladrillos.</text>
+    </g>
+    <g transform="translate(34 344)">
+      <rect width="418" height="56" rx="16" fill="#fff" stroke="#fecaca"/>
+      <text class="small ink" x="22" y="34">4. La evaluacion podia confundir memoria y juego.</text>
+    </g>
+  </g>
+
+  <g transform="translate(638 142)">
+    <rect width="486" height="420" rx="24" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="tiny" x="34" y="44" fill="#047857">DESPUES - TAREA RESOLUBLE</text>
+    <text class="label ink" x="34" y="78">La receta corrige el enunciado</text>
+    <g transform="translate(34 116)">
+      <rect width="418" height="56" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="22" y="34">1. Timeout proporcional: 90 pasos por ladrillo.</text>
+    </g>
+    <g transform="translate(34 192)">
+      <rect width="418" height="56" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="22" y="34">2. Meta limpia: sin shaping Phi.</text>
+    </g>
+    <g transform="translate(34 268)">
+      <rect width="418" height="56" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="22" y="34">3. Estado 86: cinematicos + matriz 8x10.</text>
+    </g>
+    <g transform="translate(34 344)">
+      <rect width="418" height="56" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="22" y="34">4. Generador: niveles no vistos para medir.</text>
+    </g>
+  </g>
+
+  <rect x="252" y="626" width="696" height="50" rx="25" fill="#111827"/>
+  <text class="body" x="600" y="658" text-anchor="middle" fill="#fff">La diferencia no es "mas listo"; es "por fin puede ver, tener tiempo y ser evaluado bien".</text>
+</svg>

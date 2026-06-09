@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Pacto de honestidad para leer resultados</title>
+  <desc id="desc">Infografia con tres distinciones que protegen la interpretacion de los resultados: recompensa frente a exito, validacion frente a test, y una semilla frente a cinco semillas.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 30px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 19px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.5px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+  </defs>
+
+  <rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="48" y="58">El pacto de honestidad: ningun numero viaja solo</text>
+  <text class="body muted" x="48" y="88">Antes de creer una cifra del laboratorio, comprueba que trae contexto experimental.</text>
+
+  <rect x="70" y="134" width="1060" height="136" rx="28" fill="#f8fafc" stroke="#dbe2ea" class="shadow"/>
+  <text class="tiny muted" x="112" y="176">LA FRASE PROHIBIDA</text>
+  <text class="label ink" x="112" y="212">"Este algoritmo consigue 91%"</text>
+  <text class="body muted" x="112" y="242">Sin decir donde, con cuantas semillas, con que presupuesto y en que modo de evaluacion, esa frase no significa casi nada.</text>
+  <rect x="830" y="166" width="238" height="58" rx="18" fill="#fff7ed" stroke="#fed7aa"/>
+  <text class="tiny" x="949" y="190" text-anchor="middle" fill="#b45309">FRASE CORRECTA</text>
+  <text class="mono" x="949" y="213" text-anchor="middle" fill="#9a3412">PPO · TEST-ID · 1.5M · 5 semillas</text>
+
+  <g transform="translate(70 318)">
+    <rect width="326" height="270" rx="28" fill="#ffffff" stroke="#dbe2ea" class="shadow"/>
+    <rect x="34" y="32" width="74" height="62" rx="16" fill="#eff6ff" stroke="#93c5fd"/>
+    <rect x="55" y="18" width="32" height="34" rx="14" fill="none" stroke="#2563eb" stroke-width="8"/>
+    <circle cx="71" cy="62" r="9" fill="#2563eb"/>
+    <text class="tiny" x="132" y="48" fill="#1d4ed8">DISTINCION 1</text>
+    <text class="label ink" x="132" y="68">Recompensa</text>
+    <text class="label ink" x="132" y="94">no es exito</text>
+    <text class="small muted" x="34" y="124">La recompensa puede subir porque</text>
+    <text class="small muted" x="34" y="144">el agente sobrevive, rebota mucho</text>
+    <text class="small muted" x="34" y="164">o explota una ayuda de shaping.</text>
+    <rect x="34" y="178" width="258" height="46" rx="14" fill="#eff6ff" stroke="#bfdbfe"/>
+    <text class="small" x="163" y="198" text-anchor="middle" fill="#1d4ed8">Pregunta sana</text>
+    <text class="mono" x="163" y="216" text-anchor="middle" fill="#1d4ed8">limpia niveles nuevos?</text>
+  </g>
+
+  <g transform="translate(437 318)">
+    <rect width="326" height="270" rx="28" fill="#ffffff" stroke="#dbe2ea" class="shadow"/>
+    <rect x="34" y="32" width="74" height="62" rx="16" fill="#ecfdf5" stroke="#86efac"/>
+    <rect x="55" y="18" width="32" height="34" rx="14" fill="none" stroke="#0f9f6e" stroke-width="8"/>
+    <circle cx="71" cy="62" r="9" fill="#0f9f6e"/>
+    <text class="tiny" x="132" y="48" fill="#047857">DISTINCION 2</text>
+    <text class="label ink" x="132" y="68">Validacion</text>
+    <text class="label ink" x="132" y="94">no es test</text>
+    <text class="small muted" x="34" y="124">Validacion sirve para tomar</text>
+    <text class="small muted" x="34" y="144">decisiones. Test sirve para declarar</text>
+    <text class="small muted" x="34" y="164">el resultado en niveles no vistos.</text>
+    <rect x="34" y="178" width="258" height="46" rx="14" fill="#ecfdf5" stroke="#bbf7d0"/>
+    <text class="small" x="163" y="198" text-anchor="middle" fill="#047857">Pregunta sana</text>
+    <text class="mono" x="163" y="216" text-anchor="middle" fill="#047857">el split estaba congelado?</text>
+  </g>
+
+  <g transform="translate(804 318)">
+    <rect width="326" height="270" rx="28" fill="#ffffff" stroke="#dbe2ea" class="shadow"/>
+    <rect x="34" y="32" width="74" height="62" rx="16" fill="#f5f3ff" stroke="#c4b5fd"/>
+    <rect x="55" y="18" width="32" height="34" rx="14" fill="none" stroke="#7c3aed" stroke-width="8"/>
+    <circle cx="71" cy="62" r="9" fill="#7c3aed"/>
+    <text class="tiny" x="132" y="48" fill="#6d28d9">DISTINCION 3</text>
+    <text class="label ink" x="132" y="72">Una semilla</text>
+    <text class="label ink" x="132" y="96">no es evidencia</text>
+    <text class="small muted" x="34" y="124">Una ejecucion puede tener suerte,</text>
+    <text class="small muted" x="34" y="144">mala suerte o colapsar. La media</text>
+    <text class="small muted" x="34" y="164">y la dispersion importan.</text>
+    <rect x="34" y="178" width="258" height="46" rx="14" fill="#f5f3ff" stroke="#ddd6fe"/>
+    <text class="small" x="163" y="198" text-anchor="middle" fill="#6d28d9">Pregunta sana</text>
+    <text class="mono" x="163" y="216" text-anchor="middle" fill="#6d28d9">que paso en las 5 semillas?</text>
+  </g>
+
+  <rect x="126" y="636" width="948" height="48" rx="24" fill="#111827"/>
+  <text class="body" x="600" y="666" text-anchor="middle" fill="#ffffff">Lectura honesta = metrica + split + presupuesto + semillas + modo de evaluacion.</text>
+</svg>

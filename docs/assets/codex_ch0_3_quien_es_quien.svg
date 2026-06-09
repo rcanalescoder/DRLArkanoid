@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Quien es quien en aprendizaje por refuerzo</title>
+  <desc id="desc">Diagrama del bucle agente entorno con estado, accion, recompensa, politica y valor.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 30px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 18px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 14px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+    <marker id="arrow-blue" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker>
+    <marker id="arrow-green" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0f9f6e"/></marker>
+    <marker id="arrow-slate" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#334155"/></marker>
+  </defs>
+
+  <rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="48" y="58">Quien es quien: el reparto minimo antes de seguir</text>
+  <text class="body muted" x="48" y="88">Todos los capitulos vuelven a este bucle. Si entiendes las flechas, ya puedes leer el laboratorio.</text>
+
+  <rect x="88" y="150" width="432" height="224" rx="30" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+  <text class="tiny" x="128" y="194" fill="#1d4ed8">SE ENTRENA</text>
+  <text class="label ink" x="128" y="226">Agente</text>
+  <text class="small muted" x="128" y="254">El cerebro que decide la accion.</text>
+  <text class="small muted" x="128" y="276">Aqui controla la pala.</text>
+  <rect x="128" y="304" width="144" height="36" rx="18" fill="#2563eb"/>
+  <text class="mono" x="200" y="327" text-anchor="middle" fill="#fff">pi(a|s)</text>
+  <rect x="304" y="304" width="144" height="36" rx="18" fill="#dbeafe" stroke="#93c5fd"/>
+  <text class="mono" x="376" y="327" text-anchor="middle" fill="#1d4ed8">V(s), Q(s,a)</text>
+
+  <rect x="680" y="150" width="432" height="224" rx="30" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+  <text class="tiny" x="720" y="194" fill="#047857">NO SE ENTRENA</text>
+  <text class="label ink" x="720" y="226">Entorno</text>
+  <text class="small muted" x="720" y="254">El juego con sus reglas fisicas.</text>
+  <text class="small muted" x="720" y="276">Devuelve consecuencia y mundo nuevo.</text>
+  <rect x="720" y="304" width="144" height="36" rx="18" fill="#0f9f6e"/>
+  <text class="mono" x="792" y="327" text-anchor="middle" fill="#fff">r, s', done</text>
+  <rect x="896" y="304" width="144" height="36" rx="18" fill="#d1fae5" stroke="#86efac"/>
+  <text class="mono" x="968" y="327" text-anchor="middle" fill="#047857">fisica + nivel</text>
+
+  <path d="M520,235 C585,196 628,196 680,235" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue)"/>
+  <text class="tiny" x="600" y="190" text-anchor="middle" fill="#1d4ed8">ACCION a</text>
+  <text class="small muted" x="600" y="212" text-anchor="middle">izquierda | quieto | derecha</text>
+
+  <path d="M680,302 C625,350 577,350 520,302" fill="none" stroke="#0f9f6e" stroke-width="3" marker-end="url(#arrow-green)"/>
+  <text class="tiny" x="600" y="378" text-anchor="middle" fill="#047857">RESPUESTA DEL ENTORNO</text>
+  <text class="small muted" x="600" y="400" text-anchor="middle">recompensa, estado nuevo y fin de episodio</text>
+
+  <rect x="102" y="462" width="996" height="172" rx="28" fill="#ffffff" stroke="#dbe2ea" class="shadow"/>
+  <text class="tiny muted" x="144" y="502">LOS CINCO NOMBRES QUE NO PUEDES MEZCLAR</text>
+
+  <g transform="translate(144 532)">
+    <rect width="168" height="74" rx="18" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text class="label ink" x="84" y="28" text-anchor="middle">Estado s</text>
+    <text class="small muted" x="84" y="52" text-anchor="middle">lo que ve</text>
+  </g>
+  <g transform="translate(328 532)">
+    <rect width="168" height="74" rx="18" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text class="label ink" x="84" y="28" text-anchor="middle">Accion a</text>
+    <text class="small muted" x="84" y="52" text-anchor="middle">lo que hace</text>
+  </g>
+  <g transform="translate(512 532)">
+    <rect width="168" height="74" rx="18" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text class="label ink" x="84" y="28" text-anchor="middle">Recompensa r</text>
+    <text class="small muted" x="84" y="52" text-anchor="middle">la nota local</text>
+  </g>
+  <g transform="translate(696 532)">
+    <rect width="168" height="74" rx="18" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text class="label ink" x="84" y="28" text-anchor="middle">Politica pi</text>
+    <text class="small muted" x="84" y="52" text-anchor="middle">como decide</text>
+  </g>
+  <g transform="translate(880 532)">
+    <rect width="168" height="74" rx="18" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text class="label ink" x="84" y="28" text-anchor="middle">Valor</text>
+    <text class="small muted" x="84" y="52" text-anchor="middle">futuro esperado</text>
+  </g>
+
+  <path d="M312,568 H322" stroke="#334155" stroke-width="2.4" marker-end="url(#arrow-slate)"/>
+  <path d="M496,568 H506" stroke="#334155" stroke-width="2.4" marker-end="url(#arrow-slate)"/>
+  <path d="M680,568 H690" stroke="#334155" stroke-width="2.4" marker-end="url(#arrow-slate)"/>
+  <path d="M864,568 H874" stroke="#334155" stroke-width="2.4" marker-end="url(#arrow-slate)"/>
+
+  <rect x="190" y="678" width="820" height="38" rx="19" fill="#111827"/>
+  <text class="body" x="600" y="703" text-anchor="middle" fill="#fff">El unico que aprende es el agente; el entorno solo responde con consecuencias.</text>
+</svg>

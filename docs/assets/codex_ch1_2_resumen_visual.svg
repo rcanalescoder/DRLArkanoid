@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Resumen visual de sobrevivir no es resolver</title>
+  <desc id="desc">Infografia de cierre con cuatro distinciones del capitulo: escalon, proxy, densidad y test no visto.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 30px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 18px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Cierre de 1.2: no confundas senal, logro y escenario</text>
+  <text class="body muted" x="48" y="88">El mismo numero puede significar progreso real o una salida barata.</text>
+
+  <g transform="translate(84 146)">
+    <rect width="478" height="174" rx="28" fill="#f8fafc" stroke="#cbd5e1" class="shadow"/>
+    <text class="tiny" x="38" y="44" fill="#334155">1 - ESCALON</text>
+    <text class="label ink" x="38" y="78">Sobrevivir es util, no suficiente</text>
+    <text class="small muted" x="38" y="112">El primer logro es no perder la bola.</text>
+    <text class="small muted" x="38" y="134">Resolver exige limpiar y generalizar.</text>
+  </g>
+
+  <g transform="translate(638 146)">
+    <rect width="478" height="174" rx="28" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+    <text class="tiny" x="38" y="44" fill="#1d4ed8">2 - PROXY</text>
+    <text class="label ink" x="38" y="78">Recompensa no es exito</text>
+    <text class="small muted" x="38" y="112">El proxy guia el entrenamiento.</text>
+    <text class="small muted" x="38" y="134">El exito juzga niveles limpiados.</text>
+  </g>
+
+  <g transform="translate(84 378)">
+    <rect width="478" height="174" rx="28" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+    <text class="tiny" x="38" y="44" fill="#c2410c">3 - DENSIDAD</text>
+    <text class="label ink" x="38" y="78">El 56% era un espejismo</text>
+    <text class="small muted" x="38" y="112">Con muro lleno, la fisica ayuda.</text>
+    <text class="small muted" x="38" y="134">Con ladrillos dispersos, aparece el 0%.</text>
+  </g>
+
+  <g transform="translate(638 378)">
+    <rect width="478" height="174" rx="28" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="tiny" x="38" y="44" fill="#047857">4 - EVIDENCIA</text>
+    <text class="label ink" x="38" y="78">El test no visto decide</text>
+    <text class="small muted" x="38" y="112">No basta con memorizar niveles.</text>
+    <text class="small muted" x="38" y="134">Hay que rendir en patrones nuevos.</text>
+  </g>
+
+  <rect x="170" y="620" width="860" height="42" rx="21" fill="#111827"/>
+  <text class="body" x="600" y="648" text-anchor="middle" fill="#fff">Lectura sana: de donde viene la recompensa y aguanta el exito al cambiar el nivel?</text>
+</svg>

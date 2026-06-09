@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Panel clinico de los tres muros</title>
+  <desc id="desc">Tres muros del diagnostico con sintoma, hipotesis falsa, prueba, causa real y arreglo.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}.line{stroke:#dbe2ea;stroke-width:2}
+      .title{font:800 31px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .head{font:800 22px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .rowlabel{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.4px}
+      .txt{font:600 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="48" y="58">Diagnostico clinico: antes de culpar al algoritmo, mira la formulacion</text>
+  <text class="body muted" x="48" y="88">Cada muro se lee con la misma plantilla: sintoma, hipotesis falsa, prueba, causa y arreglo.</text>
+
+  <g transform="translate(54 130)">
+    <rect width="344" height="545" rx="22" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+    <rect width="344" height="72" rx="22" fill="#fff7ed" stroke="#fed7aa"/>
+    <text class="rowlabel" x="28" y="32" fill="#c2410c">MURO 1</text>
+    <text class="head ink" x="28" y="58">Reloj imposible</text>
+
+    <g transform="translate(28 96)">
+      <text class="rowlabel" x="0" y="0" fill="#c2410c">SINTOMA</text>
+      <text class="txt ink" x="0" y="27">Episodios cortos.</text>
+      <text class="small muted" x="0" y="49">Pocos ladrillos caen.</text>
+    </g>
+    <g transform="translate(28 190)">
+      <text class="rowlabel" x="0" y="0" fill="#c2410c">HIPOTESIS FALSA</text>
+      <text class="txt ink" x="0" y="27">Falta inteligencia</text>
+      <text class="small muted" x="0" y="49">o mas entrenamiento.</text>
+    </g>
+    <g transform="translate(28 284)">
+      <text class="rowlabel" x="0" y="0" fill="#c2410c">PRUEBA</text>
+      <text class="txt ink" x="0" y="27">600 pasos contra</text>
+      <text class="small muted" x="0" y="49">7200 que pide 8x10.</text>
+    </g>
+    <g transform="translate(28 378)">
+      <text class="rowlabel" x="0" y="0" fill="#c2410c">CAUSA REAL</text>
+      <text class="txt ink" x="0" y="27">El episodio se corta</text>
+      <text class="small muted" x="0" y="49">antes del objetivo.</text>
+    </g>
+    <g transform="translate(28 472)">
+      <rect width="288" height="52" rx="16" fill="#fff" stroke="#fed7aa"/>
+      <text class="txt" x="144" y="32" text-anchor="middle" fill="#9a3412">Arreglo: 90 pasos por ladrillo</text>
+    </g>
+  </g>
+
+  <g transform="translate(428 130)">
+    <rect width="344" height="545" rx="22" fill="#f5f3ff" stroke="#ddd6fe" class="shadow"/>
+    <rect width="344" height="72" rx="22" fill="#f5f3ff" stroke="#ddd6fe"/>
+    <text class="rowlabel" x="28" y="32" fill="#6d28d9">MURO 2</text>
+    <text class="head ink" x="28" y="58">Recompensa desviada</text>
+
+    <g transform="translate(28 96)">
+      <text class="rowlabel" x="0" y="0" fill="#6d28d9">SINTOMA</text>
+      <text class="txt ink" x="0" y="27">La recompensa sube.</text>
+      <text class="small muted" x="0" y="49">El exito no acompana.</text>
+    </g>
+    <g transform="translate(28 190)">
+      <text class="rowlabel" x="0" y="0" fill="#6d28d9">HIPOTESIS FALSA</text>
+      <text class="txt ink" x="0" y="27">Va por buen camino;</text>
+      <text class="small muted" x="0" y="49">solo faltan pasos.</text>
+    </g>
+    <g transform="translate(28 284)">
+      <text class="rowlabel" x="0" y="0" fill="#6d28d9">PRUEBA</text>
+      <text class="txt ink" x="0" y="27">Quitar shaping Phi</text>
+      <text class="small muted" x="0" y="49">sube el exito +8 puntos.</text>
+    </g>
+    <g transform="translate(28 378)">
+      <text class="rowlabel" x="0" y="0" fill="#6d28d9">CAUSA REAL</text>
+      <text class="txt ink" x="0" y="27">Phi premiaba acercarse,</text>
+      <text class="small muted" x="0" y="49">no limpiar el muro.</text>
+    </g>
+    <g transform="translate(28 472)">
+      <rect width="288" height="52" rx="16" fill="#fff" stroke="#ddd6fe"/>
+      <text class="txt" x="144" y="32" text-anchor="middle" fill="#5b21b6">Arreglo: meta limpia, sin Phi</text>
+    </g>
+  </g>
+
+  <g transform="translate(802 130)">
+    <rect width="344" height="545" rx="22" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+    <rect width="344" height="72" rx="22" fill="#eff6ff" stroke="#bfdbfe"/>
+    <text class="rowlabel" x="28" y="32" fill="#1d4ed8">MURO 3</text>
+    <text class="head ink" x="28" y="58">Observacion ciega</text>
+
+    <g transform="translate(28 96)">
+      <text class="rowlabel" x="0" y="0" fill="#1d4ed8">SINTOMA</text>
+      <text class="txt ink" x="0" y="27">0% en dispersos.</text>
+      <text class="small muted" x="0" y="49">56% enganoso en lleno.</text>
+    </g>
+    <g transform="translate(28 190)">
+      <text class="rowlabel" x="0" y="0" fill="#1d4ed8">HIPOTESIS FALSA</text>
+      <text class="txt ink" x="0" y="27">Sabe jugar;</text>
+      <text class="small muted" x="0" y="49">le falta generalizar.</text>
+    </g>
+    <g transform="translate(28 284)">
+      <text class="rowlabel" x="0" y="0" fill="#1d4ed8">PRUEBA</text>
+      <text class="txt ink" x="0" y="27">Sin matriz de ladrillos</text>
+      <text class="small muted" x="0" y="49">hay techo de informacion.</text>
+    </g>
+    <g transform="translate(28 378)">
+      <text class="rowlabel" x="0" y="0" fill="#1d4ed8">CAUSA REAL</text>
+      <text class="txt ink" x="0" y="27">No ve el objetivo.</text>
+      <text class="small muted" x="0" y="49">Solo ve bola y pala.</text>
+    </g>
+    <g transform="translate(28 472)">
+      <rect width="288" height="52" rx="16" fill="#fff" stroke="#bfdbfe"/>
+      <text class="txt" x="144" y="32" text-anchor="middle" fill="#1d4ed8">Arreglo: matriz 8x10 + conv</text>
+    </g>
+  </g>
+
+  <rect x="184" y="704" width="832" height="42" rx="21" fill="#111827"/>
+  <text class="body" x="600" y="731" text-anchor="middle" fill="#fff">Patron: las hipotesis falsas culpan al agente; las causas reales culpan a la tarea.</text>
+</svg>

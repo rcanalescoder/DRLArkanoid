@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Resumen visual de aprender por consecuencias</title>
+  <desc id="desc">Infografia de cierre del capitulo con cuatro ideas clave del aprendizaje por refuerzo.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 30px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 18px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+  </defs>
+
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Cierre de 1.1: aprender no es imitar, es ajustar por consecuencias</text>
+  <text class="body muted" x="48" y="88">Si te llevas estas cuatro ideas, ya puedes leer el resto de la Parte I.</text>
+
+  <g transform="translate(84 146)">
+    <rect width="478" height="174" rx="28" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+    <text class="tiny" x="38" y="44" fill="#1d4ed8">1 - SIN PROFESOR</text>
+    <text class="label ink" x="38" y="78">No hay respuesta correcta</text>
+    <text class="small muted" x="38" y="112">El agente no recibe "mueve a la derecha".</text>
+    <text class="small muted" x="38" y="134">Recibe una consecuencia despues de actuar.</text>
+  </g>
+
+  <g transform="translate(638 146)">
+    <rect width="478" height="174" rx="28" fill="#ecfeff" stroke="#a5f3fc" class="shadow"/>
+    <text class="tiny" x="38" y="44" fill="#0e7490">2 - SOLO NUMEROS</text>
+    <text class="label ink" x="38" y="78">El estado fija lo que puede saber</text>
+    <text class="small muted" x="38" y="112">Para nosotros hay pala, bola y ladrillos.</text>
+    <text class="small muted" x="38" y="134">Para el agente hay un vector de entrada.</text>
+  </g>
+
+  <g transform="translate(84 378)">
+    <rect width="478" height="174" rx="28" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="tiny" x="38" y="44" fill="#047857">3 - RECOMPENSA</text>
+    <text class="label ink" x="38" y="78">La senal guia, pero no demuestra</text>
+    <text class="small muted" x="38" y="112">Puede subir por sobrevivir o rebotar.</text>
+    <text class="small muted" x="38" y="134">El exito se mide limpiando niveles.</text>
+  </g>
+
+  <g transform="translate(638 378)">
+    <rect width="478" height="174" rx="28" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+    <text class="tiny" x="38" y="44" fill="#c2410c">4 - TIEMPO</text>
+    <text class="label ink" x="38" y="78">La causa y el premio se separan</text>
+    <text class="small muted" x="38" y="112">Una mala accion puede castigarse tarde.</text>
+    <text class="small muted" x="38" y="134">Aprender exige repartir credito.</text>
+  </g>
+
+  <rect x="204" y="620" width="792" height="42" rx="21" fill="#111827"/>
+  <text class="body" x="600" y="648" text-anchor="middle" fill="#fff">Formula mental: estado -> accion -> consecuencia -> ajuste -> repetir.</text>
+</svg>

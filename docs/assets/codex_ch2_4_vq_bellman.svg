@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">De V y Q al objetivo de Bellman</title>
+<desc id="desc">Valor no es premio inmediato: es una estimacion del futuro desde una situacion.</desc>
+<defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}.line{stroke:#dbe2ea}.white{fill:#fff}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.35px}
+      .num{font:900 34px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#0e7490"/></marker>
+  </defs>
+<rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="52" y="58">De V y Q al objetivo de Bellman</text>
+  <text class="body muted" x="52" y="88">Valor no es premio inmediato: es una estimacion del futuro desde una situacion.</text>
+
+<g transform="translate(23 230)">
+<rect width="210" height="170" rx="22" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#2563eb">V(s)</text>
+<text class="label ink" x="24" y="68">Valor de estado</text>
+<text class="small muted" x="24" y="108">que promete estar</text>
+<text class="small muted" x="24" y="130">aqui si actuo bien</text>
+</g>
+<path d="M241 315H249" stroke="#0e7490" stroke-width="5" fill="none" marker-end="url(#arrow)"/>
+<g transform="translate(259 230)">
+<rect width="210" height="170" rx="22" fill="#f5f3ff" stroke="#ddd6fe" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#7c3aed">Q(s,a)</text>
+<text class="label ink" x="24" y="68">Valor de accion</text>
+<text class="small muted" x="24" y="108">que promete hacer</text>
+<text class="small muted" x="24" y="130">esta accion concreta</text>
+</g>
+<path d="M477 315H485" stroke="#0e7490" stroke-width="5" fill="none" marker-end="url(#arrow)"/>
+<g transform="translate(495 230)">
+<rect width="210" height="170" rx="22" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#047857">r</text>
+<text class="label ink" x="24" y="68">Premio ahora</text>
+<text class="small muted" x="24" y="108">lo que el entorno</text>
+<text class="small muted" x="24" y="130">devuelve en este</text>
+<text class="small muted" x="24" y="152">paso</text>
+</g>
+<path d="M713 315H721" stroke="#0e7490" stroke-width="5" fill="none" marker-end="url(#arrow)"/>
+<g transform="translate(731 230)">
+<rect width="210" height="170" rx="22" fill="#ecfeff" stroke="#bae6fd" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#0891b2">futuro</text>
+<text class="label ink" x="24" y="68">Mejor valor futuro</text>
+<text class="small muted" x="24" y="108">lo que espero desde</text>
+<text class="small muted" x="24" y="130">el siguiente estado</text>
+</g>
+<path d="M949 315H957" stroke="#0e7490" stroke-width="5" fill="none" marker-end="url(#arrow)"/>
+<g transform="translate(967 230)">
+<rect width="210" height="170" rx="22" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#d97706">target</text>
+<text class="label ink" x="24" y="68">Objetivo Bellman</text>
+<text class="small muted" x="24" y="108">premio ahora mas</text>
+<text class="small muted" x="24" y="130">futuro descontado</text>
+</g>
+<rect x="190" y="620" width="820" height="56" rx="28" fill="#111827"/>
+<text class="body" x="600" y="654" text-anchor="middle" fill="#fff">Bellman convierte aprender del futuro en una diana numerica.</text>
+</svg>

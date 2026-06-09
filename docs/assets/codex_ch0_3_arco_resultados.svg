@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Arco causal del 0 por ciento al 91 por ciento</title>
+  <desc id="desc">Comparacion entre la era ciega, las reformulaciones de la tarea y el resultado evaluado de PPO.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 30px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 18px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .big{font:900 58px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="48" y="58">La tesis en una imagen: el salto fue causal, no magico</text>
+  <text class="body muted" x="48" y="88">El libro no dice "PPO gana porque si"; dice que una tarea mejor planteada hace posible aprender y evaluar.</text>
+
+  <g transform="translate(70 148)">
+    <rect width="300" height="394" rx="30" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+    <text class="tiny" x="42" y="46" fill="#c2410c">PUNTO DE PARTIDA</text>
+    <text class="label ink" x="42" y="80">Era ciega</text>
+    <text class="big" x="42" y="152" fill="#c2410c">0%</text>
+    <text class="small muted" x="42" y="184">en niveles dispersos</text>
+    <rect x="42" y="220" width="216" height="34" rx="17" fill="#ffedd5" stroke="#fed7aa"/>
+    <text class="mono" x="150" y="242" text-anchor="middle" fill="#9a3412">solo 6 numeros</text>
+    <rect x="42" y="268" width="216" height="34" rx="17" fill="#ffedd5" stroke="#fed7aa"/>
+    <text class="mono" x="150" y="290" text-anchor="middle" fill="#9a3412">timeout 600</text>
+    <rect x="42" y="316" width="216" height="34" rx="17" fill="#ffedd5" stroke="#fed7aa"/>
+    <text class="mono" x="150" y="338" text-anchor="middle" fill="#9a3412">4x7 ladrillos</text>
+  </g>
+
+  <g transform="translate(450 128)">
+    <rect width="300" height="434" rx="30" fill="#f8fafc" stroke="#dbe2ea" class="shadow"/>
+    <text class="tiny muted" x="42" y="46">REFORMULAR LA TAREA</text>
+    <text class="label ink" x="42" y="80">Lo que cambio</text>
+    <g transform="translate(42 114)">
+      <rect width="216" height="54" rx="18" fill="#eff6ff" stroke="#bfdbfe"/>
+      <text class="mono" x="108" y="24" text-anchor="middle" fill="#1d4ed8">observacion</text>
+      <text class="small muted" x="108" y="43" text-anchor="middle">6 -> 86 numeros</text>
+    </g>
+    <g transform="translate(42 184)">
+      <rect width="216" height="54" rx="18" fill="#ecfeff" stroke="#a5f3fc"/>
+      <text class="mono" x="108" y="24" text-anchor="middle" fill="#0e7490">reloj</text>
+      <text class="small muted" x="108" y="43" text-anchor="middle">90 pasos/ladrillo</text>
+    </g>
+    <g transform="translate(42 254)">
+      <rect width="216" height="54" rx="18" fill="#ecfdf5" stroke="#bbf7d0"/>
+      <text class="mono" x="108" y="24" text-anchor="middle" fill="#047857">meta limpia</text>
+      <text class="small muted" x="108" y="43" text-anchor="middle">exito fuera de reward</text>
+    </g>
+    <g transform="translate(42 324)">
+      <rect width="216" height="54" rx="18" fill="#f5f3ff" stroke="#ddd6fe"/>
+      <text class="mono" x="108" y="24" text-anchor="middle" fill="#6d28d9">encoder espacial</text>
+      <text class="small muted" x="108" y="43" text-anchor="middle">ladrillos como mapa</text>
+    </g>
+  </g>
+
+  <g transform="translate(830 148)">
+    <rect width="300" height="394" rx="30" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="tiny" x="42" y="46" fill="#047857">RESULTADO DECLARABLE</text>
+    <text class="label ink" x="42" y="80">PPO evaluado</text>
+    <text class="big" x="42" y="152" fill="#047857">91%</text>
+    <text class="small muted" x="42" y="184">test del mismo patron</text>
+    <text class="big" x="42" y="260" fill="#0e7490">89%</text>
+    <text class="small muted" x="42" y="292">patrones no vistos</text>
+    <rect x="42" y="326" width="216" height="34" rx="17" fill="#d1fae5" stroke="#86efac"/>
+    <text class="mono" x="150" y="348" text-anchor="middle" fill="#047857">media de 5 semillas</text>
+  </g>
+
+  <path d="M370,348 C402,348 418,348 444,348" stroke="#334155" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M750,348 C782,348 798,348 824,348" stroke="#334155" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+
+  <rect x="134" y="606" width="932" height="86" rx="28" fill="#111827"/>
+  <text class="tiny" x="600" y="636" text-anchor="middle" fill="#cbd5e1">LECTURA SANA DEL RESULTADO</text>
+  <text class="body" x="600" y="666" text-anchor="middle" fill="#fff">No compares algoritmos sin fijar tarea, presupuesto, split y semillas.</text>
+</svg>

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Resumen visual del capitulo mapa del laboratorio</title>
+  <desc id="desc">Infografia de cierre con cuatro cosas que el lector debe llevarse del mapa del laboratorio.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 30px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 18px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+  </defs>
+
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Antes de seguir: ya tienes el plano mental</text>
+  <text class="body muted" x="48" y="88">El resto del libro amplia estas cuatro piezas; ninguna cifra debe leerse fuera de ellas.</text>
+
+  <g transform="translate(84 146)">
+    <rect width="478" height="180" rx="28" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+    <text class="tiny" x="38" y="44" fill="#1d4ed8">1 - EL BUCLE</text>
+    <text class="label ink" x="38" y="78">Agente y entorno se turnan</text>
+    <text class="mono" x="38" y="112" fill="#1d4ed8">s -> a -> r, s', done</text>
+    <text class="small muted" x="38" y="142">Todo algoritmo del libro vive dentro</text>
+    <text class="small muted" x="38" y="162">de esta secuencia repetida millones de veces.</text>
+  </g>
+
+  <g transform="translate(638 146)">
+    <rect width="478" height="180" rx="28" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="tiny" x="38" y="44" fill="#047857">2 - LA TAREA</text>
+    <text class="label ink" x="38" y="78">El mundo bien descrito cambia todo</text>
+    <text class="mono" x="38" y="112" fill="#047857">6 numeros -> 86 numeros</text>
+    <text class="small muted" x="38" y="142">La observacion, el reloj y la meta</text>
+    <text class="small muted" x="38" y="162">definen que puede aprender el agente.</text>
+  </g>
+
+  <g transform="translate(84 378)">
+    <rect width="478" height="180" rx="28" fill="#f5f3ff" stroke="#ddd6fe" class="shadow"/>
+    <text class="tiny" x="38" y="44" fill="#6d28d9">3 - LOS METODOS</text>
+    <text class="label ink" x="38" y="78">Cinco algoritmos, mismo banco</text>
+    <text class="mono" x="38" y="112" fill="#6d28d9">DQN | PPO | SAC | WM | WM-RNN</text>
+    <text class="small muted" x="38" y="142">Cambian las estrategias de aprendizaje,</text>
+    <text class="small muted" x="38" y="162">no las reglas de la comparacion.</text>
+  </g>
+
+  <g transform="translate(638 378)">
+    <rect width="478" height="180" rx="28" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+    <text class="tiny" x="38" y="44" fill="#c2410c">4 - LA EVIDENCIA</text>
+    <text class="label ink" x="38" y="78">Un resultado siempre trae apellido</text>
+    <text class="mono" x="38" y="112" fill="#c2410c">split + semillas + presupuesto</text>
+    <text class="small muted" x="38" y="142">El titular 91% solo es honesto</text>
+    <text class="small muted" x="38" y="162">si conserva su protocolo al lado.</text>
+  </g>
+
+  <rect x="210" y="624" width="780" height="38" rx="19" fill="#111827"/>
+  <text class="body" x="600" y="649" text-anchor="middle" fill="#fff">A partir de aqui, pregunta siempre: que ve, que decide, que mide y con que protocolo?</text>
+</svg>

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comparativa de figuras · Codex vs Claude</title>
+  <style>
+    :root{
+      --ink:#111827;
+      --muted:#64748b;
+      --line:#dbe2ea;
+      --soft:#f8fafc;
+      --blue:#2563eb;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      color:var(--ink);
+      background:#eef2f7;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      line-height:1.45;
+    }
+    header{
+      padding:32px 36px 22px;
+      background:#fff;
+      border-bottom:1px solid var(--line);
+    }
+    h1{ margin:0 0 8px; font-size:30px; letter-spacing:-.02em; }
+    p{ margin:0; color:var(--muted); max-width:980px; }
+    main{ padding:24px 36px 40px; }
+    .pair{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:12px;
+      margin:0 0 24px;
+      overflow:hidden;
+      box-shadow:0 14px 34px -24px rgba(15,23,42,.35);
+    }
+    .pair-head{
+      display:flex;
+      justify-content:space-between;
+      gap:20px;
+      align-items:flex-start;
+      padding:18px 20px;
+      border-bottom:1px solid var(--line);
+      background:var(--soft);
+    }
+    h2{ margin:0 0 5px; font-size:21px; letter-spacing:-.01em; }
+    .note{ color:var(--muted); font-size:14px; }
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:0;
+    }
+    .col{
+      min-width:0;
+      padding:18px;
+    }
+    .col + .col{ border-left:1px solid var(--line); }
+    .label{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      margin-bottom:12px;
+      font-size:13px;
+      font-weight:800;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      color:#475569;
+    }
+    .label span:last-child{
+      font-family:"SFMono-Regular",Menlo,Consolas,monospace;
+      font-size:11px;
+      color:#94a3b8;
+      text-transform:none;
+      letter-spacing:0;
+      font-weight:700;
+    }
+    img{
+      display:block;
+      width:100%;
+      height:auto;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:10px;
+    }
+    .why{
+      margin-top:12px;
+      padding:12px 14px;
+      border-left:4px solid var(--blue);
+      background:#eff6ff;
+      color:#1e3a8a;
+      font-size:14px;
+    }
+    @media (max-width: 900px){
+      header, main{ padding-left:18px; padding-right:18px; }
+      .grid{ grid-template-columns:1fr; }
+      .col + .col{ border-left:0; border-top:1px solid var(--line); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Primeras tres figuras de <code>report_v3.html</code>: original vs propuesta v2</h1>
+    <p>La columna izquierda muestra los SVG actuales. La derecha muestra una segunda tanda de propuestas, sin sustituir aun nada en el informe. Esta version no intenta calcar el dibujo original: usa mapas de lectura, paneles funcionales y carriles narrativos.</p>
+  </header>
+  <main>
+    <section class="pair">
+      <div class="pair-head">
+        <div>
+          <h2>1. Niveles de lectura</h2>
+          <div class="note">La figura actual enumera capas; la propuesta convierte la pagina en un mapa con tres rutas: entender, construir y auditar.</div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="col">
+          <div class="label"><span>Original Claude</span><span>vis_niveles_lectura.svg</span></div>
+          <img src="assets/vis_niveles_lectura.svg" alt="Figura original de niveles de lectura">
+        </div>
+        <div class="col">
+          <div class="label"><span>Propuesta Codex v2</span><span>codex_vis_niveles_lectura.svg</span></div>
+          <img src="assets/codex_vis_niveles_lectura.svg" alt="Propuesta Codex de niveles de lectura">
+          <div class="why">Mejora propuesta: no solo dice que hay capas; ensena que cada lector puede seguir una ruta distinta sin romper el hilo.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pair">
+      <div class="pair-head">
+        <div>
+          <h2>2. Sistema de cajas</h2>
+          <div class="note">La figura actual lista los tipos; la propuesta los organiza como herramientas que rodean una formula, grafica o resultado dificil.</div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="col">
+          <div class="label"><span>Original Claude</span><span>vis_leyenda_cajas.svg</span></div>
+          <img src="assets/vis_leyenda_cajas.svg" alt="Figura original de leyenda de cajas">
+        </div>
+        <div class="col">
+          <div class="label"><span>Propuesta Codex v2</span><span>codex_vis_leyenda_cajas.svg</span></div>
+          <img src="assets/codex_vis_leyenda_cajas.svg" alt="Propuesta Codex de leyenda de cajas">
+          <div class="why">Mejora propuesta: cambia la leyenda de colores por un panel de uso: que me prepara, que me aterriza, que me protege y que me ayuda a cerrar.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pair">
+      <div class="pair-head">
+        <div>
+          <h2>3. Coreografia del capitulo</h2>
+          <div class="note">La figura actual es una linea de nueve pasos; la propuesta reparte el capitulo en carriles: relato, mecanismo y evidencia.</div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="col">
+          <div class="label"><span>Original Claude</span><span>vis_coreografia.svg</span></div>
+          <img src="assets/vis_coreografia.svg" alt="Figura original de coreografia">
+        </div>
+        <div class="col">
+          <div class="label"><span>Propuesta Codex v2</span><span>codex_vis_coreografia.svg</span></div>
+          <img src="assets/codex_vis_coreografia.svg" alt="Propuesta Codex de coreografia">
+          <div class="why">Mejora propuesta: conserva los nueve pasos, pero los convierte en una investigacion narrada: del problema a la evidencia y al juicio critico.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

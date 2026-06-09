@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Humano frente a tensor en Arkanoid</title>
+  <desc id="desc">Comparacion entre lo que interpreta un humano al ver el tablero y lo que recibe el agente como 86 numeros.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 30px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 18px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+    <marker id="arrow" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#334155"/></marker>
+  </defs>
+
+  <rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="48" y="58">La misma escena en dos idiomas</text>
+  <text class="body muted" x="48" y="88">Tu ves objetos y proposito; el agente recibe numeros y debe descubrir consecuencias.</text>
+
+  <rect x="68" y="142" width="476" height="462" rx="30" fill="#f8fafc" stroke="#dbe2ea" class="shadow"/>
+  <text class="tiny muted" x="108" y="184">LECTURA HUMANA</text>
+  <text class="label ink" x="108" y="218">"Hay una bola, una pala y ladrillos"</text>
+  <rect x="140" y="260" width="250" height="250" rx="24" fill="#0b1020"/>
+  <g transform="translate(170 294)">
+    <rect x="0" y="0" width="34" height="14" rx="4" fill="#fb7185"/>
+    <rect x="42" y="0" width="34" height="14" rx="4" fill="#fb7185"/>
+    <rect x="84" y="0" width="34" height="14" rx="4" fill="#fb7185"/>
+    <rect x="126" y="0" width="34" height="14" rx="4" fill="#fb7185"/>
+    <rect x="168" y="0" width="34" height="14" rx="4" fill="#fb7185"/>
+    <rect x="0" y="24" width="34" height="14" rx="4" fill="#f59e0b"/>
+    <rect x="42" y="24" width="34" height="14" rx="4" fill="#f59e0b"/>
+    <rect x="84" y="24" width="34" height="14" rx="4" fill="#f59e0b"/>
+    <rect x="126" y="24" width="34" height="14" rx="4" fill="#f59e0b"/>
+    <rect x="168" y="24" width="34" height="14" rx="4" fill="#f59e0b"/>
+    <rect x="0" y="48" width="34" height="14" rx="4" fill="#34d399"/>
+    <rect x="42" y="48" width="34" height="14" rx="4" fill="#34d399"/>
+    <rect x="84" y="48" width="34" height="14" rx="4" fill="#34d399"/>
+    <rect x="126" y="48" width="34" height="14" rx="4" fill="#34d399"/>
+    <rect x="168" y="48" width="34" height="14" rx="4" fill="#34d399"/>
+    <circle cx="132" cy="142" r="8" fill="#e5e7eb"/>
+    <rect x="72" y="198" width="76" height="12" rx="6" fill="#818cf8"/>
+  </g>
+  <g>
+    <line x1="402" y1="300" x2="378" y2="300" stroke="#2563eb" stroke-width="2"/>
+    <text class="small" x="410" y="305" fill="#2563eb">objetivo</text>
+    <line x1="402" y1="404" x2="302" y2="404" stroke="#0f9f6e" stroke-width="2"/>
+    <text class="small" x="410" y="409" fill="#0f9f6e">trayectoria</text>
+    <line x1="402" y1="492" x2="298" y2="492" stroke="#7c3aed" stroke-width="2"/>
+    <text class="small" x="410" y="497" fill="#7c3aed">pala</text>
+  </g>
+  <text class="small muted" x="108" y="558">El humano interpreta funciones: proteger,</text>
+  <text class="small muted" x="108" y="580">apuntar, abrir huecos, limpiar la pared.</text>
+
+  <path d="M562,374 H638" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+  <text class="tiny muted" x="600" y="350" text-anchor="middle">MISMA ESCENA</text>
+  <text class="tiny muted" x="600" y="402" text-anchor="middle">OTRO LENGUAJE</text>
+
+  <rect x="656" y="142" width="476" height="462" rx="30" fill="#ffffff" stroke="#dbe2ea" class="shadow"/>
+  <text class="tiny muted" x="696" y="184">ENTRADA DEL AGENTE</text>
+  <text class="label ink" x="696" y="218">"Recibo un vector de 86 numeros"</text>
+
+  <rect x="696" y="258" width="396" height="82" rx="22" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text class="tiny" x="724" y="288" fill="#1d4ed8">6 NUMEROS CINEMATICOS</text>
+  <text class="mono" x="724" y="314" fill="#1d4ed8">x_bola, y_bola, vx, vy, x_pala, distancia</text>
+
+  <rect x="696" y="368" width="396" height="150" rx="22" fill="#ecfdf5" stroke="#bbf7d0"/>
+  <text class="tiny" x="724" y="398" fill="#047857">80 NUMEROS DE OCUPACION</text>
+  <g transform="translate(724 420)">
+    <rect width="240" height="80" rx="10" fill="#fff" stroke="#bbf7d0"/>
+    <g fill="#0f9f6e">
+      <rect x="12" y="10" width="18" height="12" rx="3"/><rect x="36" y="10" width="18" height="12" rx="3"/><rect x="60" y="10" width="18" height="12" rx="3"/><rect x="84" y="10" width="18" height="12" rx="3"/><rect x="108" y="10" width="18" height="12" rx="3"/><rect x="132" y="10" width="18" height="12" rx="3"/><rect x="156" y="10" width="18" height="12" rx="3"/><rect x="180" y="10" width="18" height="12" rx="3"/><rect x="204" y="10" width="18" height="12" rx="3"/>
+      <rect x="12" y="30" width="18" height="12" rx="3"/><rect x="36" y="30" width="18" height="12" rx="3"/><rect x="84" y="30" width="18" height="12" rx="3"/><rect x="108" y="30" width="18" height="12" rx="3"/><rect x="156" y="30" width="18" height="12" rx="3"/><rect x="180" y="30" width="18" height="12" rx="3"/><rect x="204" y="30" width="18" height="12" rx="3"/>
+      <rect x="36" y="50" width="18" height="12" rx="3"/><rect x="60" y="50" width="18" height="12" rx="3"/><rect x="84" y="50" width="18" height="12" rx="3"/><rect x="132" y="50" width="18" height="12" rx="3"/><rect x="156" y="50" width="18" height="12" rx="3"/>
+    </g>
+  </g>
+  <text class="mono" x="1004" y="466" text-anchor="middle" fill="#047857">1 = vivo</text>
+  <text class="mono" x="1004" y="490" text-anchor="middle" fill="#64748b">0 = roto</text>
+
+  <text class="small muted" x="696" y="558">El agente no recibe palabras como "pala".</text>
+  <text class="small muted" x="696" y="580">Aprende que patrones numericos predicen recompensa.</text>
+
+  <rect x="184" y="650" width="832" height="46" rx="23" fill="#111827"/>
+  <text class="body" x="600" y="680" text-anchor="middle" fill="#fff">La calidad del estado fija el techo: lo que no se observa no se puede aprender.</text>
+</svg>

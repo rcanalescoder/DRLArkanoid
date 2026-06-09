@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Puente causal de la Parte I hacia la primera conquista</title>
+  <desc id="desc">Resumen visual de los sintomas, el diagnostico y los arreglos que convierten la tarea ciega en una tarea medible.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .num{font:900 38px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#0e7490"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="52" y="58">Parte I en una frase: no era solo el algoritmo</text>
+  <text class="body muted" x="52" y="88">La conquista aparece cuando el problema deja de estar ciego, sesgado y mal medido.</text>
+
+  <g transform="translate(54 132)">
+    <rect width="330" height="500" rx="24" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+    <text class="tiny" x="26" y="38" fill="#c2410c">1. SINTOMAS</text>
+    <text class="label ink" x="26" y="72">Lo que se veia desde fuera</text>
+    <g transform="translate(26 118)">
+      <rect width="278" height="82" rx="16" fill="#fff" stroke="#fed7aa"/>
+      <text class="num" x="20" y="52" fill="#be123c">0%</text>
+      <text class="small muted" x="98" y="37">en niveles dispersos</text>
+      <text class="small muted" x="98" y="59">con observacion ciega</text>
+    </g>
+    <g transform="translate(26 220)">
+      <rect width="278" height="82" rx="16" fill="#fff" stroke="#fed7aa"/>
+      <text class="num" x="20" y="52" fill="#c2410c">56%</text>
+      <text class="small muted" x="104" y="37">aparente en pared</text>
+      <text class="small muted" x="104" y="59">llena por fisica</text>
+    </g>
+    <g transform="translate(26 322)">
+      <rect width="278" height="82" rx="16" fill="#fff" stroke="#fed7aa"/>
+      <text class="label" x="20" y="37" fill="#c2410c">Reward sube</text>
+      <text class="small muted" x="20" y="62">pero exito no responde</text>
+    </g>
+  </g>
+
+  <path d="M404 382H486" stroke="#0e7490" stroke-width="5" fill="none" marker-end="url(#arrow)"/>
+  <g transform="translate(474 182)">
+    <rect width="252" height="400" rx="24" fill="#ecfeff" stroke="#bae6fd" class="shadow"/>
+    <text class="tiny" x="26" y="40" fill="#0e7490">2. DIAGNOSTICO</text>
+    <text class="label ink" x="26" y="76">La tarea estaba</text>
+    <text class="label ink" x="26" y="102">mal formulada</text>
+    <line x1="26" y1="136" x2="226" y2="136" stroke="#bae6fd" stroke-width="2"/>
+    <text class="small muted" x="26" y="174">No veia el objetivo.</text>
+    <text class="small muted" x="26" y="210">El reloj premiaba</text>
+    <text class="small muted" x="26" y="232">sobrevivir.</text>
+    <text class="small muted" x="26" y="268">La recompensa auxiliar</text>
+    <text class="small muted" x="26" y="290">empujaba a un proxy.</text>
+    <rect x="26" y="320" width="200" height="48" rx="24" fill="#0e7490"/>
+    <text class="small" x="126" y="350" text-anchor="middle" fill="#fff">arreglar el enunciado</text>
+  </g>
+  <path d="M746 382H828" stroke="#0e7490" stroke-width="5" fill="none" marker-end="url(#arrow)"/>
+
+  <g transform="translate(816 132)">
+    <rect width="330" height="500" rx="24" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="tiny" x="26" y="38" fill="#047857">3. RECETA</text>
+    <text class="label ink" x="26" y="72">Lo que cambia de verdad</text>
+    <g transform="translate(26 112)">
+      <rect width="278" height="52" rx="14" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="18" y="32">Reloj proporcional</text>
+      <text class="tiny" x="198" y="32" fill="#047857">JUSTICIA</text>
+    </g>
+    <g transform="translate(26 176)">
+      <rect width="278" height="52" rx="14" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="18" y="32">Sin shaping Phi</text>
+      <text class="tiny" x="204" y="32" fill="#047857">META</text>
+    </g>
+    <g transform="translate(26 240)">
+      <rect width="278" height="52" rx="14" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="18" y="32">Matriz 8x10</text>
+      <text class="tiny" x="200" y="32" fill="#047857">VISION</text>
+    </g>
+    <g transform="translate(26 304)">
+      <rect width="278" height="52" rx="14" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="18" y="32">Encoder convolucional</text>
+      <text class="tiny" x="200" y="32" fill="#047857">FORMA</text>
+    </g>
+    <g transform="translate(26 368)">
+      <rect width="278" height="52" rx="14" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="18" y="32">Splits disjuntos</text>
+      <text class="tiny" x="190" y="32" fill="#047857">EVIDENCIA</text>
+    </g>
+  </g>
+
+  <rect x="272" y="670" width="656" height="52" rx="26" fill="#111827"/>
+  <text class="body" x="600" y="702" text-anchor="middle" fill="#fff">Ahora si tiene sentido preguntar: cuanto limpia en niveles no vistos?</text>
+</svg>

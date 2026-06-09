@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Descomposicion de una recompensa razonable pero peligrosa</title>
+  <desc id="desc">Ejemplo numerico: 60 rebotes por 0.2 suman 12 puntos frente a 4 ladrillos por 1 que suman 4 puntos.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 30px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 19px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .big{font:900 48px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Una recompensa razonable puede premiar sobrevivir</text>
+  <text class="body muted" x="48" y="88">Ejemplo del capitulo: 60 rebotes y 4 ladrillos rotos. El total sube, pero por la via barata.</text>
+
+  <rect x="72" y="142" width="1056" height="404" rx="30" fill="#ffffff" stroke="#dbe2ea" class="shadow"/>
+  <text class="tiny muted" x="120" y="186">DESCOMPOSICION DEL TOTAL</text>
+  <text class="big ink" x="120" y="250">16</text>
+  <text class="label ink" x="214" y="238">puntos</text>
+  <text class="small muted" x="214" y="260">ignorando perdida y bonus final</text>
+
+  <g transform="translate(120 318)">
+    <rect width="720" height="54" rx="27" fill="#e2e8f0"/>
+    <rect width="540" height="54" rx="27" fill="#60a5fa"/>
+    <rect x="540" width="180" height="54" rx="27" fill="#0f9f6e"/>
+    <text class="mono" x="270" y="35" text-anchor="middle" fill="#fff">rebotes: 12 puntos (75%)</text>
+    <text class="mono" x="630" y="35" text-anchor="middle" fill="#fff">ladrillos: 4</text>
+  </g>
+
+  <g transform="translate(120 414)">
+    <rect width="402" height="72" rx="22" fill="#eff6ff" stroke="#bfdbfe"/>
+    <text class="tiny" x="30" y="30" fill="#1d4ed8">VIA BARATA</text>
+    <text class="mono" x="30" y="54" fill="#1d4ed8">60 x 0.2 = 12</text>
+    <rect x="462" width="402" height="72" rx="22" fill="#ecfdf5" stroke="#bbf7d0"/>
+    <text class="tiny" x="492" y="30" fill="#047857">OBJETIVO REAL</text>
+    <text class="mono" x="492" y="54" fill="#047857">4 x 1.0 = 4</text>
+  </g>
+
+  <rect x="900" y="220" width="168" height="196" rx="28" fill="#fff7ed" stroke="#fed7aa"/>
+  <text class="tiny" x="984" y="258" text-anchor="middle" fill="#c2410c">LECTURA</text>
+  <text class="label ink" x="984" y="296" text-anchor="middle">La senal</text>
+  <text class="label ink" x="984" y="322" text-anchor="middle">apunta mal</text>
+  <text class="small muted" x="984" y="360" text-anchor="middle">El agente aprende</text>
+  <text class="small muted" x="984" y="380" text-anchor="middle">a no perder antes</text>
+  <text class="small muted" x="984" y="400" text-anchor="middle">que a limpiar.</text>
+
+  <rect x="196" y="616" width="808" height="42" rx="21" fill="#111827"/>
+  <text class="body" x="600" y="644" text-anchor="middle" fill="#fff">Si el 75% del premio viene de rebotar, no sorprende que el agente priorice sobrevivir.</text>
+</svg>

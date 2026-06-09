@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Estado 86</title>
+  <desc id="desc">El estado final combina seis cinematicos y ochenta celdas de matriz de ocupacion.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 21px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .num{font:900 46px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .mono{font:800 16px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Ingrediente 3: darle ojos no es darle la solucion</text>
+  <text class="body muted" x="48" y="88">El estado final dice que hay en el mundo; la politica todavia debe aprender que hacer.</text>
+
+  <g transform="translate(82 150)">
+    <rect width="320" height="340" rx="24" fill="#ecfeff" stroke="#bae6fd" class="shadow"/>
+    <text class="tiny" x="30" y="42" fill="#0e7490">6 CINEMATICOS</text>
+    <text class="label ink" x="30" y="78">Movimiento actual</text>
+    <g transform="translate(38 126)">
+      <rect width="244" height="126" rx="18" fill="#fff" stroke="#bae6fd"/>
+      <text class="mono" x="28" y="42" fill="#0e7490">bola_x, bola_y</text>
+      <text class="mono" x="28" y="72" fill="#0e7490">vel_x,  vel_y</text>
+      <text class="mono" x="28" y="102" fill="#0e7490">pala_x, distancia</text>
+    </g>
+    <text class="small muted" x="38" y="302">Sirven para devolver la bola.</text>
+  </g>
+
+  <text class="num" x="454" y="344" fill="#0e7490">+</text>
+
+  <g transform="translate(520 150)">
+    <rect width="320" height="340" rx="24" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+    <text class="tiny" x="30" y="42" fill="#1d4ed8">80 CELDAS</text>
+    <text class="label ink" x="30" y="78">Trabajo pendiente</text>
+    <g transform="translate(68 124)">
+      <rect width="184" height="154" rx="18" fill="#fff" stroke="#bfdbfe"/>
+      <g transform="translate(24 24)">
+        <rect width="14" height="14" fill="#2563eb"/><rect x="18" width="14" height="14" fill="#2563eb"/><rect x="36" width="14" height="14" fill="#2563eb"/><rect x="54" width="14" height="14" fill="#2563eb"/><rect x="72" width="14" height="14" fill="#2563eb"/><rect x="90" width="14" height="14" fill="#2563eb"/><rect x="108" width="14" height="14" fill="#2563eb"/><rect x="126" width="14" height="14" fill="#2563eb"/>
+        <rect y="20" width="14" height="14" fill="#93c5fd"/><rect x="36" y="20" width="14" height="14" fill="#93c5fd"/><rect x="54" y="20" width="14" height="14" fill="#93c5fd"/><rect x="90" y="20" width="14" height="14" fill="#93c5fd"/><rect x="108" y="20" width="14" height="14" fill="#93c5fd"/>
+        <rect x="18" y="40" width="14" height="14" fill="#60a5fa"/><rect x="54" y="40" width="14" height="14" fill="#60a5fa"/><rect x="72" y="40" width="14" height="14" fill="#60a5fa"/><rect x="126" y="40" width="14" height="14" fill="#60a5fa"/>
+        <rect y="60" width="14" height="14" fill="#bfdbfe"/><rect x="36" y="60" width="14" height="14" fill="#bfdbfe"/><rect x="90" y="60" width="14" height="14" fill="#bfdbfe"/>
+      </g>
+      <text class="tiny" x="92" y="132" text-anchor="middle" fill="#1d4ed8">1 = vivo, 0 = hueco</text>
+    </g>
+    <text class="small muted" x="38" y="302">Sirven para elegir objetivo.</text>
+  </g>
+
+  <text class="num" x="888" y="344" fill="#0e7490">=</text>
+
+  <g transform="translate(950 182)">
+    <rect width="170" height="246" rx="24" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="tiny" x="85" y="48" text-anchor="middle" fill="#047857">ESTADO</text>
+    <text class="num" x="85" y="112" text-anchor="middle" fill="#047857">86</text>
+    <text class="small muted" x="85" y="154" text-anchor="middle">numeros</text>
+    <text class="small muted" x="85" y="184" text-anchor="middle">observables</text>
+  </g>
+
+  <rect x="214" y="596" width="772" height="52" rx="26" fill="#111827"/>
+  <text class="body" x="600" y="629" text-anchor="middle" fill="#fff">La matriz no dice la accion correcta; solo elimina la ceguera que hacia imposible apuntar.</text>
+</svg>

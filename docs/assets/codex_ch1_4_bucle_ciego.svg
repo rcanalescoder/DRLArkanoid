@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Bucle del agente ciego</title>
+  <desc id="desc">Secuencia del agente ciego: intercepta la bola, cobra rebotes, rompe algun ladrillo por azar y vuelve a repetir.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 31px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 18px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+    <marker id="arrow" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#334155"/></marker>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Una partida del ciego: moverse bien no es decidir bien</text>
+  <text class="body muted" x="48" y="88">El bucle que aprende es interceptar. El ladrillo roto aparece como efecto secundario.</text>
+
+  <g transform="translate(86 168)">
+    <rect width="218" height="280" rx="28" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+    <circle cx="40" cy="42" r="20" fill="#2563eb"/><text class="label" x="40" y="49" text-anchor="middle" fill="#fff">1</text>
+    <text class="tiny" x="76" y="42" fill="#1d4ed8">OBSERVA</text>
+    <text class="label ink" x="34" y="86">Bola y pala</text>
+    <text class="small muted" x="34" y="120">Lee cinematicos.</text>
+    <text class="small muted" x="34" y="140">No lee ladrillos.</text>
+    <rect x="46" y="174" width="124" height="68" rx="16" fill="#0f172a"/>
+    <circle cx="130" cy="198" r="7" fill="#fff"/>
+    <rect x="80" y="228" width="54" height="7" rx="4" fill="#818cf8"/>
+  </g>
+  <line x1="318" y1="308" x2="376" y2="308" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <g transform="translate(390 168)">
+    <rect width="218" height="280" rx="28" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <circle cx="40" cy="42" r="20" fill="#059669"/><text class="label" x="40" y="49" text-anchor="middle" fill="#fff">2</text>
+    <text class="tiny" x="76" y="42" fill="#047857">ACTUA</text>
+    <text class="label ink" x="34" y="86">Intercepta</text>
+    <text class="small muted" x="34" y="120">Mueve la pala</text>
+    <text class="small muted" x="34" y="140">hacia la bola.</text>
+    <rect x="46" y="174" width="124" height="68" rx="16" fill="#0f172a"/>
+    <path d="M66,224 L120,188 L154,212" fill="none" stroke="#22d3ee" stroke-width="4"/>
+    <rect x="80" y="228" width="54" height="7" rx="4" fill="#818cf8"/>
+  </g>
+  <line x1="622" y1="308" x2="680" y2="308" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <g transform="translate(694 168)">
+    <rect width="218" height="280" rx="28" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+    <circle cx="40" cy="42" r="20" fill="#f97316"/><text class="label" x="40" y="49" text-anchor="middle" fill="#fff">3</text>
+    <text class="tiny" x="76" y="42" fill="#c2410c">COBRA</text>
+    <text class="label ink" x="34" y="86">Rebote seguro</text>
+    <text class="small muted" x="34" y="120">Premio denso:</text>
+    <rect x="50" y="160" width="118" height="42" rx="21" fill="#ffedd5" stroke="#fdba74"/>
+    <text class="mono" x="109" y="186" text-anchor="middle" fill="#c2410c">+0.2</text>
+    <text class="small muted" x="34" y="236">Sobrevivir paga.</text>
+  </g>
+  <line x1="926" y1="308" x2="984" y2="308" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <g transform="translate(998 168)">
+    <rect width="118" height="280" rx="28" fill="#fef2f2" stroke="#fecaca" class="shadow"/>
+    <text class="tiny" x="28" y="42" fill="#dc2626">AZAR</text>
+    <text class="label ink" x="28" y="78">Ladrillo</text>
+    <text class="label ink" x="28" y="102">cae</text>
+    <rect x="28" y="148" width="62" height="42" rx="18" fill="#fee2e2" stroke="#fca5a5"/>
+    <text class="mono" x="59" y="174" text-anchor="middle" fill="#dc2626">+1.0</text>
+    <text class="small muted" x="28" y="232">No fue</text>
+    <text class="small muted" x="28" y="252">apuntado.</text>
+  </g>
+
+  <path d="M1038,468 C890,566 338,566 190,468" fill="none" stroke="#94a3b8" stroke-width="3" stroke-dasharray="8 8" marker-end="url(#arrow)"/>
+  <text class="tiny muted" x="600" y="570" text-anchor="middle">REPETIR HASTA PERDER LA BOLA O CORTAR POR RELOJ</text>
+  <rect x="250" y="620" width="700" height="48" rx="24" fill="#111827"/>
+  <text class="body" x="600" y="651" text-anchor="middle" fill="#fff">El agente aprende el ciclo que puede observar: devolver la bola.</text>
+</svg>

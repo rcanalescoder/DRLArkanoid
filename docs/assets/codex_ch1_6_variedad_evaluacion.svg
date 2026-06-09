@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Variedad y evaluacion honesta</title>
+  <desc id="desc">El generador procedural crea familias de niveles y las separa en train, validacion, test y examenes OOD.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Ingrediente 5: variedad para aprender, separacion para creer el resultado</text>
+  <text class="body muted" x="48" y="88">El generador no solo sube una cifra: impide que confundamos memoria con generalizacion.</text>
+
+  <g transform="translate(58 146)">
+    <rect width="272" height="380" rx="24" fill="#f8fafc" stroke="#dbe2ea" class="shadow"/>
+    <text class="tiny" x="28" y="42" fill="#475569">GENERADOR</text>
+    <text class="label ink" x="28" y="76">5 familias</text>
+    <g transform="translate(36 118)">
+      <rect width="38" height="38" rx="8" fill="#3b82f6"/><rect x="52" width="38" height="38" rx="8" fill="#f59e0b"/><rect x="104" width="38" height="38" rx="8" fill="#10b981"/><rect x="156" width="38" height="38" rx="8" fill="#a855f7"/>
+      <rect y="56" width="194" height="16" rx="8" fill="#111827"/>
+      <rect y="96" width="194" height="16" rx="8" fill="#111827"/>
+      <rect x="24" y="136" width="44" height="84" rx="8" fill="#60a5fa"/><rect x="88" y="136" width="44" height="84" rx="8" fill="#60a5fa"/><rect x="152" y="136" width="44" height="84" rx="8" fill="#60a5fa"/>
+    </g>
+    <text class="small muted" x="28" y="360">Dispersos, filas, columnas,</text>
+    <text class="small muted" x="28" y="382">bloques y simetricos.</text>
+  </g>
+
+  <path d="M350 336 L436 336" stroke="#94a3b8" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+  <g transform="translate(456 146)">
+    <rect width="300" height="380" rx="24" fill="#ecfeff" stroke="#bae6fd" class="shadow"/>
+    <text class="tiny" x="30" y="42" fill="#0e7490">ENTRENAMIENTO</text>
+    <text class="label ink" x="30" y="76">Curriculo</text>
+    <g transform="translate(42 128)">
+      <rect width="216" height="46" rx="16" fill="#fff" stroke="#bae6fd"/>
+      <text class="small ink" x="108" y="29" text-anchor="middle">facil: abrir recompensa</text>
+      <rect y="76" width="216" height="46" rx="16" fill="#fff" stroke="#bae6fd"/>
+      <text class="small ink" x="108" y="105" text-anchor="middle">medio: variar patrones</text>
+      <rect y="152" width="216" height="46" rx="16" fill="#fff" stroke="#bae6fd"/>
+      <text class="small ink" x="108" y="181" text-anchor="middle">dificil: medir robustez</text>
+    </g>
+    <text class="small muted" x="30" y="344">Ordena la exposicion;</text>
+    <text class="small muted" x="30" y="366">no reemplaza el test.</text>
+  </g>
+
+  <path d="M776 336 L862 336" stroke="#94a3b8" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+
+  <g transform="translate(882 146)">
+    <rect width="260" height="380" rx="24" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="tiny" x="28" y="42" fill="#047857">EVALUACION</text>
+    <text class="label ink" x="28" y="76">Conjuntos disjuntos</text>
+    <g transform="translate(28 120)">
+      <rect width="204" height="48" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="102" y="30" text-anchor="middle">train: aprende</text>
+      <rect y="68" width="204" height="48" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="102" y="98" text-anchor="middle">valid: decide desarrollo</text>
+      <rect y="136" width="204" height="48" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="102" y="166" text-anchor="middle">TEST-ID: declara cifra</text>
+      <rect y="204" width="204" height="48" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="102" y="234" text-anchor="middle">OOD: sube el examen</text>
+    </g>
+  </g>
+
+  <rect x="208" y="620" width="784" height="50" rx="25" fill="#111827"/>
+  <text class="body" x="600" y="652" text-anchor="middle" fill="#fff">La variedad entrena; la separacion de splits hace honesta la afirmacion "no visto".</text>
+</svg>

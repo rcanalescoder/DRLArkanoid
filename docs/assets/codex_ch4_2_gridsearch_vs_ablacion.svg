@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Grid search no es ablacion</title>
+<desc id="desc">Ambas tablas ayudan, pero contestan preguntas distintas.</desc>
+<defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}.line{stroke:#dbe2ea}.white{fill:#fff}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.35px}
+      .num{font:900 34px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#0e7490"/></marker>
+  </defs>
+<rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="52" y="58">Grid search no es ablacion</text>
+  <text class="body muted" x="52" y="88">Ambas tablas ayudan, pero contestan preguntas distintas.</text>
+<g transform="translate(70 155)">
+<rect width="480" height="420" rx="22" fill="#ecfeff" stroke="#bae6fd" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#0891b2">GRID SEARCH</text>
+<text class="label ink" x="24" y="68">Buscar configuracion</text>
+<text class="small muted" x="24" y="108">prueba combinaciones de hiperparametros con</text>
+<text class="small muted" x="24" y="130">presupuesto corto. Es exploratorio y ruidoso.</text>
+<rect x="24" y="362" width="432" height="38" rx="19" fill="#0891b2"/>
+<text class="small" x="240" y="386" text-anchor="middle" fill="#fff">orienta</text>
+</g><g transform="translate(650 155)">
+<rect width="480" height="420" rx="22" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#047857">ABLACION</text>
+<text class="label ink" x="24" y="68">Probar causalidad</text>
+<text class="small muted" x="24" y="108">quita una pieza de la receta congelada y mide el dano</text>
+<text class="small muted" x="24" y="130">con protocolo serio.</text>
+<rect x="24" y="362" width="432" height="38" rx="19" fill="#047857"/>
+<text class="small" x="240" y="386" text-anchor="middle" fill="#fff">demuestra</text>
+</g><path d="M570 365H630" stroke="#0e7490" stroke-width="5" fill="none" marker-end="url(#arrow)"/>
+<rect x="226" y="650" width="748" height="52" rx="26" fill="#111827"/>
+<text class="body" x="600" y="682" text-anchor="middle" fill="#fff">Primero exploras; despues congelas y mides.</text>
+</svg>

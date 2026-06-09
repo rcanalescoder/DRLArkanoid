@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Gamma como miopia controlada</title>
+<desc id="desc">El mismo juego parece distinto segun cuanto futuro dejas entrar en la cuenta.</desc>
+<defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}.line{stroke:#dbe2ea}.white{fill:#fff}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.35px}
+      .num{font:900 34px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#0e7490"/></marker>
+  </defs>
+<rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="52" y="58">Gamma como miopia controlada</text>
+  <text class="body muted" x="52" y="88">El mismo juego parece distinto segun cuanto futuro dejas entrar en la cuenta.</text>
+
+<g transform="translate(68 165)">
+<rect width="340" height="350" rx="22" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#d97706">GAMMA 0.50</text>
+<text class="label ink" x="24" y="68">Muy miope</text>
+<text class="small muted" x="24" y="108">solo importa lo cercano. Buen</text>
+<text class="small muted" x="24" y="130">reflejo, mala estrategia larga.</text>
+<rect x="24" y="292" width="292" height="38" rx="19" fill="#d97706"/>
+<text class="small" x="170" y="316" text-anchor="middle" fill="#fff">corto plazo</text>
+</g>
+<g transform="translate(430 165)">
+<rect width="340" height="350" rx="22" fill="#ecfeff" stroke="#bae6fd" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#0891b2">GAMMA 0.90</text>
+<text class="label ink" x="24" y="68">Equilibrado</text>
+<text class="small muted" x="24" y="108">mezcla rebotes cercanos con</text>
+<text class="small muted" x="24" y="130">objetivos a medio plazo.</text>
+<rect x="24" y="292" width="292" height="38" rx="19" fill="#0891b2"/>
+<text class="small" x="170" y="316" text-anchor="middle" fill="#fff">control</text>
+</g>
+<g transform="translate(792 165)">
+<rect width="340" height="350" rx="22" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#047857">GAMMA 0.99</text>
+<text class="label ink" x="24" y="68">Largo alcance</text>
+<text class="small muted" x="24" y="108">el final pesa mucho, pero el</text>
+<text class="small muted" x="24" y="130">aprendizaje puede volverse mas</text>
+<text class="small muted" x="24" y="152">inestable.</text>
+<rect x="24" y="292" width="292" height="38" rx="19" fill="#047857"/>
+<text class="small" x="170" y="316" text-anchor="middle" fill="#fff">futuro fuerte</text>
+</g>
+<rect x="210" y="650" width="780" height="54" rx="27" fill="#111827"/>
+<text class="body" x="600" y="683" text-anchor="middle" fill="#fff">Gamma no es decoracion: define el horizonte mental del agente.</text>
+</svg>

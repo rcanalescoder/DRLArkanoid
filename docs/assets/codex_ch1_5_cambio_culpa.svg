@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Cambio de culpa del algoritmo a la formulacion</title>
+  <desc id="desc">Las tres explicaciones falsas culpaban al algoritmo y las tres correctas apuntaban a la formulacion.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0891b2"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">La tabla no solo resume datos: cambia el sospechoso principal</text>
+  <text class="body muted" x="48" y="88">Lee de izquierda a derecha: el sintoma parecia algoritmo, pero la prueba senalaba formulacion.</text>
+
+  <g transform="translate(72 142)">
+    <text class="tiny" x="0" y="0" fill="#dc2626">LECTURA APRESURADA</text>
+    <rect y="22" width="430" height="430" rx="24" fill="#fef2f2" stroke="#fecaca" class="shadow"/>
+    <text class="label ink" x="34" y="68">Culpa al motor de aprendizaje</text>
+    <g transform="translate(34 108)">
+      <rect width="362" height="72" rx="16" fill="#fff" stroke="#fecaca"/>
+      <text class="small ink" x="22" y="31">"No planifica"</text>
+      <text class="small muted" x="22" y="54">cuando el episodio era corto.</text>
+    </g>
+    <g transform="translate(34 204)">
+      <rect width="362" height="72" rx="16" fill="#fff" stroke="#fecaca"/>
+      <text class="small ink" x="22" y="31">"Va por buen camino"</text>
+      <text class="small muted" x="22" y="54">cuando solo subia el proxy.</text>
+    </g>
+    <g transform="translate(34 300)">
+      <rect width="362" height="72" rx="16" fill="#fff" stroke="#fecaca"/>
+      <text class="small ink" x="22" y="31">"Le falta generalizar"</text>
+      <text class="small muted" x="22" y="54">cuando no veia ladrillos.</text>
+    </g>
+  </g>
+
+  <path d="M530 358 C570 318 610 318 650 358" stroke="#0891b2" stroke-width="5" fill="none" marker-end="url(#arrow)"/>
+  <text class="label" x="590" y="294" text-anchor="middle" fill="#0e7490">La prueba</text>
+  <text class="small muted" x="590" y="324" text-anchor="middle">mueve la culpa</text>
+
+  <g transform="translate(698 142)">
+    <text class="tiny" x="0" y="0" fill="#047857">DIAGNOSTICO CORRECTO</text>
+    <rect y="22" width="430" height="430" rx="24" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="label ink" x="34" y="68">Corrige la tarea antes del algoritmo</text>
+    <g transform="translate(34 108)">
+      <rect width="362" height="72" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="22" y="31">Reloj proporcional</text>
+      <text class="small muted" x="22" y="54">el objetivo se vuelve alcanzable.</text>
+    </g>
+    <g transform="translate(34 204)">
+      <rect width="362" height="72" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="22" y="31">Meta limpia, sin Phi</text>
+      <text class="small muted" x="22" y="54">la recompensa vuelve al objetivo.</text>
+    </g>
+    <g transform="translate(34 300)">
+      <rect width="362" height="72" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="22" y="31">Matriz 8x10 + conv</text>
+      <text class="small muted" x="22" y="54">el mapa entra con estructura.</text>
+    </g>
+  </g>
+
+  <rect x="196" y="612" width="808" height="54" rx="27" fill="#111827"/>
+  <text class="body" x="600" y="645" text-anchor="middle" fill="#fff">La tesis no es "el algoritmo no importa"; es "no lo juzgues hasta formular bien la tarea".</text>
+</svg>

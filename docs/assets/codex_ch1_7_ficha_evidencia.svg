@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Ficha de lectura de la primera conquista</title>
+  <desc id="desc">Separacion entre lo que la figura demuestra y lo que todavia no demuestra.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 21px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 16px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="52" y="58">Como leer una cifra alta sin autoenganarse</text>
+  <text class="body muted" x="52" y="88">La figura es fuerte precisamente porque declara sus limites.</text>
+
+  <g transform="translate(66 136)">
+    <rect width="500" height="456" rx="26" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="tiny" x="30" y="42" fill="#047857">SI DEMUESTRA</text>
+    <text class="label ink" x="30" y="78">La tarea reformulada se resuelve</text>
+    <g transform="translate(30 126)">
+      <rect width="440" height="64" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="20" y="28">Exito en TEST-ID</text>
+      <text class="small muted" x="20" y="50">niveles concretos no vistos durante train</text>
+    </g>
+    <g transform="translate(30 212)">
+      <rect width="440" height="64" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="20" y="28">Media de 5 semillas</text>
+      <text class="small muted" x="20" y="50">no una corrida elegida a dedo</text>
+    </g>
+    <g transform="translate(30 298)">
+      <rect width="440" height="64" rx="16" fill="#fff" stroke="#bbf7d0"/>
+      <text class="small ink" x="20" y="28">Evaluacion greedy</text>
+      <text class="small muted" x="20" y="50">sin exploracion aleatoria en el examen</text>
+    </g>
+    <g transform="translate(30 384)">
+      <rect width="440" height="44" rx="22" fill="#047857"/>
+      <text class="small" x="220" y="29" text-anchor="middle" fill="#fff">Resultado reproducible en el test amable</text>
+    </g>
+  </g>
+
+  <g transform="translate(634 136)">
+    <rect width="500" height="456" rx="26" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+    <text class="tiny" x="30" y="42" fill="#c2410c">NO DEMUESTRA TODAVIA</text>
+    <text class="label ink" x="30" y="78">La generalizacion mas dura</text>
+    <g transform="translate(30 126)">
+      <rect width="440" height="64" rx="16" fill="#fff" stroke="#fed7aa"/>
+      <text class="small ink" x="20" y="28">OOD patron</text>
+      <text class="small muted" x="20" y="50">familias espaciales que no practico</text>
+    </g>
+    <g transform="translate(30 212)">
+      <rect width="440" height="64" rx="16" fill="#fff" stroke="#fed7aa"/>
+      <text class="small ink" x="20" y="28">OOD dificultad</text>
+      <text class="small muted" x="20" y="50">densidades fuera del entrenamiento</text>
+    </g>
+    <g transform="translate(30 298)">
+      <rect width="440" height="64" rx="16" fill="#fff" stroke="#fed7aa"/>
+      <text class="small ink" x="20" y="28">Superioridad absoluta</text>
+      <text class="small muted" x="20" y="50">hay que comparar distribuciones completas</text>
+    </g>
+    <g transform="translate(30 384)">
+      <rect width="440" height="44" rx="22" fill="#c2410c"/>
+      <text class="small" x="220" y="29" text-anchor="middle" fill="#fff">La pregunta OOD viene despues</text>
+    </g>
+  </g>
+
+  <rect x="226" y="646" width="748" height="52" rx="26" fill="#111827"/>
+  <text class="body" x="600" y="678" text-anchor="middle" fill="#fff">Pregunta sana: que conjunto, que metrica, que semillas y que limite?</text>
+</svg>

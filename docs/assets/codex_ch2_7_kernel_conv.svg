@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<title id="title">Kernel 3x3: mirar vecinos antes de decidir</title>
+<desc id="desc">Una convolucion no mira celdas aisladas; busca patrones locales reutilizables.</desc>
+<defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}.line{stroke:#dbe2ea}.white{fill:#fff}
+      .title{font:800 32px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.35px}
+      .num{font:900 34px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".10"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#0e7490"/></marker>
+  </defs>
+<rect class="bg" width="1200" height="760"/>
+  <text class="title ink" x="52" y="58">Kernel 3x3: mirar vecinos antes de decidir</text>
+  <text class="body muted" x="52" y="88">Una convolucion no mira celdas aisladas; busca patrones locales reutilizables.</text>
+
+<g transform="translate(68 165)">
+<rect width="340" height="350" rx="22" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#047857">LOCAL</text>
+<text class="label ink" x="24" y="68">Ladrillo y vecinos</text>
+<text class="small muted" x="24" y="108">un bloque 3x3 captura bordes, huecos</text>
+<text class="small muted" x="24" y="130">y grupos cercanos</text>
+<rect x="24" y="292" width="292" height="38" rx="19" fill="#047857"/>
+<text class="small" x="170" y="316" text-anchor="middle" fill="#fff">patron</text>
+</g>
+<g transform="translate(430 165)">
+<rect width="340" height="350" rx="22" fill="#ecfeff" stroke="#bae6fd" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#0891b2">COMPARTIDO</text>
+<text class="label ink" x="24" y="68">Misma regla en todo el muro</text>
+<text class="small muted" x="24" y="108">el detector sirve arriba, abajo,</text>
+<text class="small muted" x="24" y="130">izquierda o derecha</text>
+<rect x="24" y="292" width="292" height="38" rx="19" fill="#0891b2"/>
+<text class="small" x="170" y="316" text-anchor="middle" fill="#fff">traslacion</text>
+</g>
+<g transform="translate(792 165)">
+<rect width="340" height="350" rx="22" fill="#f5f3ff" stroke="#ddd6fe" class="shadow"/>
+<text class="tiny" x="24" y="34" fill="#7c3aed">VENTAJA</text>
+<text class="label ink" x="24" y="68">Menos parametros</text>
+<text class="small muted" x="24" y="108">respeta la forma espacial sin</text>
+<text class="small muted" x="24" y="130">memorizar cada celda por separado</text>
+<rect x="24" y="292" width="292" height="38" rx="19" fill="#7c3aed"/>
+<text class="small" x="170" y="316" text-anchor="middle" fill="#fff">sesgo util</text>
+</g>
+<rect x="210" y="650" width="780" height="54" rx="27" fill="#111827"/>
+<text class="body" x="600" y="683" text-anchor="middle" fill="#fff">La conv no da inteligencia gratis; da una buena forma de mirar el tablero.</text>
+</svg>

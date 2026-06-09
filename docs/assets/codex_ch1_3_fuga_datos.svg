@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Fuga de datos en evaluacion</title>
+  <desc id="desc">Comparacion entre un protocolo limpio y uno contaminado por mirar o usar test durante el desarrollo.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 31px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+    <marker id="arrow-blue" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker>
+    <marker id="arrow-red" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#dc2626"/></marker>
+    <marker id="arrow-green" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#059669"/></marker>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Fuga de datos: cuando el examen deja de ser examen</text>
+  <text class="body muted" x="48" y="88">No hace falta que el agente vea test directamente; basta con usar test para decidir para que la nota se infle.</text>
+
+  <rect x="70" y="140" width="480" height="420" rx="32" fill="#f8fafc" stroke="#cbd5e1" class="shadow"/>
+  <text class="tiny" x="112" y="186" fill="#047857">PROTOCOLO LIMPIO</text>
+  <text class="label ink" x="112" y="218">El juez no participa</text>
+  <g transform="translate(120 260)">
+    <rect width="110" height="76" rx="18" fill="#eff6ff" stroke="#bfdbfe"/>
+    <text class="tiny" x="55" y="30" text-anchor="middle" fill="#1d4ed8">TRAIN</text>
+    <text class="small muted" x="55" y="52" text-anchor="middle">aprende</text>
+    <rect x="170" width="110" height="76" rx="18" fill="#fff7ed" stroke="#fed7aa"/>
+    <text class="tiny" x="225" y="30" text-anchor="middle" fill="#c2410c">VALID</text>
+    <text class="small muted" x="225" y="52" text-anchor="middle">decide</text>
+    <rect x="340" width="110" height="76" rx="18" fill="#ecfdf5" stroke="#bbf7d0"/>
+    <text class="tiny" x="395" y="30" text-anchor="middle" fill="#047857">TEST</text>
+    <text class="small muted" x="395" y="52" text-anchor="middle">declara</text>
+    <path d="M114,38 L164,38" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue)"/>
+    <path d="M284,38 L334,38" stroke="#059669" stroke-width="3" marker-end="url(#arrow-green)"/>
+  </g>
+  <rect x="130" y="418" width="360" height="54" rx="27" fill="#dcfce7" stroke="#86efac"/>
+  <text class="body" x="310" y="452" text-anchor="middle" fill="#047857">Resultado interpretable</text>
+
+  <rect x="650" y="140" width="480" height="420" rx="32" fill="#fff7f7" stroke="#fecaca" class="shadow"/>
+  <text class="tiny" x="692" y="186" fill="#dc2626">PROTOCOLO CONTAMINADO</text>
+  <text class="label ink" x="692" y="218">El examen guia la receta</text>
+  <g transform="translate(700 260)">
+    <rect width="110" height="76" rx="18" fill="#eff6ff" stroke="#bfdbfe"/>
+    <text class="tiny" x="55" y="30" text-anchor="middle" fill="#1d4ed8">TRAIN</text>
+    <text class="small muted" x="55" y="52" text-anchor="middle">aprende</text>
+    <rect x="170" width="110" height="76" rx="18" fill="#fff7ed" stroke="#fed7aa"/>
+    <text class="tiny" x="225" y="30" text-anchor="middle" fill="#c2410c">VALID</text>
+    <text class="small muted" x="225" y="52" text-anchor="middle">decide</text>
+    <rect x="340" width="110" height="76" rx="18" fill="#fee2e2" stroke="#fca5a5"/>
+    <text class="tiny" x="395" y="30" text-anchor="middle" fill="#dc2626">TEST</text>
+    <text class="small muted" x="395" y="52" text-anchor="middle">mirado</text>
+    <path d="M114,38 L164,38" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue)"/>
+    <path d="M284,38 L334,38" stroke="#dc2626" stroke-width="3" marker-end="url(#arrow-red)"/>
+    <path d="M398,82 C350,136 120,136 62,82" fill="none" stroke="#dc2626" stroke-width="4" stroke-dasharray="8 7" marker-end="url(#arrow-red)"/>
+    <text class="tiny" x="230" y="158" text-anchor="middle" fill="#dc2626">FUGA: TEST INFLUYE</text>
+  </g>
+  <rect x="710" y="418" width="360" height="54" rx="27" fill="#fee2e2" stroke="#fca5a5"/>
+  <text class="body" x="890" y="452" text-anchor="middle" fill="#b91c1c">Resultado inflado</text>
+
+  <rect x="250" y="606" width="700" height="48" rx="24" fill="#111827"/>
+  <text class="body" x="600" y="637" text-anchor="middle" fill="#fff">Si test ayuda a elegir, ya no mide generalizacion: mide ajuste al examen.</text>
+</svg>

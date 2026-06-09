@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Tres familias de aprendizaje automatico</title>
+  <desc id="desc">Comparacion visual entre aprendizaje supervisado, no supervisado y por refuerzo usando ejemplos sencillos.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 30px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 19px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .mono{font:700 13px "SFMono-Regular",Menlo,Consolas,monospace}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+  </defs>
+
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Tres formas de aprender: la diferencia esta en el dato</text>
+  <text class="body muted" x="48" y="88">La frontera importante no es el nombre de la tecnica, sino que informacion recibe el modelo.</text>
+
+  <g transform="translate(70 144)">
+    <rect width="322" height="392" rx="30" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+    <text class="tiny" x="38" y="46" fill="#1d4ed8">SUPERVISADO</text>
+    <text class="label ink" x="38" y="80">Aprende de respuestas</text>
+    <rect x="50" y="126" width="92" height="70" rx="18" fill="#dbeafe" stroke="#93c5fd"/>
+    <circle cx="96" cy="154" r="17" fill="#2563eb"/>
+    <rect x="76" y="176" width="40" height="9" rx="4" fill="#2563eb"/>
+    <rect x="180" y="126" width="92" height="70" rx="18" fill="#fff" stroke="#93c5fd"/>
+    <text class="mono" x="226" y="158" text-anchor="middle" fill="#1d4ed8">etiqueta</text>
+    <text class="mono" x="226" y="180" text-anchor="middle" fill="#1d4ed8">gato</text>
+    <path d="M146,160 H174" stroke="#334155" stroke-width="2.5"/>
+    <text class="small muted" x="38" y="244">Ejemplo: imagen -> etiqueta.</text>
+    <text class="small muted" x="38" y="266">Alguien sabe la respuesta</text>
+    <text class="small muted" x="38" y="288">y la pone en el dataset.</text>
+    <rect x="38" y="324" width="246" height="40" rx="20" fill="#dbeafe" stroke="#93c5fd"/>
+    <text class="mono" x="161" y="349" text-anchor="middle" fill="#1d4ed8">dato = entrada + solucion</text>
+  </g>
+
+  <g transform="translate(439 144)">
+    <rect width="322" height="392" rx="30" fill="#f5f3ff" stroke="#ddd6fe" class="shadow"/>
+    <text class="tiny" x="38" y="46" fill="#6d28d9">NO SUPERVISADO</text>
+    <text class="label ink" x="38" y="80">Aprende estructura</text>
+    <g transform="translate(64 100)">
+      <circle cx="20" cy="24" r="8" fill="#7c3aed"/>
+      <circle cx="48" cy="34" r="8" fill="#7c3aed"/>
+      <circle cx="34" cy="60" r="8" fill="#7c3aed"/>
+      <circle cx="160" cy="32" r="8" fill="#14b8a6"/>
+      <circle cx="190" cy="48" r="8" fill="#14b8a6"/>
+      <circle cx="168" cy="70" r="8" fill="#14b8a6"/>
+      <circle cx="96" cy="82" r="8" fill="#f59e0b"/>
+      <circle cx="124" cy="92" r="8" fill="#f59e0b"/>
+      <circle cx="108" cy="116" r="8" fill="#f59e0b"/>
+      <path d="M2,6 C58,0 78,62 48,88 C18,114 -18,60 2,6" fill="none" stroke="#c4b5fd" stroke-width="2"/>
+      <path d="M138,8 C206,2 230,58 188,98 C150,132 118,54 138,8" fill="none" stroke="#99f6e4" stroke-width="2"/>
+      <path d="M76,64 C138,52 164,112 126,142 C84,172 48,100 76,64" fill="none" stroke="#fde68a" stroke-width="2"/>
+    </g>
+    <text class="small muted" x="38" y="244">Ejemplo: agrupar perfiles.</text>
+    <text class="small muted" x="38" y="266">No hay etiqueta correcta,</text>
+    <text class="small muted" x="38" y="288">solo patrones a descubrir.</text>
+    <rect x="38" y="324" width="246" height="40" rx="20" fill="#ede9fe" stroke="#c4b5fd"/>
+    <text class="mono" x="161" y="349" text-anchor="middle" fill="#6d28d9">dato = ejemplos sin respuesta</text>
+  </g>
+
+  <g transform="translate(808 144)">
+    <rect width="322" height="392" rx="30" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="tiny" x="38" y="46" fill="#047857">REFUERZO</text>
+    <text class="label ink" x="38" y="80">Aprende actuando</text>
+    <rect x="46" y="122" width="90" height="58" rx="18" fill="#d1fae5" stroke="#86efac"/>
+    <text class="mono" x="91" y="155" text-anchor="middle" fill="#047857">agente</text>
+    <rect x="186" y="122" width="90" height="58" rx="18" fill="#fff" stroke="#86efac"/>
+    <text class="mono" x="231" y="155" text-anchor="middle" fill="#047857">juego</text>
+    <path d="M138,142 H180" stroke="#047857" stroke-width="3"/>
+    <path d="M180,166 H138" stroke="#047857" stroke-width="3"/>
+    <text class="tiny" x="159" y="132" text-anchor="middle" fill="#047857">accion</text>
+    <text class="tiny" x="159" y="188" text-anchor="middle" fill="#047857">r, s'</text>
+    <text class="small muted" x="38" y="244">Ejemplo: jugar Arkanoid.</text>
+    <text class="small muted" x="38" y="266">El agente causa los datos</text>
+    <text class="small muted" x="38" y="288">que vera despues.</text>
+    <rect x="38" y="324" width="246" height="40" rx="20" fill="#d1fae5" stroke="#86efac"/>
+    <text class="mono" x="161" y="349" text-anchor="middle" fill="#047857">dato = accion + consecuencia</text>
+  </g>
+
+  <rect x="170" y="604" width="860" height="46" rx="23" fill="#111827"/>
+  <text class="body" x="600" y="634" text-anchor="middle" fill="#fff">Arkanoid encaja en refuerzo porque no tenemos la jugada correcta: tenemos un mundo donde probar.</text>
+</svg>

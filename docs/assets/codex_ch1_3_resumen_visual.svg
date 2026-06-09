@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Resumen visual del examen de niveles no vistos</title>
+  <desc id="desc">Resumen del protocolo de evaluacion: split limpio, examenes, metrica, ejecucion y justicia.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fff}.ink{fill:#111827}.muted{fill:#64748b}
+      .title{font:800 31px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .body{font:500 17px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .label{font:800 19px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .small{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+      .tiny{font:800 11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;letter-spacing:.45px}
+      .shadow{filter:url(#shadow)}
+    </style>
+    <filter id="shadow" x="-12%" y="-12%" width="124%" height="135%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+  </defs>
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title ink" x="48" y="58">Cierre de 1.3: una cifra solo vale con protocolo</text>
+  <text class="body muted" x="48" y="88">Antes de creer un porcentaje, mira que examen lo produjo.</text>
+
+  <g transform="translate(86 142)">
+    <rect width="312" height="150" rx="24" fill="#eff6ff" stroke="#bfdbfe" class="shadow"/>
+    <text class="tiny" x="34" y="38" fill="#1d4ed8">1 - SPLIT</text>
+    <text class="label ink" x="34" y="70">Train, valid y test</text>
+    <text class="small muted" x="34" y="104">Tres bolsas disjuntas.</text>
+    <text class="small muted" x="34" y="124">Nada de fuga al examen.</text>
+  </g>
+  <g transform="translate(444 142)">
+    <rect width="312" height="150" rx="24" fill="#fff7ed" stroke="#fed7aa" class="shadow"/>
+    <text class="tiny" x="34" y="38" fill="#c2410c">2 - EXAMENES</text>
+    <text class="label ink" x="34" y="70">TEST-ID / OOD</text>
+    <text class="small muted" x="34" y="104">La distancia a train mide</text>
+    <text class="small muted" x="34" y="124">generalizacion real.</text>
+  </g>
+  <g transform="translate(802 142)">
+    <rect width="312" height="150" rx="24" fill="#ecfdf5" stroke="#bbf7d0" class="shadow"/>
+    <text class="tiny" x="34" y="38" fill="#047857">3 - METRICA</text>
+    <text class="label ink" x="34" y="70">Success rate</text>
+    <text class="small muted" x="34" y="104">Cuenta niveles limpios,</text>
+    <text class="small muted" x="34" y="124">no puntos acumulados.</text>
+  </g>
+
+  <g transform="translate(210 350)">
+    <rect width="350" height="158" rx="24" fill="#f5f3ff" stroke="#ddd6fe" class="shadow"/>
+    <text class="tiny" x="34" y="40" fill="#6d28d9">4 - EJECUCION</text>
+    <text class="label ink" x="34" y="72">Greedy + 5 semillas</text>
+    <text class="small muted" x="34" y="106">Sin azar de exploracion.</text>
+    <text class="small muted" x="34" y="126">Media sobre entrenamientos.</text>
+  </g>
+
+  <g transform="translate(640 350)">
+    <rect width="350" height="158" rx="24" fill="#fef2f2" stroke="#fecaca" class="shadow"/>
+    <text class="tiny" x="34" y="40" fill="#dc2626">5 - JUSTICIA</text>
+    <text class="label ink" x="34" y="72">Oraculo limpio</text>
+    <text class="small muted" x="34" y="106">No se examina con niveles</text>
+    <text class="small muted" x="34" y="126">imposibles de resolver.</text>
+  </g>
+
+  <rect x="210" y="602" width="780" height="48" rx="24" fill="#111827"/>
+  <text class="body" x="600" y="633" text-anchor="middle" fill="#fff">Una buena nota dice algo solo si el examen era nuevo, justo y reproducible.</text>
+</svg>
